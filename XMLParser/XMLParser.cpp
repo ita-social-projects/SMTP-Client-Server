@@ -10,12 +10,12 @@ bool XMLParser::ParseFile(const std::string& filename)
 {
 	struct Characters
 	{
-		const char tag1 = '<';
-		const char tag2 = '>';
-		const char slash = '/';
-		const std::string exclamation = "<!";
-		const std::string question = "<?";
-		const std::string end_tag_symbols = "</";
+		const char TAG1 = '<';
+		const char TAG2 = '>';
+		const char SLASH = '/';
+		const std::string EXCLAMATION = "<!";
+		const std::string QUESTION = "<?";
+		const std::string END_TAG_SYMBOLS = "</";
 	};
 	std::filesystem::path file_path = filename;
 	if (!FileCheck(file_path))
@@ -34,24 +34,24 @@ bool XMLParser::ParseFile(const std::string& filename)
 	std::unique_ptr<Characters> symbol = std::make_unique<Characters>();
 	bool tag_flag = false;
 	bool first_flag = true;
-	std::shared_ptr<XMLNode> current_node = nullptr;
-	std::shared_ptr<XMLNode> parent_node = nullptr;
+	std::shared_ptr<XMLNode> current_node(nullptr);
+	std::shared_ptr<XMLNode> parent_node(nullptr);
 	while (std::getline(file, line))
 	{
 		if (line.empty())
 		{
 			continue;
 		}
-		if (line.find(symbol->question) != std::string::npos)
+		if (line.find(symbol->QUESTION) != std::string::npos)
 		{
 			continue;
 		}
-		if (line.find(symbol->exclamation) != std::string::npos)
+		if (line.find(symbol->EXCLAMATION) != std::string::npos)
 		{
 			continue;
 		}
-		std::size_t tag_begin = line.find_first_of(symbol->tag1);
-		std::size_t tag_end = line.find_first_of(symbol->tag2);
+		std::size_t tag_begin = line.find_first_of(symbol->TAG1);
+		std::size_t tag_end = line.find_first_of(symbol->TAG2);
 		std::size_t tag_close;
 		if (tag_begin == std::string::npos || tag_end == std::string::npos)
 		{
@@ -61,15 +61,15 @@ bool XMLParser::ParseFile(const std::string& filename)
 		std::string element_tag;
 		std::string element_data;
 		std::string close_tag;
-		int one = 1;
-		int two = 2;
-		if (line[tag_begin + one] != line.size() && line[tag_begin + one] != symbol->slash)
+		int one_step = 1;
+		int two_steps = 2;
+		if (line[tag_begin + one_step] != line.size() && line[tag_begin + one_step] != symbol->SLASH)
 		{
-			element_tag = line.substr(tag_begin + one, tag_end - (tag_begin + one));
+			element_tag = line.substr(tag_begin + one_step, tag_end - (tag_begin + one_step));
 		}
-		else if (line[tag_begin + one] != line.size() && line[tag_begin + one] == symbol->slash)
+		else if (line[tag_begin + one_step] != line.size() && line[tag_begin + one_step] == symbol->SLASH)
 		{
-			close_tag = line.substr(tag_begin + two, tag_end - (tag_begin + two));
+			close_tag = line.substr(tag_begin + two_steps, tag_end - (tag_begin + two_steps));
 			if (parent_node != nullptr && parent_node->tag == close_tag)
 			{
 				current_node = parent_node;
@@ -77,10 +77,10 @@ bool XMLParser::ParseFile(const std::string& filename)
 				continue;
 			}
 		}
-		tag_close = line.find(symbol->end_tag_symbols, tag_end);
+		tag_close = line.find(symbol->END_TAG_SYMBOLS, tag_end);
 		if (tag_close != std::string::npos)
 		{
-			element_data = line.substr(tag_end + one, tag_close - tag_end - one);
+			element_data = line.substr(tag_end + one_step, tag_close - tag_end - one_step);
 		}
 		CreateElement(current_node, element_tag, element_data);
 		if (first_flag)
@@ -152,7 +152,7 @@ bool XMLParser::FileCheck(const std::filesystem::path& filename) const
 	return true;
 }
 
-void XMLParser::FindByTag(const std::shared_ptr<XMLNode>& current_node, const std::string& tag_needed, std::string& data)
+void XMLParser::FindByTag(const std::shared_ptr<XMLNode>& current_node, const std::string& tag_needed, std::string& data) const
 {
 	if (!current_node->children.size())
 	{
@@ -173,9 +173,9 @@ void XMLParser::FindByTag(const std::shared_ptr<XMLNode>& current_node, const st
 	}
 }
 
-bool XMLParser::ValueCheck(const std::string& line, unsigned int& number)
+bool XMLParser::ValueCheck(const std::string& line, unsigned int& number) const
 {
-	std::string data = "";
+	std::string data;
 	FindByTag(m_root, line, data);
 	if (!data.empty())
 	{
@@ -198,9 +198,8 @@ std::string XMLParser::GetServerName()
 	{
 		ParseFile(XML_FILE_PATH);
 	}
-	std::string line = "servername";
-	std::string data = "";
-	FindByTag(m_root, line, data);
+	std::string data;
+	FindByTag(m_root, ATRR_SERVER_NAME, data);
 	if (!data.empty())
 	{
 		return data;
@@ -214,9 +213,8 @@ std::string XMLParser::GetServerDisplayName()
 	{
 		ParseFile(XML_FILE_PATH);
 	}
-	std::string line = "serverdisplayname";
-	std::string data = "";
-	FindByTag(m_root, line, data);
+	std::string data;
+	FindByTag(m_root, ATTR_SERVER_DISPLAY_NAME, data);
 	if (!data.empty())
 	{
 		return data;
@@ -230,9 +228,8 @@ unsigned int XMLParser::GetListenerPort()
 	{
 		ParseFile(XML_FILE_PATH);
 	}
-	std::string line = "listenerport";
 	unsigned int port = 0;
-	bool flag = ValueCheck(line, port);
+	bool flag = ValueCheck(ATTR_SERVER_LISTENER_PORT, port);
 	if (flag)
 	{
 		return port;
@@ -246,9 +243,8 @@ std::string XMLParser::GetIpAddress()
 	{
 		ParseFile(XML_FILE_PATH);
 	}
-	std::string line = "ipaddress";
-	std::string data = "";
-	FindByTag(m_root, line, data);
+	std::string data;
+	FindByTag(m_root, ATTR_SERVER_IP_ADDRESS, data);
 	if (!data.empty())
 	{
 		return data;
@@ -262,9 +258,8 @@ bool XMLParser::UseBlockingSockets()
 	{
 		ParseFile(XML_FILE_PATH);
 	}
-	std::string line = "blocking";
 	unsigned int block = 0;
-	bool flag = ValueCheck(line, block);
+	bool flag = ValueCheck(ATTR_SOCKET_BLOCKING, block);
 	return flag;
 }
 
@@ -274,9 +269,8 @@ unsigned int XMLParser::GetSocketTimeOut()
 	{
 		ParseFile(XML_FILE_PATH);
 	}
-	std::string line = "socket_timeout";
 	unsigned int time_out = 0;
-	bool flag = ValueCheck(line, time_out);
+	bool flag = ValueCheck(ATTR_SOCKET_TIMEOUT, time_out);
 	if (flag)
 	{
 		return time_out;
@@ -290,9 +284,8 @@ std::string XMLParser::GetLogFilename()
 	{
 		ParseFile(XML_FILE_PATH);
 	}
-	std::string line = "filename";
-	std::string data = "";
-	FindByTag(m_root, line, data);
+	std::string data;
+	FindByTag(m_root, ATTR_LOG_FILENAME, data);
 	if (!data.empty())
 	{
 		return data;
@@ -306,9 +299,8 @@ unsigned int XMLParser::GetLogLevel()
 	{
 		ParseFile(XML_FILE_PATH);
 	}
-	std::string line = "LogLevel";
 	unsigned int log_level = 0;
-	bool flag = ValueCheck(line, log_level);
+	bool flag = ValueCheck(ATTR_LOG_LEVEL, log_level);
 	if (flag)
 	{
 		return log_level;
@@ -322,26 +314,24 @@ bool XMLParser::UseLogFlush()
 	{
 		ParseFile(XML_FILE_PATH);
 	}
-	std::string line = "flush";
 	unsigned int flush = 0;
-	bool flag = ValueCheck(line, flush);
+	bool flag = ValueCheck(ATTR_LOG_FLUSH, flush);
 	return flag;
 }
 
-unsigned int XMLParser::GetPeriodTime()
+unsigned int XMLParser::GetThreadIntervalTime()
 {
 	if (m_root == nullptr)
 	{
 		ParseFile(XML_FILE_PATH);
 	}
-	std::string line = "Period_time";
 	unsigned int time = 0;
-	bool flag = ValueCheck(line, time);
+	bool flag = ValueCheck(ATTR_THREAD_INTERVAL, time);
 	if (flag)
 	{
 		return time;
 	}
-	return PERIOD_TIME;
+	return THREAD_INTERVAL;
 }
 
 unsigned int XMLParser::GetMaxWorkingThreads()
@@ -350,9 +340,8 @@ unsigned int XMLParser::GetMaxWorkingThreads()
 	{
 		ParseFile(XML_FILE_PATH);
 	}
-	std::string line = "maxworkingthreads";
 	unsigned int number = 0;
-	bool flag = ValueCheck(line, number);
+	bool flag = ValueCheck(ATTR_MAX_WORKING_THREADS, number);
 	if (flag)
 	{
 		return number;
