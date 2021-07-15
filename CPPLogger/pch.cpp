@@ -1,5 +1,5 @@
-﻿// pch.cpp: файл исходного кода, соответствующий предварительно скомпилированному заголовочному файлу
+﻿// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 
 #include "pch.h"
-
-// При использовании предварительно скомпилированных заголовочных файлов необходим следующий файл исходного кода для выполнения сборки.
