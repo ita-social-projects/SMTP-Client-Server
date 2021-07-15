@@ -25,7 +25,7 @@ public:
 	virtual void set_filter_level(LogLevels level) = 0;
 };
 
-class Logger : public ILogger
+class Logger final : public ILogger
 {
 public:
 	Logger();

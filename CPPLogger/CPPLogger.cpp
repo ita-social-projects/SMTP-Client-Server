@@ -9,7 +9,7 @@
 
 const wchar_t* CLIENT_INIT_PARAM = L"/P7.Sink=FileTxt /P7.Dir=C:\Program Files\Logs\ /P7.Format=\"%ti - %tf [%lv] - [%fs] [%fn] %ms\"";
 const wchar_t* TRACE_CHANNEL = L"Trace";
-const bool TRACE_ID = NULL;
+const tUINT16 TRACE_ID = NULL;
 const IP7_Trace::hModule I_HMODULE = NULL;
 
 Logger::Logger()
@@ -27,6 +27,7 @@ Logger::~Logger()
 
 Logger& Logger::operator()(const std::string& func, const std::string& filename, short level)
 {
+	if (func.empty() || filename.empty() || level < 0 || level > 5) return *this;
 	m_func_name = func;
 	m_file_name = filename;
 	m_log_level = (eP7Trace_Level)level;
