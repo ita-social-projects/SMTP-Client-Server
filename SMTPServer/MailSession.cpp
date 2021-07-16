@@ -23,7 +23,7 @@ bool MailSession::ValidAdress(char* buf)
 std::string MailSession::CutAddress(char* buf)
 {
 	std::string str_buf = buf;
-	std::string result;
+	std::string result = "";
 
 	size_t start_pos = str_buf.find('<', 0);
 	size_t end_pos = str_buf.find('>', 0);
