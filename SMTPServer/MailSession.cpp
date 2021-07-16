@@ -9,7 +9,7 @@ MailSession::MailSession(SOCKET& client_socket)
 	this->m_client_socket = client_socket;
 }
 
-const SOCKET& MailSession::GetSocket() const
+const SOCKET& MailSession::get_socket() const
 {
 	return m_client_socket;
 }
@@ -23,7 +23,7 @@ bool MailSession::ValidAdress(char* buf)
 std::string MailSession::CutAddress(char* buf)
 {
 	std::string str_buf = buf;
-	std::string result = "";
+	std::string result;
 
 	size_t start_pos = str_buf.find('<', 0);
 	size_t end_pos = str_buf.find('>', 0);
@@ -34,6 +34,14 @@ std::string MailSession::CutAddress(char* buf)
 	}
 
 	return result;
+}
+
+void MailSession::SpecialSymbols(std::string& str)
+{
+	if (size_t pos = str.find("\r\n") != -1)
+	{
+		str.clear();
+	}
 }
 
 std::string MailSession::CutSubject(char* buf)
@@ -262,6 +270,8 @@ int MailSession::ProcessDATA(char* buf)
 int MailSession::SubProcessEmail(char* buf)
 {
 	std::string text = buf;
+	SpecialSymbols(text);
+
 	m_mail_info.set_text(text);
 
 	if (strstr(buf, SMTP_DATA_TERMINATOR))

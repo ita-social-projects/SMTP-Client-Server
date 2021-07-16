@@ -48,7 +48,7 @@ void MailInfo::SaveToFile()
 {
 	std::ofstream file("email.txt", std::ofstream::app);
 
-	file << "From: " << m_mail_from << "\nTo: " << m_rcpt_to << "\nSubject: " << m_subject << "\n\n" << m_text;
+	file << "From: " << m_mail_from << "\nTo: " << m_rcpt_to << "\nSubject: " << m_subject << "\n" << m_text;
 
 	file.close();
 }

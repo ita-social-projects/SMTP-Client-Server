@@ -2,8 +2,8 @@
 
 ThreadPool::ThreadPool(int thread_size)
 {
-    this->thread_size = thread_size;
-    is_stop = false;
+    this->m_thread_size = thread_size;
+    m_is_stop = false;
 }
 
 ThreadPool::~ThreadPool()
@@ -18,17 +18,20 @@ ThreadPool::~ThreadPool()
 
 void ThreadPool::Join()
 {
-    for (int i = 0; i < thread_size; ++i)
+    for (int i = 0; i < m_thread_size; ++i)
     {
-        m_thread_pool.at(i).join();
+        if (m_thread_pool.at(i).joinable())
+        {
+            m_thread_pool.at(i).join();
+        }
     }
 }
 
 void ThreadPool::Stop()
 {
-    is_stop = true;
+    m_is_stop = true;
 
-    for (int i = 0; i < thread_size; ++i)
+    for (int i = 0; i < m_thread_size; ++i)
     {
         m_thread_pool.pop_back();
     }
@@ -36,7 +39,7 @@ void ThreadPool::Stop()
 
 void ThreadPool::DoTask()
 {
-    while (!is_stop && !m_task.empty())
+    while (!m_is_stop && !m_task.empty())
     {
         std::unique_lock<std::mutex> lck(m_mutex);
 
@@ -70,5 +73,5 @@ void ThreadPool::AddTask(void* in_task, SOCKET socket)
 
 void ThreadPool::set_size(int thread_size)
 {
-    this->thread_size = thread_size;
+    this->m_thread_size = thread_size;
 }

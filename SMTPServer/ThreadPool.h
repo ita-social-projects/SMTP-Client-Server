@@ -22,7 +22,7 @@ typedef void (*RUNFUC)(SOCKET);
 class ThreadPool
 {
 public:
-    ThreadPool() : is_stop(false), thread_size(0) {}
+    ThreadPool() : m_is_stop(false), m_thread_size(0) {}
     ThreadPool(int thread_size);
     ~ThreadPool();
 
@@ -35,11 +35,11 @@ private:
     void Stop();
     void DoTask();
 
-    bool IsStopped() { return is_stop; };
+    bool IsStopped() { return m_is_stop; };
 
 private:
-    int thread_size;
-    bool is_stop;
+    int m_thread_size;
+    bool m_is_stop;
 
     std::condition_variable m_task_not_empty;
     std::mutex m_mutex;

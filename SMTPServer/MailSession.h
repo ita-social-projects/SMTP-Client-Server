@@ -10,7 +10,8 @@
 #pragma comment(lib, "Ws2_32.lib")
 
 #define MAX_ADDRESS_LENGTH 256
-#define SMTP_DATA_TERMINATOR "\r\n.\r\n"
+//#define SMTP_DATA_TERMINATOR "\r\n.\r\n"
+#define SMTP_DATA_TERMINATOR "."
 #define FIRST_FOUR_SYMBOLS 4
 #define FIRST_EIGHT_SYMBOLS 8
 
@@ -46,7 +47,7 @@ public:
 	MailSession() = delete;
 	MailSession(SOCKET& client_socket);
 
-	const SOCKET& GetSocket() const;
+	const SOCKET& get_socket() const;
 
 	int SendResponse(int response_type);
 	int Processes(char* buf);
@@ -67,6 +68,8 @@ private:
 
 	std::string CutSubject(char* buf);
 	std::string CutAddress(char* buf);
+
+	void SpecialSymbols(std::string& str);
 
 private:
 	SOCKET m_client_socket;

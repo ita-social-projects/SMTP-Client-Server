@@ -14,6 +14,9 @@
 
 #pragma comment(lib, "Ws2_32.lib")
 
+#define SMTP_PORT 25
+#define WELCOME 220
+
 class SMTPServer
 {
 public:

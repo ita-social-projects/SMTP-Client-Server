@@ -35,16 +35,16 @@ void SMTPServer::WorkWithClient(SOCKET client_socket)
 	char buf[128];
 	ZeroMemory(&buf, sizeof(buf));
 
-	mail_session.SendResponse(220);
+	mail_session.SendResponse(WELCOME);
 
 	while (true)
 	{
-		recv(mail_session.GetSocket(), (char*)&buf, sizeof(buf), 0);
+		recv(mail_session.get_socket(), (char*)&buf, sizeof(buf), 0);
 
 		if (221 == mail_session.Processes(buf))
 		{
 			std::cout << "End of work\n";
-			closesocket(mail_session.GetSocket());
+			closesocket(mail_session.get_socket());
 			break;
 		}
 
@@ -82,7 +82,7 @@ bool SMTPServer::SetSocketSettings()
 	ZeroMemory(&server_info, sizeof(server_info));
 
 	server_info.sin_family = AF_INET;
-	server_info.sin_port = htons(25);
+	server_info.sin_port = htons(SMTP_PORT);
 	server_info.sin_addr = *(LPIN_ADDR)(gethostbyname("localhost")->h_addr_list[0]);
 
 
