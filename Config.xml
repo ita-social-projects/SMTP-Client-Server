@@ -5,9 +5,9 @@
 		<servername>ServTest</servername>
 		<serverdisplayname>ServTestserver</serverdisplayname>
 		<!--port which server is listen-->
-		<listenerport>25000</listenerport>
+		<listenerport>25</listenerport>
 		<!--ip address from which we receive requests of client side-->
-		<ipaddress>127.0.0.1</ipaddress>
+		<ipaddress>localhost</ipaddress>
 	</Server>
 	<communicationsettings>
 		<!--parameter for block or unblock listen socket (1 - enable / 0 - disable)-->
