@@ -21,7 +21,7 @@ constexpr unsigned int THREAD_INTERVAL		= 30;
 constexpr unsigned int MAX_WORKING_THREADS	= 10;
 constexpr auto XML_FILE_PATH				= "..\\Config.xml";
 
-constexpr auto ATRR_SERVER_NAME				= "servername";
+constexpr auto ATTR_SERVER_NAME				= "servername";
 constexpr auto ATTR_SERVER_DISPLAY_NAME		= "serverdisplayname";
 constexpr auto ATTR_SERVER_LISTENER_PORT	= "listenerport";
 constexpr auto ATTR_SERVER_IP_ADDRESS		= "ipaddress";

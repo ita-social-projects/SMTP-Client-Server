@@ -199,7 +199,7 @@ std::string XMLParser::GetServerName()
 		ParseFile(XML_FILE_PATH);
 	}
 	std::string data;
-	FindByTag(m_root, ATRR_SERVER_NAME, data);
+	FindByTag(m_root, ATTR_SERVER_NAME, data);
 	if (!data.empty())
 	{
 		return data;
