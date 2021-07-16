@@ -172,15 +172,7 @@ int MailSession::Processes(char* buf)
 
 int MailSession::ProcessNotImplemented(bool arg)
 {
-	if (arg)
-	{
-		return SendResponse(504);
-	}
-
-	else
-	{
-		return SendResponse(Responses::COMMAND_NOT_IMPLEMENTED);
-	}
+	return SendResponse(Responses::COMMAND_NOT_IMPLEMENTED);
 }
 
 int MailSession::ProcessHELO(char* buf)
