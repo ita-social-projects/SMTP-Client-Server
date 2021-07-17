@@ -19,13 +19,13 @@ pipeline {
                 }
             }
         }
-        stage('Static Analysis') {
-            steps{
-                dir(env.REPO_NAME){
-                    bat "PVS-Studio_Cmd.exe -t SMTPClientServer.sln -o report.plog --progress"
-                }
-            }
-        }
+        //stage('Static Analysis') {
+        //    steps{
+        //        dir(env.REPO_NAME){
+        //            bat "PVS-Studio_Cmd.exe -t SMTPClientServer.sln -o report.plog --progress"
+        //        }
+        //    }
+        //}
         stage('Build') {
             steps{
                 dir(env.REPO_NAME) {
@@ -50,11 +50,11 @@ pipeline {
                 enabledForFailure: true,
                 tool: msBuild()
             )
-            recordIssues(
-                enabledForFailure: true,
-                sourceCodeEncoding:'UTF-8',
-                tool: PVSStudio(pattern: "${env.REPO_NAME}\\report.plog")
-            )
+            //recordIssues(
+            //    enabledForFailure: true,
+            //    sourceCodeEncoding:'UTF-8',
+            //    tool: PVSStudio(pattern: "${env.REPO_NAME}\\report.plog")
+            //)
         }
         failure {
             script{
