@@ -4,7 +4,6 @@
 
 #include "pch.h"
 #include "framework.h"
-
 #include "CPPLogger.h"
 
 const wchar_t* CLIENT_INIT_PARAM = L"/P7.Sink=FileTxt /P7.Dir=C:\Program Files\Logs\ /P7.Format=\"%ti - %tf [%lv] - [%fs] [%fn] %ms\"";

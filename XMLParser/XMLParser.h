@@ -9,6 +9,7 @@
 #include <vector>
 #include <fstream>
 #include <memory>
+#include "..\CPPLogger\CPPLogger.h"
 
 constexpr auto SERVER_NAME					= "ServTest";
 constexpr auto SERVER_DISPLAY_NAME			= "ServTestserver";
@@ -47,7 +48,7 @@ public:
 	virtual unsigned int GetLogLevel() = 0;
 	virtual bool UseLogFlush() = 0;
 	virtual unsigned int GetThreadIntervalTime() = 0;
-	virtual unsigned int GetMaxWorkingThreads() = 0;
+	virtual unsigned int GetMaxWorkingThreads()	= 0;
 };
 
 class XMLParser final : public IXMLParser
@@ -74,7 +75,7 @@ private:
 	bool ParseFile(const std::string& filename);
 	bool CreateElement(std::shared_ptr<XMLNode>& elem_pointer, const std::string& elem_tag, const std::string& elem_data);
 	bool ChildAppend(std::shared_ptr<XMLNode>& parent, std::shared_ptr<XMLNode>& child);
-	bool FileCheck(const std::filesystem::path& filename) const;
+	bool FileCheck(const std::filesystem::path& filename);
 	void FindByTag(const std::shared_ptr<XMLNode>& current_node, const std::string& tag_needed, std::string& data) const;
 	bool ValueCheck(const std::string& line, unsigned int& number) const;
 
@@ -93,4 +94,5 @@ public:
 
 private:
 	std::shared_ptr<XMLNode> m_root;
+	Logger LOG;
 };
