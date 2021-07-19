@@ -10,10 +10,10 @@
 #pragma comment(lib, "Ws2_32.lib")
 
 #define MAX_ADDRESS_LENGTH 256
-//#define SMTP_DATA_TERMINATOR "\r\n.\r\n"
-#define SMTP_DATA_TERMINATOR "."
+#define SMTP_DATA_TERMINATOR "\r\n.\r\n"
 #define FIRST_FOUR_SYMBOLS 4
 #define FIRST_EIGHT_SYMBOLS 8
+#define FIRST_TEN_SYMBOLS 10
 
 //#define SMTP_DATA_TERMINATOR "."
 
@@ -21,6 +21,9 @@ enum MailSessionStatus
 {
 	EMPTY,
 	EHLO,
+	LOGIN,
+	PASSWORD,
+	AUTH_SUCCESS,
 	MAIL_FROM,
 	RCPT_TO,
 	DATA,
@@ -32,11 +35,14 @@ enum Responses
 {
 	WELCOME = 220,
 	SERVICE_CLOSING,
+	LOGIN_SUCCESS = 235,
 	OK = 250,
+	LOGIN_RCV = 334,
 	START_MAIL = 354,
 	SYNTAX_ERROR = 501,
 	COMMAND_NOT_IMPLEMENTED,
 	BAD_SEQUENSE,
+	EMAIL_N_RECEIVED = 521,
 	NO_USER = 550,
 	USER_NOT_LOCAL
 };
@@ -55,9 +61,13 @@ public:
 private:
 	int ProcessNotImplemented(bool arg);
 	int ProcessHELO(char* buf);
+	int ProcessAUTH(char* buf);
 	int ProcessMAIL(char* buf);
 	int ProcessRCPT(char* buf);
 	int ProcessDATA(char* buf);
+
+	int SubProcessLoginRecieve(char* buf);
+	int SubProcessPasswordRecieve(char* buf);
 
 	int SubProcessEmail(char* buf);
 	int SubProcessSubject(char* buf);
@@ -68,8 +78,6 @@ private:
 
 	std::string CutSubject(char* buf);
 	std::string CutAddress(char* buf);
-
-	void SpecialSymbols(std::string& str);
 
 private:
 	SOCKET m_client_socket;

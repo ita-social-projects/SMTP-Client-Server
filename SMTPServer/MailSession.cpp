@@ -36,14 +36,6 @@ std::string MailSession::CutAddress(char* buf)
 	return result;
 }
 
-void MailSession::SpecialSymbols(std::string& str)
-{
-	if (size_t pos = str.find("\r\n") != -1)
-	{
-		str.clear();
-	}
-}
-
 std::string MailSession::CutSubject(char* buf)
 {
 	std::string str_buf = buf;
@@ -74,9 +66,19 @@ int MailSession::SendResponse(int response_type)
 		strcpy(buf, "221 Service closing transmission channel\r\n");
 	}
 
+	else if (response_type == Responses::LOGIN_SUCCESS)
+	{
+		strcpy(buf, "235 Successful login\r\n");
+	}
+
 	else if (response_type == Responses::OK)
 	{
 		strcpy(buf, "250 OK\r\n");
+	}
+
+	else if (response_type == Responses::LOGIN_RCV)
+	{
+		strcpy(buf, "334 Ready to receive login\r\n");
 	}
 
 	else if (response_type == Responses::START_MAIL)
@@ -109,6 +111,11 @@ int MailSession::SendResponse(int response_type)
 		strcpy(buf, "551 User not local. Can not forward the mail\r\n");
 	}
 
+	else if (response_type == Responses::EMAIL_N_RECEIVED)
+	{
+		strcpy(buf, "521 Server does not accept mail\r\n");
+	}
+
 	else
 	{
 		strcpy(buf, "No description\r\n");
@@ -123,12 +130,22 @@ int MailSession::SendResponse(int response_type)
 int MailSession::Processes(char* buf)
 {
 
-	if (m_current_status == MailSessionStatus::DATA)
+	if (m_current_status == MailSessionStatus::LOGIN)
+	{
+		return SubProcessLoginRecieve(buf);
+	}
+
+	else if(m_current_status == MailSessionStatus::PASSWORD)
+	{
+		return SubProcessPasswordRecieve(buf);
+	}
+
+	else if (m_current_status == MailSessionStatus::DATA)
 	{
 		return SubProcessSubject(buf);
 	}
 
-	if (m_current_status == MailSessionStatus::SUBJECT)
+	else if (m_current_status == MailSessionStatus::SUBJECT)
 	{
 		return SubProcessEmail(buf);
 	}
@@ -139,7 +156,12 @@ int MailSession::Processes(char* buf)
 		return ProcessHELO(buf);
 	}
 
-	else if (_strnicmp(buf, "EHLO", FIRST_FOUR_SYMBOLS) == 0)
+	else if (_strnicmp(buf, "AUTH LOGIN", FIRST_TEN_SYMBOLS) == 0)
+	{
+		return ProcessAUTH(buf);
+	}
+
+	else if (_strnicmp(buf, "ehlo", FIRST_FOUR_SYMBOLS) == 0)
 	{
 		return ProcessHELO(buf);
 	}
@@ -194,11 +216,25 @@ int MailSession::ProcessHELO(char* buf)
 	return SendResponse(Responses::OK);
 }
 
+int MailSession::ProcessAUTH(char* buf)
+{
+	std::cout << "Received 'AUTH'\n";
+
+	if (m_current_status != MailSessionStatus::EHLO)
+	{
+		return SendResponse(Responses::BAD_SEQUENSE);
+	}
+
+	m_current_status = MailSessionStatus::LOGIN;
+
+	return SendResponse(Responses::LOGIN_RCV);
+}
+
 int MailSession::ProcessMAIL(char* buf)
 {
 	std::cout << "Received 'MAIL FROM'\n";
 
-	if (m_current_status != MailSessionStatus::EHLO)
+	if (m_current_status != MailSessionStatus::AUTH_SUCCESS)
 	{
 		return SendResponse(Responses::BAD_SEQUENSE);
 	}
@@ -259,15 +295,47 @@ int MailSession::ProcessDATA(char* buf)
 	return SendResponse(Responses::START_MAIL);
 }
 
+int MailSession::SubProcessLoginRecieve(char* buf)
+{
+	if (m_current_status != MailSessionStatus::LOGIN)
+	{
+		return SendResponse(Responses::BAD_SEQUENSE);
+	}
+	
+	m_current_status = MailSessionStatus::PASSWORD;
+
+	return SendResponse(Responses::LOGIN_RCV);
+}
+
+int MailSession::SubProcessPasswordRecieve(char* buf)
+{
+	if (m_current_status != MailSessionStatus::PASSWORD)
+	{
+		return SendResponse(Responses::BAD_SEQUENSE);
+	}
+
+	m_current_status = MailSessionStatus::AUTH_SUCCESS;
+
+	return SendResponse(Responses::LOGIN_SUCCESS);
+}
+
 int MailSession::SubProcessEmail(char* buf)
 {
 	std::string text = buf;
-	SpecialSymbols(text);
+	std::string result;
 
-	m_mail_info.set_text(text);
+	size_t pos;
 
 	if (strstr(buf, SMTP_DATA_TERMINATOR))
 	{
+		pos = text.find("\r\n", 0);
+
+		if (pos != -1)
+		{
+			result = text.substr(0, pos);
+			m_mail_info.set_text(result);
+		}
+	
 		std::cout << "Received DATA END\n";
 		m_current_status = MailSessionStatus::QUIT;
 
@@ -290,7 +358,8 @@ int MailSession::SubProcessSubject(char* buf)
 	m_current_status = MailSessionStatus::SUBJECT;
 	m_mail_info.set_subject(subject);
 
-	return SendResponse(Responses::OK);
+	Sleep(1);
+	return 0;
 }
 
 int MailSession::ProcessQUIT()

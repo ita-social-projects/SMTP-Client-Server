@@ -37,10 +37,8 @@ void SMTPServer::WorkWithClient(SOCKET client_socket)
 
 	mail_session.SendResponse(WELCOME);
 
-	while (true)
+	while (int len = recv(mail_session.get_socket(), (char*)&buf, sizeof(buf), 0))
 	{
-		recv(mail_session.get_socket(), (char*)&buf, sizeof(buf), 0);
-
 		if (221 == mail_session.Processes(buf))
 		{
 			std::cout << "End of work\n";
@@ -84,6 +82,7 @@ bool SMTPServer::SetSocketSettings()
 	server_info.sin_family = AF_INET;
 	server_info.sin_port = htons(SMTP_PORT);
 	server_info.sin_addr = *(LPIN_ADDR)(gethostbyname("localhost")->h_addr_list[0]);
+	//server_info.sin_addr.S_un.S_addr = inet_addr("192.168.0.106");
 
 
 	if (bind(m_server_socket, (sockaddr*)&server_info, sizeof(server_info)) == SOCKET_ERROR)
