@@ -21,7 +21,25 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnitTests", "UnitTests", "{
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CPPLogger", "CPPLogger\CPPLogger.vcxproj", "{70B6F6C6-F26B-409A-AEA3-1EC6415D32BA}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XMLParser", "XMLParser\XMLParser.vcxproj", "{9D6C21C4-B62A-46B0-AC6B-DCB91D09C8A2}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9D6C21C4-B62A-46B0-AC6B-DCB91D09C8A2}.Debug|x64.ActiveCfg = Debug|x64
+		{9D6C21C4-B62A-46B0-AC6B-DCB91D09C8A2}.Debug|x64.Build.0 = Debug|x64
+		{9D6C21C4-B62A-46B0-AC6B-DCB91D09C8A2}.Debug|x86.ActiveCfg = Debug|Win32
+		{9D6C21C4-B62A-46B0-AC6B-DCB91D09C8A2}.Debug|x86.Build.0 = Debug|Win32
+		{9D6C21C4-B62A-46B0-AC6B-DCB91D09C8A2}.Release|x64.ActiveCfg = Release|x64
+		{9D6C21C4-B62A-46B0-AC6B-DCB91D09C8A2}.Release|x64.Build.0 = Release|x64
+		{9D6C21C4-B62A-46B0-AC6B-DCB91D09C8A2}.Release|x86.ActiveCfg = Release|Win32
+		{9D6C21C4-B62A-46B0-AC6B-DCB91D09C8A2}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
@@ -40,6 +58,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9D6C21C4-B62A-46B0-AC6B-DCB91D09C8A2} = {0111DD19-FAD1-4283-9949-4902BFBA6437}
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{70B6F6C6-F26B-409A-AEA3-1EC6415D32BA} = {11CA5623-55AC-42CA-BDC4-941D39C3223C}
