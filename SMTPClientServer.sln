@@ -19,7 +19,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utils", "Utils", "{B3C05D07
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnitTests", "UnitTests", "{6DC2CAF2-2CE0-4DB1-AD49-01BFA93E0F63}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CPPLogger", "CPPLogger\CPPLogger.vcxproj", "{70B6F6C6-F26B-409A-AEA3-1EC6415D32BA}"
 	@@ -31,6 +33,16 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
