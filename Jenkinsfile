@@ -14,13 +14,22 @@ pipeline {
                     cleanWs()
 
                     checkout scm
+
+                    bat "copylibs.bat"
                 }
             }
         }
+        //stage('Static Analysis') {
+        //    steps{
+        //        dir(env.REPO_NAME){
+        //            bat "PVS-Studio_Cmd.exe -t SMTPClientServer.sln -o report.plog --progress"
+        //        }
+        //    }
+        //}
         stage('Build') {
             steps{
                 dir(env.REPO_NAME) {
-		            bat "msbuild SMTPClientServer.sln"
+                    bat "msbuild SMTPClientServer.sln"
                 }
             }
         }
@@ -36,7 +45,17 @@ pipeline {
                 )
             }
         }
-
+        always {
+            recordIssues(
+                enabledForFailure: true,
+                tool: msBuild()
+            )
+            //recordIssues(
+            //    enabledForFailure: true,
+            //    sourceCodeEncoding:'UTF-8',
+            //    tool: PVSStudio(pattern: "${env.REPO_NAME}\\report.plog")
+            //)
+        }
         failure {
             script{
                 sendToTelegram(
