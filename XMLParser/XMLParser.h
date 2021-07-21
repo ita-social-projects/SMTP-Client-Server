@@ -13,10 +13,10 @@
 
 constexpr auto SERVER_NAME					= "ServTest";
 constexpr auto SERVER_DISPLAY_NAME			= "ServTestserver";
-constexpr unsigned int SERVER_LISTENER_PORT = 35000;
-constexpr auto SERVER_IP_ADDRESS			= "127.0.0.1";
+constexpr unsigned int SERVER_LISTENER_PORT = 25;
+constexpr auto SERVER_IP_ADDRESS			= "localhost";
 constexpr unsigned int SOCKET_TIMEOUT		= 5;
-constexpr auto LOG_FILENAME					= "serverlog.txt";
+constexpr auto LOG_FILENAME					= "C:\\Logs";
 constexpr unsigned int LOG_LEVEL			= 2;
 constexpr unsigned int THREAD_INTERVAL		= 30;
 constexpr unsigned int MAX_WORKING_THREADS	= 10;
