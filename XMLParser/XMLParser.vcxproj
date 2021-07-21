@@ -141,6 +141,12 @@
       <AdditionalLibraryDirectories>$(SolutionDir)\3rdPartyLibs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>p7.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
+    <PostBuildEvent>
+      <Command>copy /Y "$(SolutionDir)x64\Debug\CPPLogger.lib" "$(SolutionDir)3rdPartyLibs\CPPLogger.lib"</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copy logger.lib to 3rdPartyLibs</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
