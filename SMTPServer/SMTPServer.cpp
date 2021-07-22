@@ -81,7 +81,7 @@ bool SMTPServer::SetSocketSettings()
 
 	server_info.sin_family = AF_INET;
 	server_info.sin_port = htons(xml_parser.GetListenerPort());
-	server_info.sin_addr.S_un.S_addr = inet_addr(xml_parser.GetIpAddress().c_str());
+	server_info.sin_addr = *(LPIN_ADDR)(gethostbyname(xml_parser.GetIpAddress().c_str())->h_addr_list[0]);
 
 	if (bind(m_server_socket, (sockaddr*)&server_info, sizeof(server_info)) == SOCKET_ERROR)
 	{
