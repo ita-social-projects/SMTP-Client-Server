@@ -7,6 +7,7 @@
 #include "CPPLogger.h"
 
 const wchar_t* CLIENT_INIT_PARAM = L"/P7.Sink=FileTxt /P7.Dir=C:\\Logs\\ /P7.Format=\"%ti - %tf [%lv] - [%fs] [%fn] %ms\"";
+
 const wchar_t* TRACE_CHANNEL = L"Trace";
 const tUINT16 TRACE_ID = NULL;
 const IP7_Trace::hModule I_HMODULE = NULL;
@@ -42,7 +43,7 @@ Logger& Logger::operator<<(const char* log_message)
 		return *this;
 
 	case eP7Trace_Level::EP7TRACE_LEVEL_INFO:
-		m_trace->Trace(TRACE_ID, eP7Trace_Level::EP7TRACE_LEVEL_INFO, NULL, (tUINT16)__LINE__, m_file_name.c_str(), m_func_name.c_str(), L"%s", log_message);
+		m_trace->Trace(TRACE_ID, eP7Trace_Level::EP7TRACE_LEVEL_INFO, NULL, (tUINT16)__LINE__, m_file_name.c_str(), m_func_name.c_str(), L"%hs", log_message);
 		return *this;
 
 	case eP7Trace_Level::EP7TRACE_LEVEL_WARNING:
