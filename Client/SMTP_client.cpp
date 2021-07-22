@@ -5,16 +5,14 @@
 #include "SMTP_client.h"
 
 SMTPClientClass::SMTPClientClass()
-{
-	try
-	{
-		m_receive_buffer.reset(new char[DEFAULT_BUFFER_SIZE]);		
-	}
-	catch (...)
+{	
+	m_receive_buffer = std::make_unique<char[]>(DEFAULT_BUFFER_SIZE);
+
+	if (m_receive_buffer == nullptr)
 	{
 		LOG_ERROR << "Lack of memory for message buffer.";
-		throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::LACK_OF_BUFFER_MEMORY);
-	}	
+		throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::LACK_OF_BUFFER_MEMORY);
+	}
 		
 	SecureZeroMemory(m_receive_buffer.get(), DEFAULT_BUFFER_SIZE);
 	
@@ -47,7 +45,7 @@ bool	SMTPClientClass::OpenConnection()
 	{
 		WSACleanup();
 		LOG_ERROR << "Couldn't initialize Winsock2.";
-		throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::WSA_STARTUP_ERROR);
+		throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::WSA_STARTUP_ERROR);
 	}
 
 	SecureZeroMemory(&hints, sizeof(hints));
@@ -61,7 +59,7 @@ bool	SMTPClientClass::OpenConnection()
 	{
 		WSACleanup();
 		LOG_ERROR << "Couldn't get addrinfo for smtp server.";
-		throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::WSA_HOSTNAME_ERROR);
+		throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::WSA_HOSTNAME_ERROR);
 	}
 
 	for (ptr = result; ptr != nullptr; ptr = ptr->ai_next)
@@ -72,7 +70,7 @@ bool	SMTPClientClass::OpenConnection()
 		{
 			WSACleanup();
 			LOG_ERROR << "Invalid socket.";
-			throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::WSA_INVALID_SOCKET_ERROR);
+			throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::WSA_INVALID_SOCKET_ERROR);
 		}
 
 		// Connect to a server
@@ -92,7 +90,7 @@ bool	SMTPClientClass::OpenConnection()
 	{
 		WSACleanup();
 		LOG_ERROR << "Invalid socket.";
-		throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::WSA_INVALID_SOCKET_ERROR);
+		throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::WSA_INVALID_SOCKET_ERROR);
 	}
 
 	LOG_INFO << "Successfully connected to the server.";
@@ -108,7 +106,7 @@ bool	SMTPClientClass::SendData(const std::string &msg_to_send)
 	u_int			msg_left	= (u_int)msg_to_send.size();	
 
 	if (msg_to_send.empty())
-		throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::SEND_MSG_EMPTY);
+		throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::SEND_MSG_EMPTY);
 
 	while ((int)msg_left > 0)
 	{
@@ -117,18 +115,18 @@ bool	SMTPClientClass::SendData(const std::string &msg_to_send)
 
 		FD_SET(m_socket, &fdwrite);
 
-		if ((result = select((int)m_socket + 1, NULL, &fdwrite, NULL, &time)) == SOCKET_ERROR)
+		if ((result = select((int)m_socket + MAX_FILE_DESCRIPTOR, NULL, &fdwrite, NULL, &time)) == SOCKET_ERROR)
 		{
 			FD_CLR(m_socket, &fdwrite);
 			LOG_ERROR << "Winsock select() error.";
-			throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::WSA_SELECT_ERROR);
+			throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::WSA_SELECT_ERROR);
 		}
 
 		if (!result)
 		{			
 			FD_CLR(m_socket, &fdwrite);
 			LOG_ERROR << "Server is not responding.";
-			throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::SERVER_NOT_RESPONDING);
+			throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::SERVER_NOT_RESPONDING);
 		}
 
 		if (result > 0 && FD_ISSET(m_socket, &fdwrite))
@@ -138,7 +136,7 @@ bool	SMTPClientClass::SendData(const std::string &msg_to_send)
 			{
 				FD_CLR(m_socket, &fdwrite);
 				LOG_ERROR << "Winsock send() error.";
-				throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::WSA_SEND_ERROR);
+				throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::WSA_SEND_ERROR);
 			}
 			msg_left	-= result;
 			index		+= result;
@@ -162,18 +160,18 @@ bool	SMTPClientClass::ReceiveData()
 
 	FD_SET(m_socket, &fdread);
 
-	if ((result = select((int)m_socket + 1, &fdread, NULL, NULL, &time)) == SOCKET_ERROR)
+	if ((result = select((int)m_socket + MAX_FILE_DESCRIPTOR, &fdread, NULL, NULL, &time)) == SOCKET_ERROR)
 	{
 		FD_CLR(m_socket, &fdread);
 		LOG_ERROR << "Winsock select() error.";
-		throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::WSA_SELECT_ERROR);
+		throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::WSA_SELECT_ERROR);
 	}
 
 	if (!result)
 	{		
 		FD_CLR(m_socket, &fdread);
 		LOG_ERROR << "Server is not responding.";
-		throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::SERVER_NOT_RESPONDING);
+		throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::SERVER_NOT_RESPONDING);
 	}
 
 	if (FD_ISSET(m_socket, &fdread))
@@ -183,7 +181,7 @@ bool	SMTPClientClass::ReceiveData()
 		{
 			FD_CLR(m_socket, &fdread);
 			LOG_ERROR << "Winsock recv() error.";
-			throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::WSA_RECEIVE_ERROR);
+			throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::WSA_RECEIVE_ERROR);
 		}
 	}
 
@@ -193,7 +191,7 @@ bool	SMTPClientClass::ReceiveData()
 	if (result == 0)
 	{
 		LOG_ERROR << "Connection with server closed during receive process.";
-		throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::CONNECTION_CLOSED);
+		throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::CONNECTION_CLOSED);
 	}
 
 	return true;
@@ -205,7 +203,7 @@ bool	SMTPClientClass::set_login(const std::string& s)
 	if (s.empty())
 	{
 		LOG_ERROR << "User login is not specified.";
-		throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::STRING_ARGUMENT_EMPTY);
+		throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::STRING_ARGUMENT_EMPTY);
 	}
 	m_login = s;
 
@@ -217,14 +215,14 @@ bool	SMTPClientClass::set_port(const std::string& port)
 	if (port.empty())
 	{
 		LOG_ERROR << "Server port is not specified.";
-		throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::STRING_ARGUMENT_EMPTY);
+		throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::STRING_ARGUMENT_EMPTY);
 	}
-	m_login = port;
+	m_port = port;
 
 	return true;
 }
 
-void SMTPClientClass::set_timeout(const int t)
+void	SMTPClientClass::set_timeout(const int t)
 {
 	m_server_timeout = t;	
 }
@@ -234,7 +232,7 @@ bool	SMTPClientClass::set_password(const std::string& s)
 	if (s.empty())
 	{
 		LOG_ERROR << "User password was not specified.";
-		throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::STRING_ARGUMENT_EMPTY);
+		throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::STRING_ARGUMENT_EMPTY);
 	}
 	m_password = s;
 
@@ -246,7 +244,7 @@ bool	SMTPClientClass::set_recep_mail(const std::string& s)
 	if (s.empty())
 	{
 		LOG_ERROR << "Recepient email was not specified.";
-		throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::STRING_ARGUMENT_EMPTY);
+		throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::STRING_ARGUMENT_EMPTY);
 	}
 	m_recepient_email = s;
 
@@ -258,7 +256,7 @@ bool	SMTPClientClass::set_msg_subject(const std::string& s)
 	if (s.empty())
 	{
 		LOG_ERROR << "Message subject was not specified.";
-		throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::STRING_ARGUMENT_EMPTY);
+		throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::STRING_ARGUMENT_EMPTY);
 	}
 	m_subject = s;
 
@@ -270,7 +268,7 @@ bool	SMTPClientClass::set_msg_data(const std::string& s)
 	if (s.empty())
 	{
 		LOG_ERROR << "Message data is empty.";
-		throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::STRING_ARGUMENT_EMPTY);
+		throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::STRING_ARGUMENT_EMPTY);
 	}
 	m_letter_message = s;
 
@@ -284,7 +282,7 @@ bool	SMTPClientClass::Send()
 	if (m_socket == INVALID_SOCKET)
 	{
 		LOG_ERROR << "Invalid socket.";
-		throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::WSA_INVALID_SOCKET_ERROR);
+		throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::WSA_INVALID_SOCKET_ERROR);
 	}
 
 	try
@@ -295,7 +293,7 @@ bool	SMTPClientClass::Send()
 		if (GetResponseCode() != (int)SMTPServerResponce::SERVER_READY)
 		{
 			LOG_ERROR << "Server is not ready.";
-			throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::SERVER_NOT_READY);
+			throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::SERVER_NOT_READY);
 		}
 		FlushBuffer();
 		m_connect_status = true;		
@@ -305,7 +303,7 @@ bool	SMTPClientClass::Send()
 		if (GetResponseCode() != (int)SMTPServerResponce::SERVER_OKAY)
 		{
 			LOG_ERROR << "Server responded with error to EHLO";
-			throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::SERVER_HELLO_ANSWER);
+			throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::SERVER_HELLO_ANSWER);
 		}
 		FlushBuffer();
 
@@ -314,14 +312,14 @@ bool	SMTPClientClass::Send()
 		if (GetResponseCode() != (int)SMTPServerResponce::SERVER_AUTH_LOGIN)
 		{
 			LOG_ERROR << "Server responded with error to AUTH LOGIN";
-			throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::SERVER_AUTH_LOGIN_ANSWER);
+			throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::SERVER_AUTH_LOGIN_ANSWER);
 		}
 		FlushBuffer();
 
 		if (m_login.empty())
 		{
 			LOG_ERROR << "User login was not specified.";
-			throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::UNDEF_USER_LOGIN);
+			throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::UNDEF_USER_LOGIN);
 		}		
 		std::string encoded_login = base64_encode((const unsigned char*)m_login.c_str(), (u_int)m_login.size());
 		encoded_login.append("\r\n");
@@ -331,14 +329,14 @@ bool	SMTPClientClass::Send()
 		if (GetResponseCode() != (int)SMTPServerResponce::SERVER_AUTH_LOGIN)
 		{
 			LOG_ERROR << "Server responded with error to user login.";
-			throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::SERVER_AUTH_LOGIN_ANSWER);
+			throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::SERVER_AUTH_LOGIN_ANSWER);
 		}
 		FlushBuffer();
 
 		if (m_password.empty())
 		{
 			LOG_ERROR << "User password was not specified.";
-			throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::UNDEF_USER_PASSWORD);
+			throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::UNDEF_USER_PASSWORD);
 		}
 		
 		std::string encoded_password = base64_encode((const unsigned char*)m_password.c_str(), (u_int)m_password.size());
@@ -350,7 +348,7 @@ bool	SMTPClientClass::Send()
 		if (GetResponseCode() != (int)SMTPServerResponce::SERVER_AUTH_SUCCESSFUL)
 		{
 			LOG_ERROR << "Server responded with error to user authorization.";
-			throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::SERVER_AUTHORIZATION_FAILED);
+			throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::SERVER_AUTHORIZATION_FAILED);
 		}
 		FlushBuffer();
 
@@ -359,7 +357,7 @@ bool	SMTPClientClass::Send()
 		if (GetResponseCode() != (int)SMTPServerResponce::SERVER_OKAY)
 		{
 			LOG_ERROR << "Server responded with error to MAIL FROM:";
-			throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::SERVER_MAIL_FROM_ANSWER);
+			throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::SERVER_MAIL_FROM_ANSWER);
 		}
 		FlushBuffer();
 
@@ -368,7 +366,7 @@ bool	SMTPClientClass::Send()
 		if (GetResponseCode() != (int)SMTPServerResponce::SERVER_OKAY)
 		{
 			LOG_ERROR << "Server responded with error to RCPT TO:";
-			throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::SERVER_RCPT_TO_ANSWER);
+			throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::SERVER_RCPT_TO_ANSWER);
 		}
 		FlushBuffer();
 
@@ -378,7 +376,7 @@ bool	SMTPClientClass::Send()
 		if (GetResponseCode() != (int)SMTPServerResponce::SERVER_START_MAIL)
 		{
 			LOG_ERROR << "Server responded with error to DATA.";
-			throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::SERVER_DATA_ANSWER);
+			throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::SERVER_DATA_ANSWER);
 		}
 		FlushBuffer();
 
@@ -390,7 +388,7 @@ bool	SMTPClientClass::Send()
 		if (GetResponseCode() != (int)SMTPServerResponce::SERVER_OKAY)
 		{
 			LOG_ERROR << "Server responded with error to message ending procedure.";
-			throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::SERVER_LETTER_ANSWER);
+			throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::SERVER_LETTER_ANSWER);
 		}
 
 		SendQuit();
@@ -398,7 +396,7 @@ bool	SMTPClientClass::Send()
 		if (GetResponseCode() != (int)SMTPServerResponce::SERVER_QUIT)
 		{
 			LOG_ERROR << "Server responded with error to QUIT";
-			throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::SERVER_QUIT_ANSWER);
+			throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::SERVER_QUIT_ANSWER);
 		}
 	}
 	catch (const SMTPErrorClass&)
@@ -416,11 +414,14 @@ int		SMTPClientClass::GetResponseCode() const
 		return 0;
 
 	// Transform value from ASCII into integer
-	const int	TO_HUNDREDS	= 100;
-	const int	TO_TENS		= 10;
-	const char	CHAR_TO_INT = '0';
+	const int	TO_HUNDREDS		= 100;
+	const int	TO_TENS			= 10;
+	const char	CHAR_TO_INT		= '0';
+	const int	BUF_FIRST_CHAR	= 0;
+	const int	BUF_SECOND_CHAR	= 1;
+	const int	BUF_THIRD_CHAR	= 2;
 
-	return (m_receive_buffer.get()[0] - CHAR_TO_INT) * TO_HUNDREDS + (m_receive_buffer.get()[1] - CHAR_TO_INT) * TO_TENS + m_receive_buffer.get()[2] - CHAR_TO_INT;
+	return (m_receive_buffer.get()[BUF_FIRST_CHAR] - CHAR_TO_INT) * TO_HUNDREDS + (m_receive_buffer.get()[BUF_SECOND_CHAR] - CHAR_TO_INT) * TO_TENS + m_receive_buffer.get()[BUF_THIRD_CHAR] - CHAR_TO_INT;
 }
 
 void	SMTPClientClass::SendHello()
@@ -434,7 +435,7 @@ void	SMTPClientClass::SendHello()
 		if (index == m_login.size())
 		{
 			LOG_ERROR << "Domain of user email is invalid.";
-			throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::INVALID_LOGIN);
+			throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::INVALID_LOGIN);
 		}
 
 		mail_domain = m_login.substr(index + 1);
@@ -525,55 +526,55 @@ std::string SMTPErrorClass::GetErrorText() const
 {
 	switch (m_error_code)
 	{
-	case SMTPerrorEnum::SMTP_NO_ERROR:
+	case SMTPErrorEnum::SMTP_NO_ERROR:
 		return "No errors";
-	case SMTPerrorEnum::SSL_ERROR:
+	case SMTPErrorEnum::SSL_ERROR:
 		return "Error during SSL connection";
-	case SMTPerrorEnum::WSA_STARTUP_ERROR:
+	case SMTPErrorEnum::WSA_STARTUP_ERROR:
 		return "Unable to initialize Winsock2";
-	case SMTPerrorEnum::WSA_HOSTNAME_ERROR:
+	case SMTPErrorEnum::WSA_HOSTNAME_ERROR:
 		return "Couldn't open connection to the chosen host";
-	case SMTPerrorEnum::WSA_INVALID_SOCKET_ERROR:
+	case SMTPErrorEnum::WSA_INVALID_SOCKET_ERROR:
 		return "Invalid Winsock2 socket";
-	case SMTPerrorEnum::WSA_SELECT_ERROR:
+	case SMTPErrorEnum::WSA_SELECT_ERROR:
 		return "Function select() error";
-	case SMTPerrorEnum::WSA_SEND_ERROR:
+	case SMTPErrorEnum::WSA_SEND_ERROR:
 		return "Function send() error";
-	case SMTPerrorEnum::WSA_RECEIVE_ERROR:
+	case SMTPErrorEnum::WSA_RECEIVE_ERROR:
 		return "Function recv() error";
-	case SMTPerrorEnum::SERVER_NOT_RESPONDING:
+	case SMTPErrorEnum::SERVER_NOT_RESPONDING:
 		return "Server not responding";
-	case SMTPerrorEnum::SERVER_HELLO_ANSWER:
+	case SMTPErrorEnum::SERVER_HELLO_ANSWER:
 		return "Server returned error after sending EHLO";
-	case SMTPerrorEnum::SERVER_AUTH_LOGIN_ANSWER:
+	case SMTPErrorEnum::SERVER_AUTH_LOGIN_ANSWER:
 		return "Server returned error after sending AUTH LOGIN";
-	case SMTPerrorEnum::SERVER_AUTHORIZATION_FAILED:
+	case SMTPErrorEnum::SERVER_AUTHORIZATION_FAILED:
 		return "Server failed to authorizate user";
-	case SMTPerrorEnum::SERVER_MAIL_FROM_ANSWER:
+	case SMTPErrorEnum::SERVER_MAIL_FROM_ANSWER:
 		return "Server returned error after sending MAIL FROM:";
-	case SMTPerrorEnum::SERVER_RCPT_TO_ANSWER:
+	case SMTPErrorEnum::SERVER_RCPT_TO_ANSWER:
 		return "Server returned error after sending RCPT TO:";
-	case SMTPerrorEnum::SERVER_DATA_ANSWER:
+	case SMTPErrorEnum::SERVER_DATA_ANSWER:
 		return "Server returned error after sending DATA";
-	case SMTPerrorEnum::SERVER_LETTER_ANSWER:
+	case SMTPErrorEnum::SERVER_LETTER_ANSWER:
 		return "Server returned error after sending letter body";
-	case SMTPerrorEnum::SERVER_QUIT_ANSWER:
+	case SMTPErrorEnum::SERVER_QUIT_ANSWER:
 		return "Server returned error after sending QUIT, but your letter should be delivered";
-	case SMTPerrorEnum::SEND_MSG_EMPTY:
+	case SMTPErrorEnum::SEND_MSG_EMPTY:
 		return "Sending message is empty";
-	case SMTPerrorEnum::LACK_OF_BUFFER_MEMORY:
+	case SMTPErrorEnum::LACK_OF_BUFFER_MEMORY:
 		return "System couldn't allocate enough memory for receive buffer";
-	case SMTPerrorEnum::CONNECTION_CLOSED:
+	case SMTPErrorEnum::CONNECTION_CLOSED:
 		return "Couldn't finished operation, because connection with server closed";
-	case SMTPerrorEnum::STRING_ARGUMENT_EMPTY:
+	case SMTPErrorEnum::STRING_ARGUMENT_EMPTY:
 		return "Couldn't set value, because argument was empty string";
-	case SMTPerrorEnum::UNDEF_USER_LOGIN:
+	case SMTPErrorEnum::UNDEF_USER_LOGIN:
 		return "User login is undefined";
-	case SMTPerrorEnum::UNDEF_USER_PASSWORD:
+	case SMTPErrorEnum::UNDEF_USER_PASSWORD:
 		return "User password is undefined";
-	case SMTPerrorEnum::SERVER_NOT_READY:
+	case SMTPErrorEnum::SERVER_NOT_READY:
 		return "Server returned 'NOT READY' after connection was open";
-	case SMTPerrorEnum::UNDEF_SERVER_CHOICE:
+	case SMTPErrorEnum::UNDEF_SERVER_CHOICE:
 		return "User didn't define server to connect";
 	default:
 		return "Undefined error id";
@@ -581,15 +582,13 @@ std::string SMTPErrorClass::GetErrorText() const
 }
 
 SMTPSecureClientClass::SMTPSecureClientClass()
-{
-	try
+{	
+	m_receive_buffer = std::make_unique<char[]>(DEFAULT_BUFFER_SIZE);
+	
+	if (m_receive_buffer == nullptr)
 	{
-		m_receive_buffer.reset(new char[DEFAULT_BUFFER_SIZE]);
-	}
-	catch (...)
-	{
-		LOG_ERROR << "Server responded with error to EHLO";
-		throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::LACK_OF_BUFFER_MEMORY);
+		LOG_ERROR << "Lack of memory for message buffer.";
+		throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::LACK_OF_BUFFER_MEMORY);
 	}
 
 	SecureZeroMemory(m_receive_buffer.get(), DEFAULT_BUFFER_SIZE);
@@ -636,7 +635,7 @@ bool SMTPSecureClientClass::OpenConnection()
 	{
 		WSACleanup();
 		LOG_ERROR << "Lack of memory for message buffer.";
-		throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::WSA_STARTUP_ERROR);
+		throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::WSA_STARTUP_ERROR);
 	}
 
 	SecureZeroMemory(&hints, sizeof(hints));
@@ -651,7 +650,7 @@ bool SMTPSecureClientClass::OpenConnection()
 	{
 		WSACleanup();
 		LOG_ERROR << "Couldn't get addrinfo for smtp server.";
-		throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::WSA_HOSTNAME_ERROR);
+		throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::WSA_HOSTNAME_ERROR);
 	}
 
 	for (ptr = result; ptr != nullptr; ptr = ptr->ai_next)
@@ -662,7 +661,7 @@ bool SMTPSecureClientClass::OpenConnection()
 		{
 			WSACleanup();
 			LOG_ERROR << "Invalid socket.";
-			throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::WSA_INVALID_SOCKET_ERROR);
+			throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::WSA_INVALID_SOCKET_ERROR);
 		}
 
 		// Connect to a server
@@ -682,7 +681,7 @@ bool SMTPSecureClientClass::OpenConnection()
 	{
 		WSACleanup();
 		LOG_ERROR << "Invalid socket.";
-		throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::WSA_INVALID_SOCKET_ERROR);
+		throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::WSA_INVALID_SOCKET_ERROR);
 	}
 
 	InitSSLCTX();
@@ -700,7 +699,7 @@ bool SMTPSecureClientClass::InitSSLCTX()
 	if (m_ctx == nullptr)
 	{
 		LOG_ERROR << "SSL initialization error";
-		throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::SSL_ERROR);
+		throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::SSL_ERROR);
 	}
 
 	LOG_INFO << "Successfully initialized SSL.";
@@ -727,14 +726,14 @@ bool SMTPSecureClientClass::OpenSSLConnect()
 	if (m_ctx == nullptr)
 	{
 		LOG_ERROR << "SSL error(CTX).";
-		throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::SSL_ERROR);
+		throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::SSL_ERROR);
 	}
 
 	m_ssl = SSL_new(m_ctx);
 	if (m_ssl == nullptr)
 	{
 		LOG_ERROR << "SSL error(SSL).";
-		throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::SSL_ERROR);
+		throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::SSL_ERROR);
 	}
 
 	SSL_set_fd(m_ssl, (int)m_socket);
@@ -764,12 +763,12 @@ bool SMTPSecureClientClass::OpenSSLConnect()
 			write_blocked = 0;
 			read_blocked = 0;
 
-			if ((result = select((int)m_socket + 1, &fdread, &fdwrite, NULL, &time)) == SOCKET_ERROR)
+			if ((result = select((int)m_socket + MAX_FILE_DESCRIPTOR, &fdread, &fdwrite, NULL, &time)) == SOCKET_ERROR)
 			{
 				FD_ZERO(&fdwrite);
 				FD_ZERO(&fdread);
 				LOG_ERROR << "Winsock select() error.";
-				throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::WSA_SELECT_ERROR);
+				throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::WSA_SELECT_ERROR);
 			}
 
 			// timeout has happened
@@ -778,7 +777,7 @@ bool SMTPSecureClientClass::OpenSSLConnect()
 				FD_ZERO(&fdwrite);
 				FD_ZERO(&fdread);
 				LOG_ERROR << "Server is not responding.";
-				throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::SERVER_NOT_RESPONDING);
+				throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::SERVER_NOT_RESPONDING);
 			}
 		}
 
@@ -803,7 +802,7 @@ bool SMTPSecureClientClass::OpenSSLConnect()
 			FD_ZERO(&fdwrite);
 			FD_ZERO(&fdread);
 			LOG_ERROR << "SSL_connect error.";
-			throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::SSL_ERROR);
+			throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::SSL_ERROR);
 		}
 	}
 
@@ -825,7 +824,7 @@ bool SMTPSecureClientClass::SendData(const std::string& msg_to_send)
 	if (msg_to_send.empty())
 	{
 		LOG_ERROR << "Message data is empty.";
-		throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::SEND_MSG_EMPTY);
+		throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::SEND_MSG_EMPTY);
 	}
 
 	while ((int)msg_left > 0)
@@ -841,12 +840,12 @@ bool SMTPSecureClientClass::SendData(const std::string& msg_to_send)
 			FD_SET(m_socket, &fdread);
 		}
 
-		if ((result = select((int)m_socket + 1, &fdread, &fdwrite, NULL, &time)) == SOCKET_ERROR)
+		if ((result = select((int)m_socket + MAX_FILE_DESCRIPTOR, &fdread, &fdwrite, NULL, &time)) == SOCKET_ERROR)
 		{
 			FD_ZERO(&fdwrite);
 			FD_ZERO(&fdread);
 			LOG_ERROR << "Winsock select() error.";
-			throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::WSA_SELECT_ERROR);
+			throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::WSA_SELECT_ERROR);
 		}
 
 		if (!result)
@@ -854,7 +853,7 @@ bool SMTPSecureClientClass::SendData(const std::string& msg_to_send)
 			FD_ZERO(&fdwrite);
 			FD_ZERO(&fdread);
 			LOG_ERROR << "Server is not responding.";
-			throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::SERVER_NOT_RESPONDING);
+			throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::SERVER_NOT_RESPONDING);
 		}
 
 		if (FD_ISSET(m_socket, &fdwrite) || (write_blocked_on_read && FD_ISSET(m_socket, &fdread)))
@@ -881,7 +880,7 @@ bool SMTPSecureClientClass::SendData(const std::string& msg_to_send)
 				FD_ZERO(&fdread);
 				FD_ZERO(&fdwrite);
 				LOG_ERROR << "SSL_write error.";
-				throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::SSL_ERROR);
+				throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::SSL_ERROR);
 			}
 		}
 	}
@@ -898,6 +897,7 @@ bool SMTPSecureClientClass::ReceiveData()
 	fd_set	fdwrite;
 	timeval time;
 
+	const int buffer_size = 1024;
 	int		result					= 0;
 	u_int	offset					= 0;
 	int		read_blocked_on_write	= 0;
@@ -916,12 +916,12 @@ bool SMTPSecureClientClass::ReceiveData()
 			FD_SET(m_socket, &fdwrite);
 		}
 
-		if ((result = select((int)m_socket + 1, &fdread, &fdwrite, NULL, &time)) == SOCKET_ERROR)
+		if ((result = select((int)m_socket + MAX_FILE_DESCRIPTOR, &fdread, &fdwrite, NULL, &time)) == SOCKET_ERROR)
 		{
 			FD_ZERO(&fdread);
 			FD_ZERO(&fdwrite);
 			LOG_ERROR << "Winsock select() error.";
-			throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::WSA_SELECT_ERROR);
+			throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::WSA_SELECT_ERROR);
 		}
 
 		if (!result)
@@ -929,7 +929,7 @@ bool SMTPSecureClientClass::ReceiveData()
 			FD_ZERO(&fdread);
 			FD_ZERO(&fdwrite);
 			LOG_ERROR << "Server is not responding.";
-			throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::SERVER_NOT_RESPONDING);
+			throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::SERVER_NOT_RESPONDING);
 		}
 
 		if (FD_ISSET(m_socket, &fdread) || (read_blocked_on_write && FD_ISSET(m_socket, &fdwrite)))
@@ -938,7 +938,6 @@ bool SMTPSecureClientClass::ReceiveData()
 			{
 				read_blocked_on_write = 0;
 
-				const int buffer_size = 1024; // will be receiving by 1 KB
 				char buffer[buffer_size];
 				int ssl_error;
 
@@ -951,7 +950,7 @@ bool SMTPSecureClientClass::ReceiveData()
 						FD_ZERO(&fdread);
 						FD_ZERO(&fdwrite);
 						LOG_ERROR << "Lack of memory to store the server responce.";
-						throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::LACK_OF_BUFFER_MEMORY);
+						throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::LACK_OF_BUFFER_MEMORY);
 					}
 
 					memcpy(m_receive_buffer.get() + (size_t)offset, buffer, (size_t)result);
@@ -986,7 +985,7 @@ bool SMTPSecureClientClass::ReceiveData()
 					FD_ZERO(&fdread);
 					FD_ZERO(&fdwrite);
 					LOG_ERROR << "SSL error during receive procedure.";
-					throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::SSL_ERROR);
+					throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::SSL_ERROR);
 				}
 			}
 		}
@@ -999,7 +998,7 @@ bool SMTPSecureClientClass::ReceiveData()
 	if (offset == 0)
 	{
 		LOG_ERROR << "Connection is closed during receive procedure.";
-		throw SMTPErrorClass(SMTPErrorClass::SMTPerrorEnum::CONNECTION_CLOSED);
+		throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::CONNECTION_CLOSED);
 	}
 
 	return true;

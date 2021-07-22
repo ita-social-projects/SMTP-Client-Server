@@ -2,32 +2,32 @@
 
 #define WIN32_LEAN_AND_MEAN
 
+#include <iostream>
+#include <string>
+#include <ctime>
 #include <Windows.h>
 #include <WinSock2.h>
 #include <WS2tcpip.h>
-#include <iostream>
-#include <string>
 #include <openssl/ssl.h>
 #include <openssl/bio.h>
 #include <openssl/err.h>
 #include "base64.h"
-#include <ctime>
 #include "..\CPPLogger\CPPLogger.h"
 
 #pragma comment(lib, "Ws2_32.lib")
 #pragma comment(lib, "Mswsock.lib")
 #pragma comment(lib, "AdvApi32.lib")
 
-constexpr auto DEFAULT_SSL_PORT				= "465";			// default port for connection through ssl secure connection
-constexpr auto DEFAULT_BUFFER_SIZE			= 10240;			// size of buffer, where will be storing answers from server (10 KB)
-
+constexpr auto	DEFAULT_SSL_PORT	= "465";	// default port for connection through ssl secure connection
+constexpr auto	DEFAULT_BUFFER_SIZE	= 10240;	// size of buffer, where will be storing answers from server
+const int		MAX_FILE_DESCRIPTOR	= 1;		// this value will be used in select method, to set max file descriptor we want to monitor
 // class which will be created and then throwned if any kind of error occurs
 // it stores error code
 class SMTPErrorClass
 {
 public:
 	// enum class which defines different kinds of errors
-	enum class SMTPerrorEnum
+	enum class SMTPErrorEnum
 	{
 		SMTP_NO_ERROR = 0,
 		SSL_ERROR,
@@ -57,11 +57,11 @@ public:
 		INVALID_LOGIN
 	};
 
-	SMTPErrorClass(SMTPerrorEnum error) : m_error_code(error) {}
+	SMTPErrorClass(SMTPErrorEnum error) : m_error_code(error) {}
 	std::string GetErrorText() const;	
 	
 private:
-	SMTPerrorEnum m_error_code;
+	SMTPErrorEnum m_error_code;
 };
 
 class SMTPClientClass
