@@ -14,8 +14,8 @@ constexpr auto SMTP_DATA_TERMINATOR = "\r\n.\r\n";
 constexpr auto FIRST_FOUR_SYMBOLS = 4;
 constexpr auto FIRST_EIGHT_SYMBOLS = 8;
 constexpr auto FIRST_TEN_SYMBOLS = 10;
-
-//#define SMTP_DATA_TERMINATOR "."
+constexpr auto MIN_MAIL_SIZE = 2;
+constexpr auto MAX_MAIL_SIZE = 255;
 
 enum MailSessionStatus
 {

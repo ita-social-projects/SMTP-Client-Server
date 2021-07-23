@@ -17,7 +17,7 @@ const SOCKET& MailSession::get_socket() const
 bool MailSession::ValidAdress(char* buf)
 {
 	size_t strlen_buf = strlen(buf);
-	return (strlen_buf > 2 && strlen_buf < 255 && strchr(buf, '@'));
+	return (strlen_buf > MIN_MAIL_SIZE && strlen_buf < MAX_MAIL_SIZE && strchr(buf, '@'));
 }
 
 std::string MailSession::CutAddress(char* buf)
@@ -56,98 +56,84 @@ int MailSession::SendResponse(int response_type)
 	char buf[64];
 	ZeroMemory(&buf, sizeof(buf));
 
-	if (response_type == Responses::WELCOME_TO_CLIENT)
+	switch (response_type)
 	{
+	case Responses::WELCOME_TO_CLIENT:
 		strcpy(buf, "220 Welcome!\r\n");
-	}
+		break;
 
-	else if (response_type == Responses::SERVICE_CLOSING)
-	{
+	case Responses::SERVICE_CLOSING:
 		strcpy(buf, "221 Service closing transmission channel\r\n");
-	}
+		break;
 
-	else if (response_type == Responses::LOGIN_SUCCESS)
-	{
+	case Responses::LOGIN_SUCCESS:
 		strcpy(buf, "235 Successful login\r\n");
-	}
+		break;
 
-	else if (response_type == Responses::OK)
-	{
+	case Responses::OK:
 		strcpy(buf, "250 OK\r\n");
-	}
+		break;
 
-	else if (response_type == Responses::LOGIN_RCV)
-	{
+	case Responses::LOGIN_RCV:
 		strcpy(buf, "334 Ready to receive login\r\n");
-	}
+		break;
 
-	else if (response_type == Responses::START_MAIL)
-	{
+	case Responses::START_MAIL:
 		strcpy(buf, "354 Start mail input; end with <CRLF>.<CRLF>\r\n");
-	}
+		break;
 
-	else if (response_type == Responses::SYNTAX_ERROR)
-	{
+	case Responses::SYNTAX_ERROR:
 		strcpy(buf, "501 Syntax error in parameters or arguments\r\n");
-	}
+		break;
 
-	else if (response_type == Responses::COMMAND_NOT_IMPLEMENTED)
-	{
+	case Responses::COMMAND_NOT_IMPLEMENTED:
 		strcpy(buf, "502 Command not implemented\r\n");
-	}
+		break;
 
-	else if (response_type == Responses::BAD_SEQUENSE)
-	{
+	case Responses::BAD_SEQUENSE:
 		strcpy(buf, "503 Bad sequence of commands\r\n");
-	}
+		break;
 
-	else if (response_type == Responses::NO_USER)
-	{
+	case Responses::NO_USER:
 		strcpy(buf, "550 No such user\r\n");
-	}
+		break;
 
-	else if (response_type == Responses::USER_NOT_LOCAL)
-	{
+	case Responses::USER_NOT_LOCAL:
 		strcpy(buf, "551 User not local. Can not forward the mail\r\n");
-	}
+		break;
 
-	else if (response_type == Responses::EMAIL_N_RECEIVED)
-	{
+	case Responses::EMAIL_N_RECEIVED:
 		strcpy(buf, "521 Server does not accept mail\r\n");
-	}
+		break;
 
-	else
-	{
+	default:
 		strcpy(buf, "No description\r\n");
+		break;
 	}
 
-	std::cout << "Sending: " << buf << "\n";
 	send(m_client_socket, buf, sizeof(buf), 0);
-
 	return response_type;
 }
 
 int MailSession::Processes(char* buf)
 {
-
-	if (m_current_status == MailSessionStatus::LOGIN)
+	switch (m_current_status)
 	{
+	case MailSessionStatus::LOGIN:
 		return SubProcessLoginRecieve(buf);
-	}
+		break;
 
-	else if(m_current_status == MailSessionStatus::PASSWORD)
-	{
+	case MailSessionStatus::PASSWORD:
 		return SubProcessPasswordRecieve(buf);
-	}
+		break;
 
-	else if (m_current_status == MailSessionStatus::DATA)
-	{
+	case MailSessionStatus::DATA:
 		return SubProcessSubject(buf);
-	}
+		break;
 
-	else if (m_current_status == MailSessionStatus::SUBJECT)
-	{
+	case MailSessionStatus::SUBJECT:
 		return SubProcessEmail(buf);
+		break;
 	}
 
 
@@ -199,8 +185,6 @@ int MailSession::ProcessNotImplemented(bool arg)
 
 int MailSession::ProcessHELO(char* buf)
 {
-	std::cout << "Received 'HELO' or 'ELHO'\n";
-
 	if (m_current_status != MailSessionStatus::EMPTY)
 	{
 		return SendResponse(Responses::BAD_SEQUENSE);
@@ -218,8 +202,6 @@ int MailSession::ProcessHELO(char* buf)
 
 int MailSession::ProcessAUTH(char* buf)
 {
-	std::cout << "Received 'AUTH'\n";
-
 	if (m_current_status != MailSessionStatus::EHLO)
 	{
 		return SendResponse(Responses::BAD_SEQUENSE);
@@ -232,8 +214,6 @@ int MailSession::ProcessAUTH(char* buf)
 
 int MailSession::ProcessMAIL(char* buf)
 {
-	std::cout << "Received 'MAIL FROM'\n";
-
 	if (m_current_status != MailSessionStatus::AUTH_SUCCESS)
 	{
 		return SendResponse(Responses::BAD_SEQUENSE);
@@ -242,8 +222,6 @@ int MailSession::ProcessMAIL(char* buf)
 	std::string address;
 
 	address = CutAddress(buf);
-
-	std::cout << "Message from: " << address << "\n";
 
 	if (!MailSession::ValidAdress((char*)address.c_str()))
 	{
@@ -258,8 +236,6 @@ int MailSession::ProcessMAIL(char* buf)
 
 int MailSession::ProcessRCPT(char* buf)
 {
-	std::cout << "Received 'RCPT TO'\n";
-
 	if (m_current_status != MailSessionStatus::MAIL_FROM)
 	{
 		return SendResponse(Responses::BAD_SEQUENSE);
@@ -268,8 +244,6 @@ int MailSession::ProcessRCPT(char* buf)
 	std::string address;
 
 	address = CutAddress(buf);
-
-	std::cout << "Message from: " << address << "\n";
 
 	if (!MailSession::ValidAdress((char*)address.c_str()))
 	{
@@ -284,8 +258,6 @@ int MailSession::ProcessRCPT(char* buf)
 
 int MailSession::ProcessDATA(char* buf)
 {
-	std::cout << "Received 'DATA'\n";
-
 	if (m_current_status != MailSessionStatus::RCPT_TO)
 	{
 		return SendResponse(Responses::BAD_SEQUENSE);
@@ -336,7 +308,6 @@ int MailSession::SubProcessEmail(char* buf)
 			m_mail_info.set_text(result);
 		}
 	
-		std::cout << "Received DATA END\n";
 		m_current_status = MailSessionStatus::QUIT;
 
 		return SendResponse(Responses::OK);
@@ -365,6 +336,6 @@ int MailSession::SubProcessSubject(char* buf)
 int MailSession::ProcessQUIT()
 {
 	m_mail_info.SaveToFile();
-	std::cout << "Received 'QUIT'\n";
+
 	return SendResponse(Responses::SERVICE_CLOSING);
 }

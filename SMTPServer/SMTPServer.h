@@ -17,7 +17,6 @@
 #include "..\XMLParser\XMLParser.h"
 #include "..\CPPLogger\CPPLogger.h"
 
-constexpr auto SMTP_PORT = 25;
 constexpr auto WELCOME = 220;
 
 class SMTPServer
