@@ -5,7 +5,7 @@
 #include <QMessageBox>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "SMTP_client.h"
+#include "SMTPClient.h"
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
@@ -125,14 +125,14 @@ void MainWindow::SendButtonClicked()
 
 void MainWindow::OwnServerButtonClicked()
 {
-    m_own_server_clicked = true;
-    m_gmail_server_clicked = false;
+    m_own_server_clicked    = true;
+    m_gmail_server_clicked  = false;
 }
 
 void MainWindow::GmailServerButtonClicked()
 {
-    m_gmail_server_clicked = true;
-    m_own_server_clicked = false;
+    m_gmail_server_clicked  = true;
+    m_own_server_clicked    = false;
 }
 
 bool MainWindow::InitializeSMTPClient()
@@ -141,14 +141,14 @@ bool MainWindow::InitializeSMTPClient()
     {
         SMTPClientClass client;
 
-        client.set_server_choice(this->GetServerChoice());
-        client.set_port(this->GetServerPort());
-        client.set_timeout(m_xml.GetSocketTimeOut());
-        client.set_login(this->GetLogin());
-        client.set_password(this->GetPassword());
-        client.set_recep_mail(this->GetRecepient());
-        client.set_msg_subject(this->GetSubject());
-        client.set_msg_data(this->GetMsgData());
+        client.set_smtp_address(this->get_server_choice());
+        client.set_port(this->get_own_server_port());
+        client.set_server_timeout(m_xml.GetSocketTimeOut());
+        client.set_login(this->get_login());
+        client.set_password(this->get_password());
+        client.set_recepient_email(this->get_rcpt_to());
+        client.set_subject(this->get_subject());
+        client.set_letter_message(this->get_msg_data());
         client.Send();
     }
     catch (SMTPErrorClass& error)
@@ -169,13 +169,13 @@ bool MainWindow::InitializeSecureSMTPClient()
     {
         SMTPSecureClientClass client;
 
-        client.set_server_choice(this->GetServerChoice());
-        client.set_timeout(m_xml.GetSocketTimeOut());
-        client.set_login(this->GetLogin());
-        client.set_password(this->GetPassword());
-        client.set_recep_mail(this->GetRecepient());
-        client.set_msg_subject(this->GetSubject());
-        client.set_msg_data(this->GetMsgData());
+        client.set_smtp_address(this->get_server_choice());
+        client.set_server_timeout(m_xml.GetSocketTimeOut());
+        client.set_login(this->get_login());
+        client.set_password(this->get_password());
+        client.set_recepient_email(this->get_rcpt_to());
+        client.set_subject(this->get_subject());
+        client.set_letter_message(this->get_msg_data());
         client.Send();
     }
     catch (SMTPErrorClass& error)
@@ -195,7 +195,7 @@ void MainWindow::ExitButtonClicked()
     QApplication::quit();
 }
 
-std::string MainWindow::GetServerChoice() const
+std::string MainWindow::get_server_choice() const
 {
     if (m_server_choice == GMAIL_SERVER_DOMAIN)
         return GMAIL_SERVER_DOMAIN;
@@ -203,32 +203,32 @@ std::string MainWindow::GetServerChoice() const
         return m_own_server_address;
 }
 
-std::string MainWindow::GetServerPort() const
+std::string MainWindow::get_own_server_port() const
 {
     return m_own_server_port;
 }
 
-std::string MainWindow::GetLogin() const
+std::string MainWindow::get_login() const
 {
     return m_login;
 }
 
-std::string MainWindow::GetPassword() const
+std::string MainWindow::get_password() const
 {
     return m_password;
 }
 
-std::string MainWindow::GetRecepient() const
+std::string MainWindow::get_rcpt_to() const
 {
     return m_rcpt_to;
 }
 
-std::string MainWindow::GetSubject() const
+std::string MainWindow::get_subject() const
 {
     return m_subject;
 }
 
-std::string MainWindow::GetMsgData() const
+std::string MainWindow::get_msg_data() const
 {
     return m_msg_data;
 }

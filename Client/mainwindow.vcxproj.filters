@@ -40,7 +40,7 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SMTP_client.cpp">
+    <ClCompile Include="SMTPClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="base64.cpp">
@@ -48,7 +48,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SMTP_client.h">
+    <ClInclude Include="SMTPClient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="base64.h">

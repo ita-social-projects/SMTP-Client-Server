@@ -85,19 +85,19 @@ public:
 	// Sets port to connect
 	bool	set_port(const std::string&);
 	// Sets time (in sec) for how long client will be waiting for server respone
-	void	set_timeout(const int);
+	void	set_server_timeout(const int);
 	// Sets user password for e-mail
 	bool	set_password(const std::string&);
 	// Sets e-mail of recepient
-	bool	set_recep_mail(const std::string&);
+	bool	set_recepient_email(const std::string&);
 	// Sets message subject
-	bool	set_msg_subject(const std::string&);
+	bool	set_subject(const std::string&);
 	// Sets message data
-	bool	set_msg_data(const std::string&);
+	bool	set_letter_message(const std::string&);
+	// Set ServerChoice
+	bool	set_smtp_address(const std::string&);
 	// Starts the procedure of sending all part of e-mail message
 	bool	Send();		
-	// Set ServerChoice
-	bool	set_server_choice(const std::string&);
 
 protected:	
 	
@@ -151,9 +151,6 @@ class SMTPSecureClientClass final : public SMTPClientClass
 public:
 	SMTPSecureClientClass();
 	~SMTPSecureClientClass();
-
-	// Prints out encryption cipher
-	bool	PrintSSLEncryption() const;	// Delete?
 
 private:
 

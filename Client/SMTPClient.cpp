@@ -2,7 +2,7 @@
 
 // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 
-#include "SMTP_client.h"
+#include "SMTPClient.h"
 
 SMTPClientClass::SMTPClientClass()
 {	
@@ -16,9 +16,9 @@ SMTPClientClass::SMTPClientClass()
 		
 	SecureZeroMemory(m_receive_buffer.get(), DEFAULT_BUFFER_SIZE);
 	
-	m_socket				= INVALID_SOCKET;	
-	m_connect_status		= false;	
-	m_server_timeout		= 0;
+	m_socket			= INVALID_SOCKET;	
+	m_connect_status	= false;	
+	m_server_timeout	= 0;
 }
 
 SMTPClientClass::~SMTPClientClass()
@@ -37,10 +37,9 @@ bool	SMTPClientClass::OpenConnection()
 	WSAData wsa_data;
 	struct addrinfo* result = nullptr,
 		* ptr = nullptr,
-		hints;
-	int check_result;
+		hints;	
 	
-	check_result = WSAStartup(MAKEWORD(2, 2), &wsa_data);
+	int check_result = WSAStartup(MAKEWORD(2, 2), &wsa_data);
 	if (check_result != 0)
 	{
 		WSACleanup();
@@ -99,11 +98,11 @@ bool	SMTPClientClass::OpenConnection()
 
 bool	SMTPClientClass::SendData(const std::string &msg_to_send) 
 {
-	fd_set			fdwrite;
-	timeval			time;
-	int				result;
-	u_int			index		= 0;
-	u_int			msg_left	= (u_int)msg_to_send.size();	
+	fd_set		fdwrite;
+	timeval		time;
+	int			result;
+	u_int		index		= 0;
+	u_int		msg_left	= (u_int)msg_to_send.size();	
 
 	if (msg_to_send.empty())
 		throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::SEND_MSG_EMPTY);
@@ -115,14 +114,16 @@ bool	SMTPClientClass::SendData(const std::string &msg_to_send)
 
 		FD_SET(m_socket, &fdwrite);
 
-		if ((result = select((int)m_socket + MAX_FILE_DESCRIPTOR, NULL, &fdwrite, NULL, &time)) == SOCKET_ERROR)
+		result = select((int)m_socket + MAX_FILE_DESCRIPTOR, NULL, &fdwrite, NULL, &time);
+
+		if (result == SOCKET_ERROR)
 		{
 			FD_CLR(m_socket, &fdwrite);
 			LOG_ERROR << "Winsock select() error.";
 			throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::WSA_SELECT_ERROR);
 		}
 
-		if (!result)
+		if (result == 0)
 		{			
 			FD_CLR(m_socket, &fdwrite);
 			LOG_ERROR << "Server is not responding.";
@@ -150,24 +151,25 @@ bool	SMTPClientClass::SendData(const std::string &msg_to_send)
 
 bool	SMTPClientClass::ReceiveData()
 {
-	int		result = 0;
+	int		result	= 0;
 	fd_set	fdread;
-	timeval time;
+	timeval	time;
 
-	time.tv_sec = m_server_timeout;
+	time.tv_sec		= m_server_timeout;
 
 	FD_ZERO(&fdread);
-
 	FD_SET(m_socket, &fdread);
 
-	if ((result = select((int)m_socket + MAX_FILE_DESCRIPTOR, &fdread, NULL, NULL, &time)) == SOCKET_ERROR)
+	result = select((int)m_socket + MAX_FILE_DESCRIPTOR, &fdread, NULL, NULL, &time);
+
+	if (result == SOCKET_ERROR)
 	{
 		FD_CLR(m_socket, &fdread);
 		LOG_ERROR << "Winsock select() error.";
 		throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::WSA_SELECT_ERROR);
 	}
 
-	if (!result)
+	if (result == 0)
 	{		
 		FD_CLR(m_socket, &fdread);
 		LOG_ERROR << "Server is not responding.";
@@ -222,7 +224,7 @@ bool	SMTPClientClass::set_port(const std::string& port)
 	return true;
 }
 
-void	SMTPClientClass::set_timeout(const int t)
+void	SMTPClientClass::set_server_timeout(const int t)
 {
 	m_server_timeout = t;	
 }
@@ -239,7 +241,7 @@ bool	SMTPClientClass::set_password(const std::string& s)
 	return true;
 }
 
-bool	SMTPClientClass::set_recep_mail(const std::string& s)
+bool	SMTPClientClass::set_recepient_email(const std::string& s)
 {
 	if (s.empty())
 	{
@@ -251,7 +253,7 @@ bool	SMTPClientClass::set_recep_mail(const std::string& s)
 	return true;
 }
 
-bool	SMTPClientClass::set_msg_subject(const std::string& s)
+bool	SMTPClientClass::set_subject(const std::string& s)
 {
 	if (s.empty())
 	{
@@ -263,7 +265,7 @@ bool	SMTPClientClass::set_msg_subject(const std::string& s)
 	return true;
 }
 
-bool	SMTPClientClass::set_msg_data(const std::string& s)
+bool	SMTPClientClass::set_letter_message(const std::string& s)
 {
 	if (s.empty())
 	{
@@ -287,8 +289,7 @@ bool	SMTPClientClass::Send()
 
 	try
 	{
-		// Initiate full sending procedure
-		
+		// Initiate full sending procedure		
 		ReceiveData();
 		if (GetResponseCode() != (int)SMTPServerResponce::SERVER_READY)
 		{
@@ -410,9 +411,6 @@ bool	SMTPClientClass::Send()
 
 int		SMTPClientClass::GetResponseCode() const
 {
-	if (m_receive_buffer.get() == nullptr)
-		return 0;
-
 	// Transform value from ASCII into integer
 	const int	TO_HUNDREDS		= 100;
 	const int	TO_TENS			= 10;
@@ -426,12 +424,13 @@ int		SMTPClientClass::GetResponseCode() const
 
 void	SMTPClientClass::SendHello()
 {
+	const char	AT_SIGN = '@';
 	size_t		index;
-	std::string mail_domain;
+	std::string	mail_domain;
 	
 	if (m_login.size())
 	{
-		index = m_login.find('@');
+		index = m_login.find(AT_SIGN);
 		if (index == m_login.size())
 		{
 			LOG_ERROR << "Domain of user email is invalid.";
@@ -509,17 +508,15 @@ void	SMTPClientClass::FlushBuffer()
 	SecureZeroMemory(m_receive_buffer.get(), DEFAULT_BUFFER_SIZE);
 }
 
-bool SMTPClientClass::set_server_choice(const std::string& s)
+bool SMTPClientClass::set_smtp_address(const std::string& s)
 {
 	if (s.size())
 	{		
 		m_smtp_address = s;
 		return true;
 	}	
-	else
-	{
-		return false;
-	}	
+	
+	return false;
 }
 
 std::string SMTPErrorClass::GetErrorText() const
@@ -593,10 +590,10 @@ SMTPSecureClientClass::SMTPSecureClientClass()
 
 	SecureZeroMemory(m_receive_buffer.get(), DEFAULT_BUFFER_SIZE);
 
-	m_ctx = nullptr;
-	m_ssl = nullptr;
-	m_socket = INVALID_SOCKET;	
-	m_connect_status = false;
+	m_connect_status	= false;
+	m_ctx				= nullptr;
+	m_ssl				= nullptr;
+	m_socket			= INVALID_SOCKET;	
 }
 
 SMTPSecureClientClass::~SMTPSecureClientClass()
@@ -610,39 +607,27 @@ SMTPSecureClientClass::~SMTPSecureClientClass()
 	WSACleanup();
 }
 
-bool SMTPSecureClientClass::PrintSSLEncryption() const
-{
-	if (m_ssl != nullptr)
-	{
-		std::cout << "Connected with " << SSL_get_cipher(m_ssl) << " encryption" << std::endl;
-		return true;
-	}
-
-	return false;
-}
-
 bool SMTPSecureClientClass::OpenConnection()
 {
 	// Winsock initialization
 	WSAData wsa_data;
 	struct addrinfo* result = nullptr,
 		* ptr = nullptr,
-		hints;
-	int check_result;
+		hints;	
 
-	check_result = WSAStartup(MAKEWORD(2, 2), &wsa_data);
+	int check_result = WSAStartup(MAKEWORD(2, 2), &wsa_data);
 	if (check_result != 0)
 	{
 		WSACleanup();
-		LOG_ERROR << "Lack of memory for message buffer.";
+		LOG_ERROR << "Couldn't initialize Winsock2.";
 		throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::WSA_STARTUP_ERROR);
 	}
 
 	SecureZeroMemory(&hints, sizeof(hints));
 
-	hints.ai_family = AF_UNSPEC; // unspecify what type of IP address we will be using (IPv4 or IPv6)
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_protocol = IPPROTO_TCP;
+	hints.ai_family		= AF_UNSPEC; // unspecify what type of IP address we will be using (IPv4(AF_INET) or IPv6(AF_INET6))
+	hints.ai_socktype	= SOCK_STREAM;
+	hints.ai_protocol	= IPPROTO_TCP;
 
 	
 	check_result = getaddrinfo(m_smtp_address.c_str(), DEFAULT_SSL_PORT, &hints, &result);
@@ -741,7 +726,7 @@ bool SMTPSecureClientClass::OpenSSLConnect()
 
 	fd_set	fdwrite;
 	fd_set	fdread;
-	timeval time;
+	timeval	time;
 	int		result = 0;
 	int		write_blocked = 0;
 	int		read_blocked = 0;
@@ -762,8 +747,9 @@ bool SMTPSecureClientClass::OpenSSLConnect()
 		{
 			write_blocked = 0;
 			read_blocked = 0;
+			result = select((int)m_socket + MAX_FILE_DESCRIPTOR, &fdread, &fdwrite, NULL, &time);
 
-			if ((result = select((int)m_socket + MAX_FILE_DESCRIPTOR, &fdread, &fdwrite, NULL, &time)) == SOCKET_ERROR)
+			if (result == SOCKET_ERROR)
 			{
 				FD_ZERO(&fdwrite);
 				FD_ZERO(&fdread);
@@ -772,7 +758,7 @@ bool SMTPSecureClientClass::OpenSSLConnect()
 			}
 
 			// timeout has happened
-			if (!result)
+			if (result == 0)
 			{
 				FD_ZERO(&fdwrite);
 				FD_ZERO(&fdread);
@@ -815,11 +801,11 @@ bool SMTPSecureClientClass::SendData(const std::string& msg_to_send)
 	int		result;
 	fd_set	fdwrite;
 	fd_set	fdread;
-	timeval time;
+	timeval	time;
 
-	u_int	msg_left = (u_int)msg_to_send.size();
-	u_int	offset = 0;
-	int write_blocked_on_read = 0;
+	u_int	msg_left				= (u_int)msg_to_send.size();
+	u_int	offset					= 0;
+	int		write_blocked_on_read	= 0;
 
 	if (msg_to_send.empty())
 	{
@@ -840,7 +826,9 @@ bool SMTPSecureClientClass::SendData(const std::string& msg_to_send)
 			FD_SET(m_socket, &fdread);
 		}
 
-		if ((result = select((int)m_socket + MAX_FILE_DESCRIPTOR, &fdread, &fdwrite, NULL, &time)) == SOCKET_ERROR)
+		result = select((int)m_socket + MAX_FILE_DESCRIPTOR, &fdread, &fdwrite, NULL, &time);
+
+		if (result == SOCKET_ERROR)
 		{
 			FD_ZERO(&fdwrite);
 			FD_ZERO(&fdread);
@@ -848,7 +836,7 @@ bool SMTPSecureClientClass::SendData(const std::string& msg_to_send)
 			throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::WSA_SELECT_ERROR);
 		}
 
-		if (!result)
+		if (result == 0)
 		{
 			FD_ZERO(&fdwrite);
 			FD_ZERO(&fdread);
@@ -895,13 +883,13 @@ bool SMTPSecureClientClass::ReceiveData()
 {
 	fd_set	fdread;
 	fd_set	fdwrite;
-	timeval time;
+	timeval	time;
 
-	const int buffer_size = 1024;
-	int		result					= 0;
-	u_int	offset					= 0;
-	int		read_blocked_on_write	= 0;
-	bool	sending_finished		= false;
+	const int	BUFFER_SIZE				= 1024;
+	int			result					= 0;
+	u_int		offset					= 0;
+	int			read_blocked_on_write	= 0;
+	bool		sending_finished		= false;
 
 	while (!sending_finished)
 	{
@@ -916,7 +904,9 @@ bool SMTPSecureClientClass::ReceiveData()
 			FD_SET(m_socket, &fdwrite);
 		}
 
-		if ((result = select((int)m_socket + MAX_FILE_DESCRIPTOR, &fdread, &fdwrite, NULL, &time)) == SOCKET_ERROR)
+		result = select((int)m_socket + MAX_FILE_DESCRIPTOR, &fdread, &fdwrite, NULL, &time);
+
+		if (result == SOCKET_ERROR)
 		{
 			FD_ZERO(&fdread);
 			FD_ZERO(&fdwrite);
@@ -924,7 +914,7 @@ bool SMTPSecureClientClass::ReceiveData()
 			throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::WSA_SELECT_ERROR);
 		}
 
-		if (!result)
+		if (result == 0)
 		{
 			FD_ZERO(&fdread);
 			FD_ZERO(&fdwrite);
@@ -938,10 +928,10 @@ bool SMTPSecureClientClass::ReceiveData()
 			{
 				read_blocked_on_write = 0;
 
-				char buffer[buffer_size];
+				char buffer[BUFFER_SIZE];
 				int ssl_error;
 
-				result = SSL_read(m_ssl, buffer, buffer_size);
+				result = SSL_read(m_ssl, buffer, BUFFER_SIZE);
 				ssl_error = SSL_get_error(m_ssl, (int)result);
 				if (ssl_error == SSL_ERROR_NONE)
 				{

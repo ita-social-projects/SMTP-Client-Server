@@ -21,13 +21,13 @@ public:
     MainWindow(QWidget* parent = nullptr);
     ~MainWindow();
 
-    std::string GetServerChoice() const;
-    std::string GetServerPort() const;
-    std::string GetLogin() const;
-    std::string GetPassword() const;
-    std::string GetRecepient() const;
-    std::string GetSubject() const;
-    std::string GetMsgData() const;    
+    std::string get_server_choice() const;
+    std::string get_own_server_port() const;
+    std::string get_login() const;
+    std::string get_password() const;
+    std::string get_rcpt_to() const;
+    std::string get_subject() const;
+    std::string get_msg_data() const;    
 
 private:
 
@@ -37,11 +37,8 @@ private:
 private slots:
 
     void SendButtonClicked();
-
     void OwnServerButtonClicked();
-
     void GmailServerButtonClicked();
-
     void ExitButtonClicked();
 
 private:
