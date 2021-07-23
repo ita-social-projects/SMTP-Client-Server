@@ -145,7 +145,7 @@
       <Command>copy /Y "$(SolutionDir)x64\Debug\XMLParser.lib" "$(SolutionDir)3rdPartyLibs\XMLParser.lib"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>Copy XMLParser.lib to 3rdPartyLibs</Message>
+      <Message>Copy XMLParser.lib to 3rdPartyLibs folder</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -182,7 +182,7 @@
     <ClCompile Include="XMLParser.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Xml Include="..\..\..\TestFiles\Config.xml" />
+    <Xml Include="..\Config.xml" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
