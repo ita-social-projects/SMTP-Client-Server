@@ -22,7 +22,7 @@ class ILogger
 public:
 	virtual ILogger& operator() (const std::string& func_name, const std::string& file_name, short level) = 0;
 	virtual ILogger& operator<< (const char* log_message) = 0;
-	virtual void set_filter_level(LogLevels level) = 0;
+	virtual void set_filter_level(unsigned int level) = 0;
 };
 
 class Logger final : public ILogger
@@ -34,7 +34,7 @@ public:
 	Logger& operator()(const std::string& func, const std::string& filename, short level) override;
 	Logger& operator<<(const char* log_message) override;
 
-	void set_filter_level(LogLevels level) override;
+	void set_filter_level(unsigned int level) override;
 
 private:
 	eP7Trace_Level  m_log_level;
@@ -42,6 +42,7 @@ private:
 	IP7_Trace*      m_trace;
 	std::string     m_func_name;
 	std::string     m_file_name;
+	bool			m_flush_flag;
 };
 
 #define LOG_TRACE LOG(__FUNCTION__, __FILE__, eP7Trace_Level::EP7TRACE_LEVEL_TRACE)
