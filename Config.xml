@@ -17,7 +17,7 @@
 	</communicationsettings>
 	<logging>
 		<!--path to log file-->
-		<filename>C:\Logs</filename>
+		<filename>C:\Logs\</filename>
 		<!--supports only 3 levels of logging: 0 - No logs, 1 - Production logs/Warning/Erros, 2 - Debug logs, 3 - Trace logs-->
 		<LogLevel>2</LogLevel>
 		<!--parameter for flushing output to log file (1 - enable / 0 - disable). Warning this parameter will slow dowm output!-->

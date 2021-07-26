@@ -26,7 +26,7 @@ bool XMLParser::ParseFile(const std::string& filename)
 	std::ifstream file{ filename };
 	if (!file.is_open())
 	{
-		LOG_INFO << "Can't open file.";
+		//LOG_INFO << "Can't open file.";
 		return false;
 	}
 
@@ -55,7 +55,7 @@ bool XMLParser::ParseFile(const std::string& filename)
 		std::size_t tag_close;
 		if (tag_begin == std::string::npos || tag_end == std::string::npos)
 		{
-			LOG_INFO << "XML file is not valid.";
+			//LOG_INFO << "XML file is not valid.";
 			return false;
 		}
 		std::string element_tag;
@@ -130,23 +130,23 @@ bool XMLParser::FileCheck(const std::filesystem::path& filename)
 {
 	if (!std::filesystem::exists(filename))
 	{
-		LOG_INFO << "File does not exist.";
+		//LOG_INFO << "File does not exist.";
 		return false;
 	}
 	if (!std::filesystem::is_regular_file(filename))
 	{
-		LOG_INFO << "File is not regular file.";
+		//LOG_INFO << "File is not regular file.";
 		return false;
 	}
 	const std::string extension = ".xml";
 	if (std::filesystem::path(filename).extension().string() != extension)
 	{
-		LOG_INFO << "It's not XML file.";
+		//LOG_INFO << "It's not XML file.";
 		return false;
 	}
 	if (std::filesystem::is_empty(filename))
 	{
-		LOG_INFO << "File is empty.";
+		//LOG_INFO << "File is empty.";
 		return false;
 	}
 	return true;
