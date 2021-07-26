@@ -1,8 +1,8 @@
 #include "ThreadPool.h"
 
-ThreadPool::ThreadPool(int m_thread_size)
+ThreadPool::ThreadPool(int thread_size)
 {
-    this->m_thread_size = m_thread_size;
+    this->m_thread_size = thread_size;
     m_is_stop = false;
 }
 

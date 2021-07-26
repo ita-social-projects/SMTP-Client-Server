@@ -23,7 +23,7 @@ class ThreadPool
 {
 public:
     ThreadPool() : m_is_stop(false), m_thread_size(0) {}
-    ThreadPool(int m_thread_size);
+    ThreadPool(int thread_size);
     ~ThreadPool();
 
     void AddTask(void* in_task, SOCKET socket);
