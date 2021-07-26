@@ -128,9 +128,7 @@
     </Lib>
     <PostBuildEvent>
       <Command>copy /Y "$(SolutionDir)x64\Debug\CPPLogger.lib" "$(SolutionDir)3rdPartyLibs\CPPLogger.lib"</Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Message>Copy CPPLogger.lib into 3rdPartyLibs</Message>
+      <Message>Copy CPPLogger.lib to 3rdPartyLibs folder</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
