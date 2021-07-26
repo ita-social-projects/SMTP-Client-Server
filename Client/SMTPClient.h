@@ -91,7 +91,7 @@ public:
 	// Sets e-mail of recepient
 	bool	set_recepient_email(const std::string&);
 	// Sets message subject
-	bool	set_subject(const std::string&);
+	void	set_subject(const std::string&);
 	// Sets message data
 	bool	set_letter_message(const std::string&);
 	// Set ServerChoice

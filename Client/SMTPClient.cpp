@@ -253,16 +253,12 @@ bool	SMTPClientClass::set_recepient_email(const std::string& s)
 	return true;
 }
 
-bool	SMTPClientClass::set_subject(const std::string& s)
+void	SMTPClientClass::set_subject(const std::string& s)
 {
-	if (s.empty())
+	if (!s.empty())
 	{
-		LOG_ERROR << "Message subject was not specified.";
-		throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::STRING_ARGUMENT_EMPTY);
+		m_subject = s;	
 	}
-	m_subject = s;
-
-	return true;
 }
 
 bool	SMTPClientClass::set_letter_message(const std::string& s)
@@ -381,7 +377,11 @@ bool	SMTPClientClass::Send()
 		}
 		FlushBuffer();
 
-		SendSubject();
+		if (!m_subject.empty())
+		{
+			SendSubject();
+		}
+
 		SendData(m_letter_message.append("\r\n"));
 		SendEndingDot();
 

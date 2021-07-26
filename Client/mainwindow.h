@@ -22,7 +22,7 @@ public:
     ~MainWindow();
 
     std::string get_server_choice() const;
-    std::string get_own_server_port() const;
+    std::string get_server_port() const;
     std::string get_login() const;
     std::string get_password() const;
     std::string get_rcpt_to() const;
@@ -37,7 +37,7 @@ private:
 private slots:
 
     void SendButtonClicked();
-    void OwnServerButtonClicked();
+    void ServerButtonClicked();
     void GmailServerButtonClicked();
     void ExitButtonClicked();
 
@@ -49,10 +49,10 @@ private:
     std::string     m_rcpt_to;
     std::string     m_subject;
     std::string     m_msg_data;
-    std::string     m_own_server_port;
-    std::string     m_own_server_address;
+    std::string     m_server_port;
+    std::string     m_server_address;
     bool            m_gmail_server_clicked  = false;
-    bool            m_own_server_clicked    = true;
+    bool            m_server_clicked        = true;
     XMLParser       m_xml;
     Logger          LOG;
 };

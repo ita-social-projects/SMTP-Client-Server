@@ -13,11 +13,11 @@ MainWindow::MainWindow(QWidget* parent)
 {
     ui->setupUi(this);   
     
-    m_own_server_address    = m_xml.GetIpAddress();
-    m_own_server_port       = std::to_string(m_xml.GetListenerPort());
-    m_server_choice         = m_own_server_address;
+    m_server_address    = m_xml.GetIpAddress();    
+    m_server_port       = std::to_string(m_xml.GetListenerPort());    
+    m_server_choice     = m_server_address;
 
-    connect(ui->ownServerButton, SIGNAL(clicked()), this, SLOT(OwnServerButtonClicked()));
+    connect(ui->ownServerButton, SIGNAL(clicked()), this, SLOT(ServerButtonClicked()));
     connect(ui->gmailServerButton, SIGNAL(clicked()), this, SLOT(GmailServerButtonClicked()));
     connect(ui->sendButton, SIGNAL(clicked()), this, SLOT(SendButtonClicked()));
     connect(ui->exitButton, SIGNAL(clicked()), this, SLOT(ExitButtonClicked()));
@@ -29,27 +29,21 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::SendButtonClicked()
-{    
-    if (!m_own_server_clicked && !m_gmail_server_clicked)
+{
+    if (m_server_clicked)
     {
-        LOG_WARN << "User tried to send message without specifying server.";
-        QMessageBox::critical(this, "Server", "Choose one of the SMTP servers");
-        return;
-    }
-    if (m_own_server_clicked)
-    {
-        m_server_choice = m_own_server_address;
+        m_server_choice = m_server_address;
     }
     else
     {
         m_server_choice = GMAIL_SERVER_DOMAIN;
     }
 
-    QString qs = ui->lineLogin->text();
+    QString qs = ui->lineLogin->text();    
     QString qs2;
-    if (qs.size())
-    {
-        m_login = qs.toStdString();
+    if (!qs.isEmpty())
+    {        
+        m_login = qs.toLocal8Bit().constData();        
     }
     else
     {
@@ -61,11 +55,11 @@ void MainWindow::SendButtonClicked()
     qs = ui->linePassword1->text();
     qs2 = ui->linePassword2->text();
 
-    if (qs.size() && qs2.size())
+    if (!qs.isEmpty() && !qs2.isEmpty())
     {
         if (qs == qs2)
-        {
-            m_password = qs.toStdString();
+        {            
+            m_password = qs.toLocal8Bit().constData();
         }
         else
         {
@@ -83,8 +77,8 @@ void MainWindow::SendButtonClicked()
 
     qs = ui->lineRCPT->text();
     if (qs.size())
-    {
-        m_rcpt_to = qs.toStdString();
+    {        
+        m_rcpt_to = qs.toLocal8Bit().constData();
     }
     else
     {
@@ -94,21 +88,15 @@ void MainWindow::SendButtonClicked()
     }
 
     qs = ui->lineSubject->text();
-    if (qs.size())
-    {
-        m_subject = qs.toStdString();
-    }
-    else
-    {
-        LOG_WARN << "User tried to send message without specifying subject.";
-        QMessageBox::critical(this, "Subject", "Subject field is empty");
-        return;
-    }
+    if (!qs.isEmpty())
+    {        
+        m_subject = qs.toLocal8Bit().constData();
+    }    
 
     qs = ui->lineData->toPlainText();
     if (qs.size())
-    {
-        m_msg_data = qs.toStdString();
+    {        
+        m_msg_data = qs.toLocal8Bit().constData();
     }
     else
     {
@@ -123,16 +111,16 @@ void MainWindow::SendButtonClicked()
         this->InitializeSMTPClient();
 }
 
-void MainWindow::OwnServerButtonClicked()
+void MainWindow::ServerButtonClicked()
 {
-    m_own_server_clicked    = true;
+    m_server_clicked        = true;
     m_gmail_server_clicked  = false;
 }
 
 void MainWindow::GmailServerButtonClicked()
 {
     m_gmail_server_clicked  = true;
-    m_own_server_clicked    = false;
+    m_server_clicked        = false;
 }
 
 bool MainWindow::InitializeSMTPClient()
@@ -142,7 +130,7 @@ bool MainWindow::InitializeSMTPClient()
         SMTPClientClass client;
 
         client.set_smtp_address(this->get_server_choice());
-        client.set_port(this->get_own_server_port());
+        client.set_port(this->get_server_port());
         client.set_server_timeout(m_xml.GetSocketTimeOut());
         client.set_login(this->get_login());
         client.set_password(this->get_password());
@@ -170,7 +158,7 @@ bool MainWindow::InitializeSecureSMTPClient()
         SMTPSecureClientClass client;
 
         client.set_smtp_address(this->get_server_choice());
-        client.set_server_timeout(m_xml.GetSocketTimeOut());
+        client.set_server_timeout(m_xml.GetSocketTimeOut());        
         client.set_login(this->get_login());
         client.set_password(this->get_password());
         client.set_recepient_email(this->get_rcpt_to());
@@ -200,12 +188,12 @@ std::string MainWindow::get_server_choice() const
     if (m_server_choice == GMAIL_SERVER_DOMAIN)
         return GMAIL_SERVER_DOMAIN;
     else
-        return m_own_server_address;
+        return m_server_address;
 }
 
-std::string MainWindow::get_own_server_port() const
+std::string MainWindow::get_server_port() const
 {
-    return m_own_server_port;
+    return m_server_port;
 }
 
 std::string MainWindow::get_login() const
