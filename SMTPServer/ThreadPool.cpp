@@ -1,8 +1,8 @@
 #include "ThreadPool.h"
 
-ThreadPool::ThreadPool(int thread_size)
+ThreadPool::ThreadPool(int m_thread_size)
 {
-    this->m_thread_size = thread_size;
+    this->m_thread_size = m_thread_size;
     m_is_stop = false;
 }
 
@@ -71,7 +71,7 @@ void ThreadPool::AddTask(void* in_task, SOCKET socket)
     m_thread_pool.emplace_back(&ThreadPool::DoTask, this);
 }
 
-void ThreadPool::set_size(int thread_size)
+void ThreadPool::set_thread_size(int m_thread_size)
 {
-    this->m_thread_size = thread_size;
+    this->m_thread_size = m_thread_size;
 }

@@ -30,16 +30,16 @@ void SMTPServer::AcceptConnections()
 void SMTPServer::WorkWithClient(SOCKET client_socket)
 {
 	MailSession mail_session(client_socket);
-	char buf[128];
+	char buf[BUF_SIZE];
 	ZeroMemory(&buf, sizeof(buf));
 
 	mail_session.SendResponse(WELCOME);
 
-	while (int len = recv(mail_session.get_socket(), (char*)&buf, sizeof(buf), 0))
+	while (int len = recv(mail_session.get_client_socket(), (char*)&buf, sizeof(buf), 0))
 	{
 		if (221 == mail_session.Processes(buf))
 		{
-			closesocket(mail_session.get_socket());
+			closesocket(mail_session.get_client_socket());
 			break;
 		}
 

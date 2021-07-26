@@ -4,24 +4,24 @@
 
 #include "MailInfo.h"
 
-void MailInfo::set_mail_from(const std::string& mail_from)
+void MailInfo::set_mail_from(const std::string& m_mail_from)
 {
-	this->m_mail_from = mail_from;
+	this->m_mail_from = m_mail_from;
 }
 
-void MailInfo::set_rcpt_to(const std::string& rcpt_to)
+void MailInfo::set_rcpt_to(const std::string& m_rcpt_to)
 {
-	this->m_rcpt_to = rcpt_to;
+	this->m_rcpt_to = m_rcpt_to;
 }
 
-void MailInfo::set_subject(const std::string& subject)
+void MailInfo::set_subject(const std::string& m_subject)
 {
-	this->m_subject = subject;
+	this->m_subject = m_subject;
 }
 
-void MailInfo::set_text(const std::string& text)
+void MailInfo::set_text(const std::string& m_text)
 {
-	this->m_text += "\n" + text;
+	this->m_text += "\n" + m_text;
 }
 
 const char* MailInfo::get_mail_from() const

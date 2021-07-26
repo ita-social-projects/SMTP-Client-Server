@@ -9,7 +9,6 @@
 
 #pragma comment(lib, "Ws2_32.lib")
 
-constexpr auto MAX_ADDRESS_LENGTH = 256;
 constexpr auto SMTP_DATA_TERMINATOR = "\r\n.\r\n";
 constexpr auto FIRST_FOUR_SYMBOLS = 4;
 constexpr auto FIRST_EIGHT_SYMBOLS = 8;
@@ -53,7 +52,7 @@ public:
 	MailSession() = delete;
 	MailSession(SOCKET& client_socket);
 
-	const SOCKET& get_socket() const;
+	const SOCKET& get_client_socket() const;
 
 	int SendResponse(int response_type);
 	int Processes(char* buf);

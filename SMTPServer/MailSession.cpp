@@ -9,7 +9,7 @@ MailSession::MailSession(SOCKET& client_socket)
 	this->m_client_socket = client_socket;
 }
 
-const SOCKET& MailSession::get_socket() const
+const SOCKET& MailSession::get_client_socket() const
 {
 	return m_client_socket;
 }
@@ -219,9 +219,7 @@ int MailSession::ProcessMAIL(char* buf)
 		return SendResponse(Responses::BAD_SEQUENSE);
 	}
 
-	std::string address;
-
-	address = CutAddress(buf);
+	std::string address = CutAddress(buf);
 
 	if (!MailSession::ValidAdress((char*)address.c_str()))
 	{
@@ -241,9 +239,7 @@ int MailSession::ProcessRCPT(char* buf)
 		return SendResponse(Responses::BAD_SEQUENSE);
 	}
 
-	std::string address;
-
-	address = CutAddress(buf);
+	std::string address = CutAddress(buf);
 
 	if (!MailSession::ValidAdress((char*)address.c_str()))
 	{

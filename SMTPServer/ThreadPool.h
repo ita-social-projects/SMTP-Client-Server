@@ -23,12 +23,12 @@ class ThreadPool
 {
 public:
     ThreadPool() : m_is_stop(false), m_thread_size(0) {}
-    ThreadPool(int thread_size);
+    ThreadPool(int m_thread_size);
     ~ThreadPool();
 
     void AddTask(void* in_task, SOCKET socket);
 
-    void set_size(int thread_size);
+    void set_thread_size(int m_thread_size);
 
 private:
     void Join();

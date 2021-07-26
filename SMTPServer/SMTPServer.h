@@ -18,6 +18,7 @@
 #include "..\CPPLogger\CPPLogger.h"
 
 constexpr auto WELCOME = 220;
+constexpr auto BUF_SIZE = 128;
 
 class SMTPServer
 {
