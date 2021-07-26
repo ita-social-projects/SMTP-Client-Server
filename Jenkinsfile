@@ -77,7 +77,7 @@ def sendToTelegram(chatId, credentialsId, messageText) {
                  -d "chat_id=${chatId}" \
                  -d 'message=${messageText}' \
                  -d "parse_mode=HTML" \
-                 http://35.193.109.110:5000/sendtotelegram/ >> /dev/null
+                 http://35.188.163.71:5000/sendtotelegram/ >> /dev/null
         """
     }
 }
