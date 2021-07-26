@@ -3,7 +3,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
+#include "qmainwindow.h"
 #include "../CPPLogger/CPPLogger.h"
 #include "../XMLParser/XMLParser.h"
 
