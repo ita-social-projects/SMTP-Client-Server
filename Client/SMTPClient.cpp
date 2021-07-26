@@ -318,7 +318,9 @@ bool	SMTPClientClass::Send()
 			LOG_ERROR << "User login was not specified.";
 			throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::UNDEF_USER_LOGIN);
 		}		
-		std::string encoded_login = base64_encode((const unsigned char*)m_login.c_str(), (u_int)m_login.size());
+
+		Base64Coder coder;		
+		std::string encoded_login = coder.Encode((const unsigned char*)m_login.c_str(), (u_int)m_login.size());
 		encoded_login.append("\r\n");
 		SendData(encoded_login);		
 
@@ -334,9 +336,9 @@ bool	SMTPClientClass::Send()
 		{
 			LOG_ERROR << "User password was not specified.";
 			throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::UNDEF_USER_PASSWORD);
-		}
+		}		
 		
-		std::string encoded_password = base64_encode((const unsigned char*)m_password.c_str(), (u_int)m_password.size());
+		std::string encoded_password = coder.Encode((const unsigned char*)m_password.c_str(), (u_int)m_password.size());
 		encoded_password.append("\r\n");
 		SendData(encoded_password);
 		

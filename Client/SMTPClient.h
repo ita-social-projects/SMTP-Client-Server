@@ -171,3 +171,14 @@ private:
 	SSL_CTX* m_ctx;
 	SSL*	 m_ssl;	
 };
+
+class Base64Coder
+{
+public:
+	std::string Encode(const unsigned char* msg, unsigned int len)
+	{
+		std::string encoded_msg = base64_encode(msg, len);
+
+		return encoded_msg;
+	}
+};
