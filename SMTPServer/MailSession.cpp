@@ -6,12 +6,12 @@
 
 MailSession::MailSession(SOCKET client_socket)
 {
-	this->client_socket = client_socket;
+	this->m_client_socket = client_socket;
 }
 
 const SOCKET& MailSession::get_client_socket() const
 {
-	return client_socket;
+	return m_client_socket;
 }
 
 bool MailSession::ValidAdress(char* buf)
@@ -116,7 +116,7 @@ int MailSession::SendResponse(int response_type)
 		strcpy(buf, "No description\r\n");
 	}
 
-	send(client_socket, buf, sizeof(buf), 0);
+	send(m_client_socket, buf, sizeof(buf), 0);
 
 	return response_type;
 }
@@ -139,12 +139,12 @@ int MailSession::Processes(char* buf)
 		return ProcessAUTH(buf);
 	}
 
-	else if (current_status == MailSessionStatus::LOGIN)
+	else if (m_current_status == MailSessionStatus::LOGIN)
 	{
 		return ProcessAUTH(buf);
 	}
 
-	else if (current_status == MailSessionStatus::PASSWORD)
+	else if (m_current_status == MailSessionStatus::PASSWORD)
 	{
 		return ProcessAUTH(buf);
 	}
@@ -164,12 +164,12 @@ int MailSession::Processes(char* buf)
 		return ProcessDATA(buf);
 	}
 
-	else if (current_status == MailSessionStatus::SUBJECT)
+	else if (m_current_status == MailSessionStatus::SUBJECT)
 	{
 		return SubProcessEmail(buf);
 	}
 
-	else if (current_status == MailSessionStatus::DATA)
+	else if (m_current_status == MailSessionStatus::DATA)
 	{
 		return SubProcessSubject(buf);
 	}
@@ -192,7 +192,7 @@ int MailSession::ProcessNotImplemented()
 
 int MailSession::ProcessHELO(char* buf)
 {
-	if (current_status != MailSessionStatus::EMPTY)
+	if (m_current_status != MailSessionStatus::EMPTY)
 	{
 		return SendResponse(Responses::BAD_SEQUENSE);
 	}
@@ -202,25 +202,25 @@ int MailSession::ProcessHELO(char* buf)
 		return SendResponse(Responses::SYNTAX_ERROR);
 	}
 
-	current_status = MailSessionStatus::AUTH;
+	m_current_status = MailSessionStatus::AUTH;
 
 	return SendResponse(Responses::OK);
 }
 
 int MailSession::ProcessAUTH(char* buf)
 {
-	if (current_status == MailSessionStatus::AUTH)
+	if (m_current_status == MailSessionStatus::AUTH)
 	{
-		current_status = MailSessionStatus::LOGIN;
+		m_current_status = MailSessionStatus::LOGIN;
 		return SendResponse(Responses::LOGIN_RCV);
 	}
 
-	else if (current_status == MailSessionStatus::LOGIN)
+	else if (m_current_status == MailSessionStatus::LOGIN)
 	{
 		return SubProcessLoginRecieve(buf);
 	}
 
-	else if (current_status == MailSessionStatus::PASSWORD)
+	else if (m_current_status == MailSessionStatus::PASSWORD)
 	{
 		return SubProcessPasswordRecieve(buf);
 	}
@@ -233,7 +233,7 @@ int MailSession::ProcessAUTH(char* buf)
 
 int MailSession::ProcessMAIL(char* buf)
 {
-	if (current_status != MailSessionStatus::AUTH_SUCCESS)
+	if (m_current_status != MailSessionStatus::AUTH_SUCCESS)
 	{
 		return SendResponse(Responses::BAD_SEQUENSE);
 	}
@@ -245,15 +245,15 @@ int MailSession::ProcessMAIL(char* buf)
 		return SendResponse(Responses::SYNTAX_ERROR);
 	}
 
-	current_status = MailSessionStatus::MAIL_FROM;
-	mail_info.set_mail_from(address);
+	m_current_status = MailSessionStatus::MAIL_FROM;
+	m_mail_info.set_mail_from(address);
 
 	return SendResponse(Responses::OK);
 }
 
 int MailSession::ProcessRCPT(char* buf)
 {
-	if (current_status != MailSessionStatus::MAIL_FROM)
+	if (m_current_status != MailSessionStatus::MAIL_FROM)
 	{
 		return SendResponse(Responses::BAD_SEQUENSE);
 	}
@@ -265,32 +265,32 @@ int MailSession::ProcessRCPT(char* buf)
 		return SendResponse(Responses::SYNTAX_ERROR);
 	}
 
-	current_status = MailSessionStatus::RCPT_TO;
-	mail_info.set_rcpt_to(address);
+	m_current_status = MailSessionStatus::RCPT_TO;
+	m_mail_info.set_rcpt_to(address);
 
 	return SendResponse(Responses::OK);
 }
 
 int MailSession::ProcessDATA(char* buf)
 {
-	if (current_status != MailSessionStatus::RCPT_TO)
+	if (m_current_status != MailSessionStatus::RCPT_TO)
 	{
 		return SendResponse(Responses::BAD_SEQUENSE);
 	}
 
-	current_status = MailSessionStatus::DATA;
+	m_current_status = MailSessionStatus::DATA;
 	return SendResponse(Responses::START_MAIL);
 }
 
 int MailSession::SubProcessLoginRecieve(char* buf)
 {
-	current_status = MailSessionStatus::PASSWORD;
+	m_current_status = MailSessionStatus::PASSWORD;
 	return SendResponse(Responses::LOGIN_RCV);
 }
 
 int MailSession::SubProcessPasswordRecieve(char* buf)
 {
-	current_status = MailSessionStatus::AUTH_SUCCESS;
+	m_current_status = MailSessionStatus::AUTH_SUCCESS;
 	return SendResponse(Responses::LOGIN_SUCCESS);
 }
 
@@ -302,9 +302,9 @@ int MailSession::SubProcessEmail(char* buf)
 	{
 		size_t pos = text.find("\r\n", 0);
 		text = text.substr(0, pos);
-		mail_info.set_text(text);
+		m_mail_info.set_text(text);
 
-		current_status = MailSessionStatus::QUIT;
+		m_current_status = MailSessionStatus::QUIT;
 
 		return 1;
 	}
@@ -322,8 +322,8 @@ int MailSession::SubProcessSubject(char* buf)
 	std::string subject;
 	subject = CutSubject(buf);
 
-	current_status = MailSessionStatus::SUBJECT;
-	mail_info.set_subject(subject);
+	m_current_status = MailSessionStatus::SUBJECT;
+	m_mail_info.set_subject(subject);
 
 	Sleep(1);
 
@@ -332,6 +332,6 @@ int MailSession::SubProcessSubject(char* buf)
 
 int MailSession::ProcessQUIT()
 {
-	mail_info.SaveToFile();
+	m_mail_info.SaveToFile();
 	return SendResponse(Responses::SERVICE_CLOSING);
 }

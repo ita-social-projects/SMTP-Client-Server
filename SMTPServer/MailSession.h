@@ -80,8 +80,8 @@ private:
 	std::string CutAddress(char* buf);
 
 private:
-	SOCKET client_socket;
-	MailInfo mail_info;
-	int current_status = MailSessionStatus::EMPTY;
+	SOCKET m_client_socket;
+	MailInfo m_mail_info;
+	int m_current_status = MailSessionStatus::EMPTY;
 };
 
