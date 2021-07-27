@@ -40,8 +40,9 @@ class exceptionSyncCrypto
 {
 public:
     exceptionSyncCrypto(const std::string& msg) noexcept
+        : m_what_str(msg)
     {
-        m_what_str = msg;
+
     }
     const std::string get_what_str() const
     {

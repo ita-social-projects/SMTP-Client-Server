@@ -348,6 +348,7 @@ unsigned int SyncCrypto::DecryptSync(
     if (encr_msg.empty())
     {
         std::string msg = "enctypted message is empty";
+        NotifyError(msg);
         return -1;
     }
     unsigned int decrMsgLen = 0;
