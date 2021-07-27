@@ -9,21 +9,21 @@
 class ICrypt
 {
 public:
-	virtual int EncryptSync(
+	virtual int EncryptSymmetric(
 		const unsigned char* msg,
 		unsigned int msg_len,
 		std::shared_ptr<unsigned char>& encr_msg) = 0;
 
-	virtual int EncryptSync(
+	virtual int EncryptSymmetric(
 		const std::vector<unsigned char>& msg,
 		std::vector<unsigned char>& encr_msg) = 0;
 
-	virtual int DecryptSync(
+	virtual int DecryptSymmetric(
 		const unsigned char* encr_msg,
 		unsigned int encr_msg_len,
 		std::shared_ptr<unsigned char>& decr_msg) = 0;
 
-	virtual int DecryptSync(
+	virtual int DecryptSymmetric(
 		const std::vector<unsigned char>& encr_msg,
 		std::vector<unsigned char>& decr_msg) = 0;
 

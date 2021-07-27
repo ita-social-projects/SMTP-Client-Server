@@ -3,9 +3,9 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "pch.h"
-#include "SyncCrypto.h"
+#include "SymmetricCrypto.h"
 
-SyncCrypto::SyncCrypto()
+SymmetricCrypto::SymmetricCrypto()
 {
     m_aes_encr_ctx = std::make_shared<EVP_CIPHER_CTX*>();
     m_aes_decr_ctx = std::make_shared<EVP_CIPHER_CTX*>();
@@ -22,7 +22,7 @@ SyncCrypto::SyncCrypto()
     m_aes_iv_len = g_iv_len;
 }
 
-SyncCrypto::SyncCrypto(unsigned char** key, unsigned char key_len, unsigned char** iv, unsigned char iv_len)
+SymmetricCrypto::SymmetricCrypto(unsigned char** key, unsigned char key_len, unsigned char** iv, unsigned char iv_len)
 {
     m_aes_encr_ctx = std::make_shared<EVP_CIPHER_CTX*>();
     m_aes_decr_ctx = std::make_shared<EVP_CIPHER_CTX*>();
@@ -64,7 +64,7 @@ SyncCrypto::SyncCrypto(unsigned char** key, unsigned char key_len, unsigned char
     }
 }
 
-bool SyncCrypto::GenerateRandomKey(unsigned int key_len, unsigned int iv_len)
+bool SymmetricCrypto::GenerateRandomKey(unsigned int key_len, unsigned int iv_len)
 {
     if (key_len != KEYSIZE_16
         && key_len != KEYSIZE_24
@@ -100,7 +100,7 @@ bool SyncCrypto::GenerateRandomKey(unsigned int key_len, unsigned int iv_len)
     return true;
 }
 
-bool SyncCrypto::GenerateKeyFromPassword(const unsigned char* password, unsigned int password_len)
+bool SymmetricCrypto::GenerateKeyFromPassword(const unsigned char* password, unsigned int password_len)
 {
     if (!password)
     {
@@ -149,12 +149,12 @@ bool SyncCrypto::GenerateKeyFromPassword(const unsigned char* password, unsigned
     return true;
 }
 
-SyncCrypto::~SyncCrypto()
+SymmetricCrypto::~SymmetricCrypto()
 {
     DestroyContext();
 }
 
-bool SyncCrypto::InitializeContext()
+bool SymmetricCrypto::InitializeContext()
 {
     *m_aes_encr_ctx.get() = EVP_CIPHER_CTX_new();
     *m_aes_decr_ctx.get() = EVP_CIPHER_CTX_new();
@@ -181,13 +181,13 @@ bool SyncCrypto::InitializeContext()
     return true;
 }
 
-void SyncCrypto::DestroyContext() const
+void SymmetricCrypto::DestroyContext() const
 {
     EVP_CIPHER_CTX_free(*m_aes_encr_ctx.get());
     EVP_CIPHER_CTX_free(*m_aes_decr_ctx.get());
 }
 
-int SyncCrypto::EncryptSync(
+int SymmetricCrypto::EncryptSymmetric(
     const unsigned char* msg,
     unsigned int msg_len,
     std::shared_ptr<unsigned char>& encr_msg)
@@ -238,7 +238,7 @@ int SyncCrypto::EncryptSync(
     return encrMsgLen;
 }
 
-int SyncCrypto::EncryptSync(
+int SymmetricCrypto::EncryptSymmetric(
     const std::vector<unsigned char>& msg,
     std::vector<unsigned char>& encr_msg)
 {
@@ -284,7 +284,7 @@ int SyncCrypto::EncryptSync(
     return encrMsgLen;
 }
 
-int SyncCrypto::DecryptSync(
+int SymmetricCrypto::DecryptSymmetric(
     const unsigned char* encr_msg,
     unsigned int encr_msg_len,
     std::shared_ptr<unsigned char>& decr_msg)
@@ -334,7 +334,7 @@ int SyncCrypto::DecryptSync(
     return decrMsgLen;
 }
 
-int SyncCrypto::DecryptSync(
+int SymmetricCrypto::DecryptSymmetric(
     const std::vector<unsigned char>& encr_msg,
     std::vector<unsigned char>& decr_msg)
 {
@@ -379,12 +379,12 @@ int SyncCrypto::DecryptSync(
     return decrMsgLen;
 }
 
-const unsigned char* SyncCrypto::get_aes_key() const
+const unsigned char* SymmetricCrypto::get_aes_key() const
 {
     return *m_aes_key;
 }
 
-bool SyncCrypto::set_aes_key(unsigned char* aes_key, unsigned int aes_key_len)
+bool SymmetricCrypto::set_aes_key(unsigned char* aes_key, unsigned int aes_key_len)
 {
     if (aes_key_len != m_aes_key_len)
     {
@@ -398,17 +398,17 @@ bool SyncCrypto::set_aes_key(unsigned char* aes_key, unsigned int aes_key_len)
     return true;
 }
 
-unsigned int SyncCrypto::get_key_size() const
+unsigned int SymmetricCrypto::get_key_size() const
 {
     return m_aes_key_len;
 }
 
-const unsigned char* SyncCrypto::get_aes_iv() const
+const unsigned char* SymmetricCrypto::get_aes_iv() const
 {
     return *m_aes_iv;
 }
 
-bool SyncCrypto::set_aes_iv(unsigned char* aes_iv, unsigned int aes_iv_len)
+bool SymmetricCrypto::set_aes_iv(unsigned char* aes_iv, unsigned int aes_iv_len)
 {
     if (aes_iv_len != m_aes_iv_len)
     {
@@ -422,7 +422,7 @@ bool SyncCrypto::set_aes_iv(unsigned char* aes_iv, unsigned int aes_iv_len)
     return true;
 }
 
-unsigned int SyncCrypto::get_iv_size() const
+unsigned int SymmetricCrypto::get_iv_size() const
 {
     return m_aes_iv_len;
 }

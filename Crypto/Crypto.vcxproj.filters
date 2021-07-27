@@ -24,10 +24,10 @@
     <ClInclude Include="ICrypto.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SyncCrypto.h">
+    <ClInclude Include="SymmetricCrypto.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AsyncCrypto.h">
+    <ClInclude Include="AsymmetricCrypto.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -35,10 +35,10 @@
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SyncCrypto.cpp">
+    <ClCompile Include="SymmetricCrypto.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AsyncCrypto.cpp">
+    <ClCompile Include="AsymmetricCrypto.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

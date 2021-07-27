@@ -163,21 +163,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="AsyncCrypto.h" />
+    <ClInclude Include="AsymmetricCrypto.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="ICrypto.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="SyncCrypto.h" />
+    <ClInclude Include="SymmetricCrypto.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AsyncCrypto.cpp" />
+    <ClCompile Include="AsymmetricCrypto.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="SyncCrypto.cpp" />
+    <ClCompile Include="SymmetricCrypto.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

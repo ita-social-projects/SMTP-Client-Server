@@ -3,9 +3,9 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "pch.h"
-#include "AsyncCrypto.h"
+#include "AsymmetricCrypto.h"
 
-AsyncCrypto::AsyncCrypto()
+AsymmetricCrypto::AsymmetricCrypto()
 {
     m_keypair = std::make_shared<EVP_PKEY*>();
     m_rsa_encr_ctx = std::make_shared<EVP_CIPHER_CTX*>();
@@ -16,12 +16,12 @@ AsyncCrypto::AsyncCrypto()
     GenerateRsaKeypair();
 }
 
-AsyncCrypto::~AsyncCrypto()
+AsymmetricCrypto::~AsymmetricCrypto()
 {
     DestroyContext();
 }
 
-bool AsyncCrypto::InitializeContext()
+bool AsymmetricCrypto::InitializeContext()
 {
     *m_rsa_encr_ctx.get() = EVP_CIPHER_CTX_new();
     *m_rsa_decr_ctx.get() = EVP_CIPHER_CTX_new();
@@ -32,7 +32,7 @@ bool AsyncCrypto::InitializeContext()
     return true;
 }
 
-void AsyncCrypto::DestroyContext()
+void AsymmetricCrypto::DestroyContext()
 {
     EVP_PKEY_free(*m_keypair.get());
 
@@ -40,7 +40,7 @@ void AsyncCrypto::DestroyContext()
     EVP_CIPHER_CTX_free(*m_rsa_decr_ctx.get());
 }
 
-bool AsyncCrypto::GenerateRsaKeypair()
+bool AsymmetricCrypto::GenerateRsaKeypair()
 {
     EVP_PKEY_CTX* ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, nullptr);
 
@@ -59,7 +59,7 @@ bool AsyncCrypto::GenerateRsaKeypair()
     return true;
 }
 
-int AsyncCrypto::Encrypt(
+int AsymmetricCrypto::Encrypt(
     const unsigned char* msg,
     unsigned int msg_len,
     std::shared_ptr<unsigned char>& encr_msg,
@@ -130,7 +130,7 @@ int AsyncCrypto::Encrypt(
     return encrMsgLen;
 }
 
-int AsyncCrypto::Encrypt(
+int AsymmetricCrypto::Encrypt(
     const std::vector<unsigned char>& msg,
     unsigned int msg_len,
     std::vector<unsigned char>& encr_msg,
@@ -185,7 +185,7 @@ int AsyncCrypto::Encrypt(
     return encrMsgLen;
 }
 
-int AsyncCrypto::Decrypt(
+int AsymmetricCrypto::Decrypt(
     const unsigned char* encr_msg,
     unsigned int encr_msg_len,
     unsigned char* encr_key,
@@ -242,7 +242,7 @@ int AsyncCrypto::Decrypt(
     return decrMsgLen;
 }
 
-int AsyncCrypto::Decrypt(
+int AsymmetricCrypto::Decrypt(
     const std::vector<unsigned char>& encr_msg,
     unsigned int encr_msg_len,
     std::vector<unsigned char>& decr_msg,
@@ -292,21 +292,21 @@ int AsyncCrypto::Decrypt(
 }
 
 
-void AsyncCrypto::get_public_key(std::shared_ptr<unsigned char>& public_key)
+void AsymmetricCrypto::get_public_key(std::shared_ptr<unsigned char>& public_key)
 {
     BIO* bio = BIO_new(BIO_s_mem());
     PEM_write_bio_PUBKEY(bio, *m_keypair.get());
     BioToString(bio, public_key);
 }
 
-void AsyncCrypto::get_private_key(std::shared_ptr<unsigned char>& private_key)
+void AsymmetricCrypto::get_private_key(std::shared_ptr<unsigned char>& private_key)
 {
     BIO* bio = BIO_new(BIO_s_mem());
     PEM_write_bio_PrivateKey(bio, *m_keypair.get(), nullptr, nullptr, 0, 0, nullptr);
     BioToString(bio, private_key);
 }
 
-unsigned int AsyncCrypto::BioToString(BIO* bio, std::shared_ptr<unsigned char>& str)
+unsigned int AsymmetricCrypto::BioToString(BIO* bio, std::shared_ptr<unsigned char>& str)
 {
     unsigned int bioLength = BIO_pending(bio);
     str = std::make_shared<unsigned char>(bioLength + 1);

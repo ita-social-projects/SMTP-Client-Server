@@ -34,32 +34,32 @@ const unsigned int      g_key_len = KEYSIZE_32;
 const unsigned char     g_iv[] = "p9e8unjxajgstddd";
 const unsigned int      g_iv_len = IVSIZE_16;
 
-class SyncCrypto final : public ICrypt
+class SymmetricCrypto final : public ICrypt
 {
 public:
-    SyncCrypto();
-    SyncCrypto(
+    SymmetricCrypto();
+    SymmetricCrypto(
         unsigned char** key,
         unsigned char key_len,
         unsigned char** iv,
         unsigned char iv_len);
-    ~SyncCrypto();
+    ~SymmetricCrypto();
 
-    virtual int EncryptSync(
+    virtual int EncryptSymmetric(
         const unsigned char* msg,
         unsigned int msg_len,
         std::shared_ptr<unsigned char>& encr_msg) override;
 
-    virtual int EncryptSync(
+    virtual int EncryptSymmetric(
         const std::vector<unsigned char>& msg,
         std::vector<unsigned char>& encr_msg) override;
 
-    virtual int DecryptSync(
+    virtual int DecryptSymmetric(
         const unsigned char* encr_msg,
         unsigned int encr_msg_len,
         std::shared_ptr<unsigned char>& decr_msg) override;
 
-    virtual int DecryptSync(
+    virtual int DecryptSymmetric(
         const std::vector<unsigned char>& encr_msg,
         std::vector<unsigned char>& decr_msg) override;
 

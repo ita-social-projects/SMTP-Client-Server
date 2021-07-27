@@ -15,11 +15,11 @@
 #define RSA_KEY_LEN 2048
 #define PUBLIC_KEYS_AMOUNT 1
 
-class AsyncCrypto
+class AsymmetricCrypto
 {
 public:
-    AsyncCrypto();
-    ~AsyncCrypto();
+    AsymmetricCrypto();
+    ~AsymmetricCrypto();
 
     int Encrypt(
         const unsigned char* msg,
