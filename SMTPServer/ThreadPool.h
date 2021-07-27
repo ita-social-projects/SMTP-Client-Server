@@ -1,7 +1,3 @@
-// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
-
 #pragma once
 
 #include<iostream>
@@ -23,12 +19,12 @@ class ThreadPool
 {
 public:
     ThreadPool() : m_is_stop(false), m_thread_size(0) {}
-    ThreadPool(int thread_size);
+    ThreadPool(size_t thread_size);
     ~ThreadPool();
 
     void AddTask(void* in_task, SOCKET socket);
 
-    void set_thread_size(int m_thread_size);
+    void set_thread_size(size_t m_thread_size);
 
 private:
     void Join();
@@ -38,7 +34,7 @@ private:
     bool IsStopped() { return m_is_stop; };
 
 private:
-    int m_thread_size;
+    size_t m_thread_size;
     bool m_is_stop;
 
     std::condition_variable m_task_not_empty;

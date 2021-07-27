@@ -1,6 +1,10 @@
+// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+
 #include "ThreadPool.h"
 
-ThreadPool::ThreadPool(int thread_size)
+ThreadPool::ThreadPool(size_t thread_size)
 {
     this->m_thread_size = thread_size;
     m_is_stop = false;
@@ -18,7 +22,7 @@ ThreadPool::~ThreadPool()
 
 void ThreadPool::Join()
 {
-    for (int i = 0; i < m_thread_size; ++i)
+    for (size_t i = 0; i < m_thread_size; ++i)
     {
         if (m_thread_pool.at(i).joinable())
         {
@@ -31,7 +35,7 @@ void ThreadPool::Stop()
 {
     m_is_stop = true;
 
-    for (int i = 0; i < m_thread_size; ++i)
+    for (size_t i = 0; i < m_thread_size; ++i)
     {
         m_thread_pool.pop_back();
     }
@@ -71,7 +75,7 @@ void ThreadPool::AddTask(void* in_task, SOCKET socket)
     m_thread_pool.emplace_back(&ThreadPool::DoTask, this);
 }
 
-void ThreadPool::set_thread_size(int m_thread_size)
+void ThreadPool::set_thread_size(size_t m_thread_size)
 {
     this->m_thread_size = m_thread_size;
 }
