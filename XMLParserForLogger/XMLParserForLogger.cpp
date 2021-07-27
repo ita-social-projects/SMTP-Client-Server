@@ -4,9 +4,9 @@
 
 #include "pch.h"
 #include "framework.h"
-#include "XMLParser.h"
+#include "XMLParserForLogger.h"
 
-bool XMLParser::ParseFile(const std::string& filename)
+bool XMLParserForLogger::ParseFile(const std::string& filename)
 {
 	struct Characters
 	{
@@ -23,10 +23,9 @@ bool XMLParser::ParseFile(const std::string& filename)
 		return false;
 	}
 
-	std::ifstream file { filename };
+	std::ifstream file{ filename };
 	if (!file.is_open())
 	{
-		LOG_INFO << "Can't open config XML file.";
 		return false;
 	}
 
@@ -55,7 +54,6 @@ bool XMLParser::ParseFile(const std::string& filename)
 		std::size_t tag_close;
 		if (tag_begin == std::string::npos || tag_end == std::string::npos)
 		{
-			LOG_INFO << "Config XML file is not valid.";
 			return false;
 		}
 		std::string element_tag;
@@ -103,7 +101,7 @@ bool XMLParser::ParseFile(const std::string& filename)
 	return true;
 }
 
-bool XMLParser::CreateElement(std::shared_ptr<XMLNode>& elem_pointer, const std::string& elem_tag, const std::string& elem_data)
+bool XMLParserForLogger::CreateElement(std::shared_ptr<XMLNode>& elem_pointer, const std::string& elem_tag, const std::string& elem_data)
 {
 	if (elem_tag.empty())
 	{
@@ -115,7 +113,7 @@ bool XMLParser::CreateElement(std::shared_ptr<XMLNode>& elem_pointer, const std:
 	return true;
 }
 
-bool XMLParser::ChildAppend(std::shared_ptr<XMLNode>& parent, std::shared_ptr<XMLNode>& child)
+bool XMLParserForLogger::ChildAppend(std::shared_ptr<XMLNode>& parent, std::shared_ptr<XMLNode>& child)
 {
 	if (parent == nullptr || child == nullptr)
 	{
@@ -126,33 +124,29 @@ bool XMLParser::ChildAppend(std::shared_ptr<XMLNode>& parent, std::shared_ptr<XM
 	return true;
 }
 
-bool XMLParser::FileCheck(const std::filesystem::path& filename)
+bool XMLParserForLogger::FileCheck(const std::filesystem::path& filename)
 {
 	if (!std::filesystem::exists(filename))
 	{
-		LOG_INFO << "Config XML file does not exist.";
 		return false;
 	}
 	if (!std::filesystem::is_regular_file(filename))
 	{
-		LOG_INFO << "Config XML file is not regular file.";
 		return false;
 	}
 	const std::string extension = ".xml";
 	if (std::filesystem::path(filename).extension().string() != extension)
 	{
-		LOG_INFO << "Config XML file does not have .xml extension.";
 		return false;
 	}
 	if (std::filesystem::is_empty(filename))
 	{
-		LOG_INFO << "Config XML file is empty.";
 		return false;
 	}
 	return true;
 }
 
-void XMLParser::FindByTag(const std::shared_ptr<XMLNode>& current_node, const std::string& tag_needed, std::string& data) const
+void XMLParserForLogger::FindByTag(const std::shared_ptr<XMLNode>& current_node, const std::string& tag_needed, std::string& data) const
 {
 	if (!current_node || current_node->children.empty())
 	{
@@ -173,7 +167,7 @@ void XMLParser::FindByTag(const std::shared_ptr<XMLNode>& current_node, const st
 	}
 }
 
-bool XMLParser::ValueCheck(const std::string& line, unsigned int& number) const
+bool XMLParserForLogger::ValueCheck(const std::string& line, unsigned int& number) const
 {
 	std::string data;
 	FindByTag(m_root, line, data);
@@ -192,117 +186,7 @@ bool XMLParser::ValueCheck(const std::string& line, unsigned int& number) const
 	return false;
 }
 
-std::string XMLParser::GetServerName()
-{
-	if (m_root == nullptr)
-	{
-		bool parsed = ParseFile(XML_FILE_PATH);
-		if (!parsed)
-		{
-			return SERVER_NAME;
-		}
-	}
-	std::string data;
-	FindByTag(m_root, ATTR_SERVER_NAME, data);
-	if (!data.empty())
-	{
-		return data;
-	}
-	return SERVER_NAME;
-}
-
-std::string XMLParser::GetServerDisplayName()
-{
-	if (m_root == nullptr)
-	{
-		bool parsed = ParseFile(XML_FILE_PATH);
-		if (!parsed)
-		{
-			return SERVER_DISPLAY_NAME;
-		}
-	}
-	std::string data;
-	FindByTag(m_root, ATTR_SERVER_DISPLAY_NAME, data);
-	if (!data.empty())
-	{
-		return data;
-	}
-	return SERVER_DISPLAY_NAME;
-}
-
-unsigned int XMLParser::GetListenerPort()
-{
-	if (m_root == nullptr)
-	{
-		bool parsed = ParseFile(XML_FILE_PATH);
-		if (!parsed)
-		{
-			return SERVER_LISTENER_PORT;
-		}
-	}
-	unsigned int port = 0;
-	bool flag = ValueCheck(ATTR_SERVER_LISTENER_PORT, port);
-	if (flag)
-	{
-		return port;
-	}
-	return SERVER_LISTENER_PORT;
-}
-
-std::string XMLParser::GetIpAddress()
-{
-	if (m_root == nullptr)
-	{
-		bool parsed = ParseFile(XML_FILE_PATH);
-		if (!parsed)
-		{
-			return SERVER_IP_ADDRESS;
-		}
-	}
-	std::string data;
-	FindByTag(m_root, ATTR_SERVER_IP_ADDRESS, data);
-	if (!data.empty())
-	{
-		return data;
-	}
-	return SERVER_IP_ADDRESS;
-}
-
-bool XMLParser::UseBlockingSockets()
-{
-	if (m_root == nullptr)
-	{
-		bool parsed = ParseFile(XML_FILE_PATH);
-		if (!parsed)
-		{
-			return parsed;
-		}
-	}
-	unsigned int block = 0;
-	bool flag = ValueCheck(ATTR_SOCKET_BLOCKING, block);
-	return flag;
-}
-
-unsigned int XMLParser::GetSocketTimeOut()
-{
-	if (m_root == nullptr)
-	{
-		bool parsed = ParseFile(XML_FILE_PATH);
-		if (!parsed)
-		{
-			return SOCKET_TIMEOUT;
-		}
-	}
-	unsigned int time_out = 0;
-	bool flag = ValueCheck(ATTR_SOCKET_TIMEOUT, time_out);
-	if (flag)
-	{
-		return time_out;
-	}
-	return SOCKET_TIMEOUT;
-}
-
-std::string XMLParser::GetLogFilename()
+std::string XMLParserForLogger::GetLogFilename()
 {
 	if (m_root == nullptr)
 	{
@@ -321,7 +205,7 @@ std::string XMLParser::GetLogFilename()
 	return LOG_FILENAME;
 }
 
-unsigned int XMLParser::GetLogLevel()
+unsigned int XMLParserForLogger::GetLogLevel()
 {
 	if (m_root == nullptr)
 	{
@@ -340,7 +224,7 @@ unsigned int XMLParser::GetLogLevel()
 	return LOG_LEVEL;
 }
 
-bool XMLParser::UseLogFlush()
+bool XMLParserForLogger::UseLogFlush()
 {
 	if (m_root == nullptr)
 	{
@@ -353,42 +237,4 @@ bool XMLParser::UseLogFlush()
 	unsigned int flush = 0;
 	bool flag = ValueCheck(ATTR_LOG_FLUSH, flush);
 	return flag;
-}
-
-unsigned int XMLParser::GetThreadIntervalTime()
-{
-	if (m_root == nullptr)
-	{
-		bool parsed = ParseFile(XML_FILE_PATH);
-		if (!parsed)
-		{
-			return THREAD_INTERVAL;
-		}
-	}
-	unsigned int time = 0;
-	bool flag = ValueCheck(ATTR_THREAD_INTERVAL, time);
-	if (flag)
-	{
-		return time;
-	}
-	return THREAD_INTERVAL;
-}
-
-unsigned int XMLParser::GetMaxWorkingThreads()
-{
-	if (m_root == nullptr)
-	{
-		bool parsed = ParseFile(XML_FILE_PATH);
-		if (!parsed)
-		{
-			return MAX_WORKING_THREADS;
-		}
-	}
-	unsigned int number = 0;
-	bool flag = ValueCheck(ATTR_MAX_WORKING_THREADS, number);
-	if (flag)
-	{
-		return number;
-	}
-	return MAX_WORKING_THREADS;
 }
