@@ -1,5 +1,5 @@
 #pragma once
-
+#pragma comment(lib,"libcrypto.lib")
 #include <string>
 
 #include <openssl/pem.h>    // engine interface
@@ -41,13 +41,14 @@ class exceptionSyncCrypto
 public:
     exceptionSyncCrypto(const std::string& msg) noexcept
     {
-        whatStr = msg;
+        m_what_str = msg;
     }
-    const std::string what() {
-        return whatStr;
+    const std::string get_what_str() const
+    {
+        return m_what_str;
     }
 private:
-    std::string whatStr = "";
+    std::string m_what_str = "";
 };
 
 class SyncCrypto final : public ICrypt

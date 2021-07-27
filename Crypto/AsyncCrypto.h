@@ -1,4 +1,5 @@
 #pragma once
+#pragma comment(lib,"libcrypto.lib")
 
 #include <vector>
 #include <memory>
@@ -21,14 +22,14 @@ class exceptionAsyncCrypto
 public:
     exceptionAsyncCrypto(const std::string& msg) noexcept
     {
-        whatStr = msg;
+        m_what_str = msg;
     }
-    const std::string what()
+    const std::string get_what_str() const
     {
-        return whatStr;
+        return m_what_str;
     }
 private:
-    std::string whatStr = "";
+    std::string m_what_str = "";
 };
 
 class AsyncCrypto
