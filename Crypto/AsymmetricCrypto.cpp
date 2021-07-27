@@ -73,35 +73,35 @@ int AsymmetricCrypto::Encrypt(
         return -1;
     }
 
-    int encrMsgLen = 0;
-    int blockLen = 0;
+    int encr_msg_len = 0;
+    int block_len = 0;
 
-    size_t keyLen = static_cast<size_t>(EVP_PKEY_size(*m_keypair.get()));
-    std::shared_ptr<unsigned char> buffKey(
-        new unsigned char[keyLen],
+    size_t key_len = static_cast<size_t>(EVP_PKEY_size(*m_keypair.get()));
+    std::shared_ptr<unsigned char> buff_key(
+        new unsigned char[key_len],
         std::default_delete<unsigned char[]>());
 
-    unsigned char* key_ptr = buffKey.get();
-    unsigned char** key_ptr2 = &key_ptr;
-    encr_key = buffKey;
+    unsigned char* key_ptr = buff_key.get();
+    unsigned char** key_arr_ptr = &key_ptr;
+    encr_key = buff_key;
 
-    std::shared_ptr<unsigned char> buffIv(
+    std::shared_ptr<unsigned char> buff_iv(
         new unsigned char[EVP_MAX_IV_LENGTH],
         std::default_delete<unsigned char[]>());
-    iv = buffIv;
+    iv = buff_iv;
 
     *iv_len = EVP_MAX_IV_LENGTH;
 
-    size_t msgLen = ptrdiff_t(msg_len) + EVP_MAX_IV_LENGTH;
-    std::shared_ptr<unsigned char> buffMsg(
-        new unsigned char[msgLen],
+    size_t msg_len_plus_block_size = ptrdiff_t(msg_len) + EVP_MAX_IV_LENGTH;
+    std::shared_ptr<unsigned char> buff_msg(
+        new unsigned char[msg_len_plus_block_size],
         std::default_delete<unsigned char[]>());
-    encr_msg = buffMsg;
+    encr_msg = buff_msg;
 
     if (!EVP_SealInit(
         *m_rsa_encr_ctx.get(),
         EVP_aes_256_cbc(),
-        key_ptr2,
+        key_arr_ptr,
         (int*)encr_key_len,
         iv.get(),
         m_keypair.get(),
@@ -110,24 +110,23 @@ int AsymmetricCrypto::Encrypt(
         return -1;
     }
 
-    if (!EVP_SealUpdate(*m_rsa_encr_ctx.get(), encr_msg.get() + encrMsgLen, &blockLen, msg, (unsigned int)msg_len))
+    unsigned char* msg_after_init_ptr = encr_msg.get() + ptrdiff_t(encr_msg_len);
+    if (!EVP_SealUpdate(*m_rsa_encr_ctx.get(), msg_after_init_ptr, &block_len, msg, (unsigned int)msg_len))
     {
         return -1;
     }
 
-    encrMsgLen += blockLen;
+    encr_msg_len += block_len;
 
-    unsigned char* ptr = encr_msg.get();
-
-    unsigned char* ptr2 = ptr + ptrdiff_t(encrMsgLen);
-    if (!EVP_SealFinal(*m_rsa_encr_ctx.get(), ptr2, &blockLen))
+    unsigned char* msg_end_ptr = encr_msg.get() + ptrdiff_t(encr_msg_len);
+    if (!EVP_SealFinal(*m_rsa_encr_ctx.get(), msg_end_ptr, &block_len))
     {
         return -1;
     }
 
-    encrMsgLen += blockLen;
+    encr_msg_len += block_len;
 
-    return encrMsgLen;
+    return encr_msg_len;
 }
 
 int AsymmetricCrypto::Encrypt(
@@ -143,15 +142,15 @@ int AsymmetricCrypto::Encrypt(
     {
         return -1;
     }
-    int encrMsgLen = 0;
-    int blockLen = 0;
-    size_t pubKeyLen = static_cast<size_t>(EVP_PKEY_size(*m_keypair.get()));
-    encr_key.resize(pubKeyLen);
+    int encr_msg_len = 0;
+    int block_len = 0;
+    size_t pub_key_len = static_cast<size_t>(EVP_PKEY_size(*m_keypair.get()));
+    encr_key.resize(pub_key_len);
     iv.resize(EVP_MAX_IV_LENGTH);
     *iv_len = EVP_MAX_IV_LENGTH;
 
-    size_t buff = ptrdiff_t(msg_len) + ptrdiff_t(EVP_MAX_IV_LENGTH);
-    encr_msg.resize(buff);
+    size_t msg_len_plus_block_size = ptrdiff_t(msg_len) + ptrdiff_t(EVP_MAX_IV_LENGTH);
+    encr_msg.resize(msg_len_plus_block_size);
 
     unsigned char* key_ptr = &encr_key.front();
     unsigned char** key_arr_ptr = &key_ptr;
@@ -168,21 +167,23 @@ int AsymmetricCrypto::Encrypt(
         return -1;
     }
 
-    if (!EVP_SealUpdate(*m_rsa_encr_ctx.get(), &encr_msg.front() + encrMsgLen, &blockLen, &msg.front(), msg_len))
+    unsigned char* msg_after_init_ptr = &encr_msg.front() + encr_msg_len;
+    if (!EVP_SealUpdate(*m_rsa_encr_ctx.get(), msg_after_init_ptr, &block_len, &msg.front(), msg_len))
     {
         return -1;
     }
 
-    encrMsgLen += blockLen;
+    encr_msg_len += block_len;
 
-    if (!EVP_SealFinal(*m_rsa_encr_ctx.get(), &encr_msg.front() + encrMsgLen, &blockLen))
+    unsigned char* msg_end_ptr = &encr_msg.front() + encr_msg_len;
+    if (!EVP_SealFinal(*m_rsa_encr_ctx.get(), msg_end_ptr, &block_len))
     {
         return -1;
     }
 
-    encrMsgLen += blockLen;
+    encr_msg_len += block_len;
 
-    return encrMsgLen;
+    return encr_msg_len;
 }
 
 int AsymmetricCrypto::Decrypt(
@@ -206,11 +207,13 @@ int AsymmetricCrypto::Decrypt(
     {
         return -1;
     }
-    int decrMsgLen = 0;
-    int blockLen = 0;
 
+    int decr_msg_len = 0;
+    int block_len = 0;
+
+    size_t msg_len = ptrdiff_t(encr_msg_len) + ptrdiff_t(iv_len);
     std::shared_ptr<unsigned char> msg(
-        new unsigned char[ptrdiff_t(encr_msg_len) + ptrdiff_t(iv_len)],
+        new unsigned char[msg_len],
         std::default_delete<unsigned char[]>());
     decr_msg = msg;
 
@@ -219,27 +222,27 @@ int AsymmetricCrypto::Decrypt(
         return -1;
     }
 
-    if (!EVP_OpenUpdate(*m_rsa_decr_ctx.get(), decr_msg.get() + decrMsgLen, &blockLen, encr_msg, encr_msg_len))
+    unsigned char* decr_msg_after_init_ptr = decr_msg.get() + ptrdiff_t(decr_msg_len);
+    if (!EVP_OpenUpdate(*m_rsa_decr_ctx.get(), decr_msg_after_init_ptr, &block_len, encr_msg, encr_msg_len))
     {
         return -1;
     }
 
-    decrMsgLen += blockLen;
+    decr_msg_len += block_len;
 
-    unsigned char* decrMsgPtr = decr_msg.get() + ptrdiff_t(decrMsgLen);
-
-    if (!EVP_OpenFinal(*m_rsa_decr_ctx.get(), decrMsgPtr, &blockLen))
+    unsigned char* decr_msg_end_ptr = decr_msg.get() + ptrdiff_t(decr_msg_len);
+    if (!EVP_OpenFinal(*m_rsa_decr_ctx.get(), decr_msg_end_ptr, &block_len))
     {
         return -1;
     }
 
-    decrMsgLen += blockLen;
+    decr_msg_len += block_len;
 
-    unsigned char* msgEndPtr = decr_msg.get();
-    size_t buff = ptrdiff_t(decrMsgLen);
-    msgEndPtr[buff] = '\0';
+    unsigned char* msg_final_end_ptr = decr_msg.get();
+    size_t msg_final_len = ptrdiff_t(decr_msg_len);
+    msg_final_end_ptr[msg_final_len] = '\0';
 
-    return decrMsgLen;
+    return decr_msg_len;
 }
 
 int AsymmetricCrypto::Decrypt(
@@ -263,32 +266,34 @@ int AsymmetricCrypto::Decrypt(
     {
         return -1;
     }
-    int decrMsgLen = 0;
-    int blockLen = 0;
+    int decr_msg_len = 0;
+    int block_len = 0;
 
-    size_t buff = ptrdiff_t(encr_msg_len) + ptrdiff_t(iv_len);
-    decr_msg.resize(buff);
+    size_t decr_vec_len = ptrdiff_t(encr_msg_len) + ptrdiff_t(iv_len);
+    decr_msg.resize(decr_vec_len);
 
     if (!EVP_OpenInit(*m_rsa_decr_ctx.get(), EVP_aes_256_cbc(), &encr_key.front(), encr_key_len, &iv.front(), *m_keypair.get()))
     {
         return -1;
     }
 
-    if (!EVP_OpenUpdate(*m_rsa_decr_ctx.get(), &decr_msg.front() + decrMsgLen, &blockLen, &encr_msg.front(), encr_msg_len))
+    unsigned char* decr_msg_after_init_ptr = &decr_msg.front() + decr_msg_len;
+    if (!EVP_OpenUpdate(*m_rsa_decr_ctx.get(), decr_msg_after_init_ptr, &block_len, &encr_msg.front(), encr_msg_len))
     {
         return -1;
     }
 
-    decrMsgLen += blockLen;
+    decr_msg_len += block_len;
 
-    if (!EVP_OpenFinal(*m_rsa_decr_ctx.get(), &decr_msg.front() + decrMsgLen, &blockLen))
+    unsigned char* decr_msg_final_ptr = &decr_msg.front() + decr_msg_len;
+    if (!EVP_OpenFinal(*m_rsa_decr_ctx.get(), decr_msg_final_ptr, &block_len))
     {
         return -1;
     }
 
-    decrMsgLen += blockLen;
+    decr_msg_len += block_len;
 
-    return decrMsgLen;
+    return decr_msg_len;
 }
 
 
@@ -308,18 +313,18 @@ void AsymmetricCrypto::get_private_key(std::shared_ptr<unsigned char>& private_k
 
 unsigned int AsymmetricCrypto::BioToString(BIO* bio, std::shared_ptr<unsigned char>& str)
 {
-    unsigned int bioLength = BIO_pending(bio);
-    str = std::make_shared<unsigned char>(bioLength + 1);
+    unsigned int bio_len = BIO_pending(bio);
+    str = std::make_shared<unsigned char>(bio_len + 1);
 
-    BIO_read(bio, str.get(), bioLength);
+    BIO_read(bio, str.get(), bio_len);
     if (str.get())
     {
         unsigned char* strPtr = str.get();
-        size_t buffLen = ptrdiff_t(bioLength);
+        size_t buffLen = ptrdiff_t(bio_len);
         strPtr[buffLen] = '\0';
     }
 
     BIO_free_all(bio);
 
-    return bioLength;
+    return bio_len;
 }

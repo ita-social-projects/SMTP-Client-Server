@@ -192,20 +192,20 @@ int SymmetricCrypto::EncryptSymmetric(
     unsigned int msg_len,
     std::shared_ptr<unsigned char>& encr_msg)
 {
-    if (!msg || !msg_len)
+    if (!msg || msg_len <= 0)
     {
         LOG_ERROR << "incorrect message";
         return -1;
     }
 
-    int blockLen = 0;
-    int encrMsgLen = 0;
+    int block_len = 0;
+    int encr_msg_len = 0;
 
-    size_t msgLen = static_cast<size_t>(msg_len) + static_cast<size_t>(BLOCK_SIZE);
-    std::shared_ptr<unsigned char> buffMsg(
-        new unsigned char[msgLen],
+    size_t msg_len_plus_block_size = static_cast<size_t>(msg_len) + static_cast<size_t>(BLOCK_SIZE);
+    std::shared_ptr<unsigned char> buff_msg(
+        new unsigned char[msg_len_plus_block_size],
         std::default_delete<unsigned char[]>());
-    encr_msg = buffMsg;
+    encr_msg = buff_msg;
 
     if (!EVP_EncryptInit_ex(*m_aes_encr_ctx.get(), EVP_aes_256_cbc(), nullptr, *m_aes_key, *m_aes_iv))
     {
@@ -213,29 +213,29 @@ int SymmetricCrypto::EncryptSymmetric(
         return -1;
     }
 
-    if (!EVP_EncryptUpdate(*m_aes_encr_ctx.get(), encr_msg.get(), &blockLen, msg, msg_len))
+    if (!EVP_EncryptUpdate(*m_aes_encr_ctx.get(), encr_msg.get(), &block_len, msg, (int)msg_len))
     {
         LOG_ERROR << "EVP Encrypt Update fail";
         return -1;
     }
 
-    encrMsgLen += blockLen;
+    encr_msg_len += block_len;
 
-    unsigned char* ptr = encr_msg.get() + ptrdiff_t(encrMsgLen);
-    if (!EVP_EncryptFinal_ex(*m_aes_encr_ctx.get(), ptr, &blockLen))
+    unsigned char* encr_msg_ptr = encr_msg.get() + ptrdiff_t(encr_msg_len);
+    if (!EVP_EncryptFinal_ex(*m_aes_encr_ctx.get(), encr_msg_ptr, &block_len))
     {
         LOG_ERROR << "EVP Encrypt Final fail";
         return -1;
     }
 
-    encrMsgLen += blockLen;
+    encr_msg_len += block_len;
 
-    unsigned char* encrMsgPtr = encr_msg.get();
-    size_t buff = ptrdiff_t(encrMsgLen);
-    encrMsgPtr[buff] = '\0';
+    unsigned char* encr_msg_end_ptr = encr_msg.get();
+    size_t arr_end = ptrdiff_t(encr_msg_len);
+    encr_msg_end_ptr[arr_end] = '\0';
 
     LOG_INFO << "Encryption succsess";
-    return encrMsgLen;
+    return encr_msg_len;
 }
 
 int SymmetricCrypto::EncryptSymmetric(
@@ -248,8 +248,8 @@ int SymmetricCrypto::EncryptSymmetric(
         return -1;
     }
 
-    int blockLen = 0;
-    int encrMsgLen = 0;
+    int block_len = 0;
+    int encr_msg_len = 0;
 
     encr_msg.resize(msg.size() + BLOCK_SIZE);
 
@@ -262,26 +262,26 @@ int SymmetricCrypto::EncryptSymmetric(
     if (!EVP_EncryptUpdate(
         *m_aes_encr_ctx.get(),
         &encr_msg.front(),
-        &blockLen,
+        &block_len,
         &msg.front(),
-        static_cast<unsigned int>(msg.size())))
+        (int)msg.size()))
     {
         LOG_ERROR << "EVP Encrypt Update fail";
         return -1;
     }
 
-    encrMsgLen += blockLen;
+    encr_msg_len += block_len;
 
-    if (!EVP_EncryptFinal_ex(*m_aes_encr_ctx.get(), &encr_msg.front() + encrMsgLen, &blockLen))
+    if (!EVP_EncryptFinal_ex(*m_aes_encr_ctx.get(), &encr_msg.front() + encr_msg_len, &block_len))
     {
         LOG_ERROR << "EVP Encrypt Final fail";
         return -1;
     }
 
-    encrMsgLen += blockLen;
+    encr_msg_len += block_len;
 
     LOG_INFO << "Encryption succsess";
-    return encrMsgLen;
+    return encr_msg_len;
 }
 
 int SymmetricCrypto::DecryptSymmetric(
@@ -294,12 +294,12 @@ int SymmetricCrypto::DecryptSymmetric(
         LOG_INFO << "enctypted message is empty";
         return -1;
     }
-    int decrMsgLen = 0;
-    int blockLen = 0;
+    int decr_msg_len = 0;
+    int block_len = 0;
 
-    size_t encrLen = ptrdiff_t(encr_msg_len);
+    size_t encr_len = ptrdiff_t(encr_msg_len);
     std::shared_ptr<unsigned char> msg(
-        new unsigned char[encrLen],
+        new unsigned char[encr_len],
         std::default_delete<unsigned char[]>());
     decr_msg = msg;
 
@@ -309,29 +309,29 @@ int SymmetricCrypto::DecryptSymmetric(
         return -1;
     }
 
-    if (!EVP_DecryptUpdate(*m_aes_decr_ctx.get(), decr_msg.get(), &blockLen, encr_msg, encr_msg_len))
+    if (!EVP_DecryptUpdate(*m_aes_decr_ctx.get(), decr_msg.get(), &block_len, encr_msg, (int)encr_msg_len))
     {
         LOG_INFO << "EVP Decrypt Update fail";
         return -1;
     }
 
-    decrMsgLen += blockLen;
+    decr_msg_len += block_len;
 
-    unsigned char* ptr = decr_msg.get() + ptrdiff_t(decrMsgLen);
-    if (!EVP_DecryptFinal_ex(*m_aes_decr_ctx.get(), ptr, &blockLen))
+    unsigned char* msg_end_ptr = decr_msg.get() + ptrdiff_t(decr_msg_len);
+    if (!EVP_DecryptFinal_ex(*m_aes_decr_ctx.get(), msg_end_ptr, &block_len))
     {
         LOG_INFO << "EVP Decrypt Final fail";
         return -1;
     }
 
-    decrMsgLen += blockLen;
+    decr_msg_len += block_len;
 
-    unsigned char* decrPtr = decr_msg.get();
-    size_t arrEnd = ptrdiff_t(decrMsgLen);
-    decrPtr[arrEnd] = '\0';
+    unsigned char* decr_ptr = decr_msg.get();
+    size_t arr_end = ptrdiff_t(decr_msg_len);
+    decr_ptr[arr_end] = '\0';
 
     LOG_INFO << "Decryption succsess";
-    return decrMsgLen;
+    return decr_msg_len;
 }
 
 int SymmetricCrypto::DecryptSymmetric(
@@ -343,8 +343,8 @@ int SymmetricCrypto::DecryptSymmetric(
         LOG_INFO << "enctypted message is empty";
         return -1;
     }
-    int decrMsgLen = 0;
-    int blockLen = 0;
+    int decr_msg_len = 0;
+    int block_len = 0;
 
     decr_msg.resize(encr_msg.size());
 
@@ -357,26 +357,26 @@ int SymmetricCrypto::DecryptSymmetric(
     if (!EVP_DecryptUpdate(
         *m_aes_decr_ctx.get(),
         &decr_msg.front(),
-        &blockLen,
+        &block_len,
         &encr_msg.front(),
-        static_cast<unsigned int>(decr_msg.size())))
+        (int)(decr_msg.size())))
     {
         LOG_INFO << "EVP Decrypt Update fail";
         return -1;
     }
 
-    decrMsgLen += blockLen;
+    decr_msg_len += block_len;
 
-    if (!EVP_DecryptFinal_ex(*m_aes_decr_ctx.get(), &decr_msg.front() + decrMsgLen, &blockLen))
+    if (!EVP_DecryptFinal_ex(*m_aes_decr_ctx.get(), &decr_msg.front() + decr_msg_len, &block_len))
     {
         LOG_INFO << "EVP Decrypt Final fail";
         return -1;
     }
 
-    decrMsgLen += blockLen;
+    decr_msg_len += block_len;
 
     LOG_INFO << "Decryption succsess";
-    return decrMsgLen;
+    return decr_msg_len;
 }
 
 const unsigned char* SymmetricCrypto::get_aes_key() const
