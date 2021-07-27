@@ -6,16 +6,17 @@
 #include "framework.h"
 #include <string.h>
 #include "CPPLogger.h"
-#include "../XMLParser/XMLParser.h"
+#include "../XMLParserForLogger/XMLParserForLogger.h"
 
-std::wstring CLIENT_INIT_PARAM = L"/P7.Sink=FileTxt /P7.Name=Logs /P7.Format=\"%ti - %tf [%lv] - [%fs] [%fn] %ms\" /P7.Dir=";
-const wchar_t* TRACE_CHANNEL = L"Trace";
-const tUINT16 TRACE_ID = NULL;
-const IP7_Trace::hModule I_HMODULE = NULL;
+std::wstring CLIENT_INIT_PARAM		= L"/P7.Sink=FileTxt /P7.Format=\"%ti-%tf-%lv-%fs-%fn-%ms\" /P7.Dir=";
+const wchar_t* TRACE_CHANNEL		= L"Trace";
+const tUINT16 TRACE_ID				= NULL;
+const IP7_Trace::hModule I_HMODULE	= NULL;
+Logger* Logger::s_instance;
 
 Logger::Logger()
 {
-	XMLParser parser;
+	XMLParserForLogger parser;
 
 	std::wstring file_path = std::wstring(parser.GetLogFilename().begin(), parser.GetLogFilename().end());
 	CLIENT_INIT_PARAM += file_path;
@@ -76,4 +77,13 @@ void Logger::set_filter_level(unsigned int level)
 {
 	if (level < 0 || level > 5) return;
 	m_trace->Set_Verbosity(I_HMODULE, (eP7Trace_Level)level);
+}
+
+Logger* Logger::GetInstance()
+{
+	if (!s_instance)
+	{
+		s_instance = new Logger;
+	}
+	return s_instance;
 }
