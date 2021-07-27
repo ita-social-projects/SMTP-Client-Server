@@ -139,7 +139,7 @@
     </Link>
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionDir)\3rdPartyLibs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>p7.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>CPPLogger.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <PostBuildEvent>
       <Command>copy /Y "$(SolutionDir)x64\Debug\XMLParser.lib" "$(SolutionDir)3rdPartyLibs\XMLParser.lib"</Command>
