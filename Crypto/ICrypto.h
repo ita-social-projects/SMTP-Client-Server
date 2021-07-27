@@ -9,29 +9,29 @@
 class ICrypt
 {
 public:
-	virtual unsigned int EncryptSync(
+	virtual int EncryptSync(
 		const unsigned char* msg,
 		unsigned int msg_len,
 		std::shared_ptr<unsigned char>& encr_msg) = 0;
 
-	virtual unsigned int EncryptSync(
+	virtual int EncryptSync(
 		const std::vector<unsigned char>& msg,
 		std::vector<unsigned char>& encr_msg) = 0;
 
-	virtual unsigned int DecryptSync(
+	virtual int DecryptSync(
 		const unsigned char* encr_msg,
 		unsigned int encr_msg_len,
 		std::shared_ptr<unsigned char>& decr_msg) = 0;
 
-	virtual unsigned int DecryptSync(
+	virtual int DecryptSync(
 		const std::vector<unsigned char>& encr_msg,
 		std::vector<unsigned char>& decr_msg) = 0;
 
-	virtual bool GenerateKey(
+	virtual bool GenerateRandomKey(
 		unsigned int key_len,
 		unsigned int iv_len) = 0;
 
-	virtual bool GenerateKey(
+	virtual bool GenerateKeyFromPassword(
 		const unsigned char* password,
 		unsigned int password_len) = 0;
 };

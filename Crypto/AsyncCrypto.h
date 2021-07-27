@@ -1,9 +1,7 @@
 #pragma once
-#pragma comment(lib,"libcrypto.lib")
 
 #include <vector>
 #include <memory>
-#include <string>
 
 #include <openssl/pem.h>    // engine interface
 #include <openssl/aes.h>    // AES_BLOCK_SIZE
@@ -17,28 +15,13 @@
 #define RSA_KEY_LEN 2048
 #define PUBLIC_KEYS_AMOUNT 1
 
-class exceptionAsyncCrypto
-{
-public:
-    exceptionAsyncCrypto(const std::string& msg) noexcept
-        : m_what_str(msg)
-    {
-    }
-    const std::string get_what_str() const
-    {
-        return m_what_str;
-    }
-private:
-    std::string m_what_str = "";
-};
-
 class AsyncCrypto
 {
 public:
     AsyncCrypto();
     ~AsyncCrypto();
 
-    unsigned int Encrypt(
+    int Encrypt(
         const unsigned char* msg,
         unsigned int msg_len,
         std::shared_ptr<unsigned char>& encr_msg,
@@ -46,7 +29,7 @@ public:
         unsigned int* encr_key_len,
         std::shared_ptr<unsigned char>& iv,
         unsigned int* iv_len);
-    unsigned int Encrypt(
+    int Encrypt(
         const std::vector<unsigned char>& msg,
         unsigned int msg_len,
         std::vector<unsigned char>& encr_msg,
@@ -54,7 +37,7 @@ public:
         unsigned int* encr_key_len,
         std::vector<unsigned char>& iv,
         unsigned int* iv_len);
-    unsigned int Decrypt(
+    int Decrypt(
         const unsigned char* encr_msg,
         unsigned int encr_msg_len,
         unsigned char* encr_key,
@@ -62,7 +45,7 @@ public:
         unsigned char* iv,
         unsigned int iv_len,
         std::shared_ptr<unsigned char>& decr_msg_len);
-    unsigned int Decrypt(
+    int Decrypt(
         const std::vector<unsigned char>& encr_msg,
         unsigned int encr_msg_len,
         std::vector<unsigned char>& decr_msg,
@@ -85,7 +68,6 @@ private:
         std::shared_ptr<unsigned char>& str);
     bool InitializeContext();
     void DestroyContext();
-    void NotifyError(std::string& msg);
 };
 
 #endif // ASYNC_CRYPTO_H

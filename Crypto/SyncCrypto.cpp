@@ -64,7 +64,7 @@ SyncCrypto::SyncCrypto(unsigned char** key, unsigned char key_len, unsigned char
     }
 }
 
-bool SyncCrypto::GenerateKey(unsigned int key_len, unsigned int iv_len)
+bool SyncCrypto::GenerateRandomKey(unsigned int key_len, unsigned int iv_len)
 {
     if (key_len != KEYSIZE_16
         && key_len != KEYSIZE_24
@@ -100,7 +100,7 @@ bool SyncCrypto::GenerateKey(unsigned int key_len, unsigned int iv_len)
     return true;
 }
 
-bool SyncCrypto::GenerateKey(const unsigned char* password, unsigned int password_len)
+bool SyncCrypto::GenerateKeyFromPassword(const unsigned char* password, unsigned int password_len)
 {
     if (!password)
     {
@@ -187,26 +187,19 @@ void SyncCrypto::DestroyContext() const
     EVP_CIPHER_CTX_free(*m_aes_decr_ctx.get());
 }
 
-void SyncCrypto::NotifyError(std::string& msg)
-{
-    LOG_ERROR << msg.c_str();
-    throw exceptionSyncCrypto(msg);
-}
-
-unsigned int SyncCrypto::EncryptSync(
+int SyncCrypto::EncryptSync(
     const unsigned char* msg,
     unsigned int msg_len,
     std::shared_ptr<unsigned char>& encr_msg)
 {
     if (!msg || !msg_len)
     {
-        std::string msg = "incorrect message";
-        NotifyError(msg);
+        LOG_ERROR << "incorrect message";
+        return -1;
     }
 
-
-    unsigned int blockLen = 0;
-    unsigned int encrMsgLen = 0;
+    int blockLen = 0;
+    int encrMsgLen = 0;
 
     size_t msgLen = static_cast<size_t>(msg_len) + static_cast<size_t>(BLOCK_SIZE);
     std::shared_ptr<unsigned char> buffMsg(
@@ -216,23 +209,23 @@ unsigned int SyncCrypto::EncryptSync(
 
     if (!EVP_EncryptInit_ex(*m_aes_encr_ctx.get(), EVP_aes_256_cbc(), nullptr, *m_aes_key, *m_aes_iv))
     {
-        std::string msg = "EVP Encrypt Init fail";
-        NotifyError(msg);
+        LOG_ERROR << "EVP Encrypt Init fail";
+        return -1;
     }
 
-    if (!EVP_EncryptUpdate(*m_aes_encr_ctx.get(), encr_msg.get(), (int*)&blockLen, msg, msg_len))
+    if (!EVP_EncryptUpdate(*m_aes_encr_ctx.get(), encr_msg.get(), &blockLen, msg, msg_len))
     {
-        std::string msg = "EVP Encrypt Update fail";
-        NotifyError(msg);
+        LOG_ERROR << "EVP Encrypt Update fail";
+        return -1;
     }
 
     encrMsgLen += blockLen;
 
     unsigned char* ptr = encr_msg.get() + ptrdiff_t(encrMsgLen);
-    if (!EVP_EncryptFinal_ex(*m_aes_encr_ctx.get(), ptr, (int*)&blockLen))
+    if (!EVP_EncryptFinal_ex(*m_aes_encr_ctx.get(), ptr, &blockLen))
     {
-        std::string msg = "EVP Encrypt Final fail";
-        NotifyError(msg);
+        LOG_ERROR << "EVP Encrypt Final fail";
+        return -1;
     }
 
     encrMsgLen += blockLen;
@@ -245,44 +238,44 @@ unsigned int SyncCrypto::EncryptSync(
     return encrMsgLen;
 }
 
-unsigned int SyncCrypto::EncryptSync(
+int SyncCrypto::EncryptSync(
     const std::vector<unsigned char>& msg,
     std::vector<unsigned char>& encr_msg)
 {
     if (msg.empty())
     {
-        std::string msg = "message is empty";
-        NotifyError(msg);
+        LOG_ERROR << "message is empty";
+        return -1;
     }
 
-    unsigned int blockLen = 0;
-    unsigned int encrMsgLen = 0;
+    int blockLen = 0;
+    int encrMsgLen = 0;
 
     encr_msg.resize(msg.size() + BLOCK_SIZE);
 
     if (!EVP_EncryptInit_ex(*m_aes_encr_ctx.get(), EVP_aes_256_cbc(), nullptr, *m_aes_key, *m_aes_iv))
     {
-        std::string msg = "EVP Encrypt Init fail";
-        NotifyError(msg);
+        LOG_ERROR << "EVP Encrypt Init fail";
+        return -1;
     }
 
     if (!EVP_EncryptUpdate(
         *m_aes_encr_ctx.get(),
         &encr_msg.front(),
-        (int*)&blockLen,
+        &blockLen,
         &msg.front(),
         static_cast<unsigned int>(msg.size())))
     {
-        std::string msg = "EVP Encrypt Update fail";
-        NotifyError(msg);
+        LOG_ERROR << "EVP Encrypt Update fail";
+        return -1;
     }
 
     encrMsgLen += blockLen;
 
-    if (!EVP_EncryptFinal_ex(*m_aes_encr_ctx.get(), &encr_msg.front() + encrMsgLen, (int*)&blockLen))
+    if (!EVP_EncryptFinal_ex(*m_aes_encr_ctx.get(), &encr_msg.front() + encrMsgLen, &blockLen))
     {
-        std::string msg = "EVP Encrypt Final fail";
-        NotifyError(msg);
+        LOG_ERROR << "EVP Encrypt Final fail";
+        return -1;
     }
 
     encrMsgLen += blockLen;
@@ -291,18 +284,18 @@ unsigned int SyncCrypto::EncryptSync(
     return encrMsgLen;
 }
 
-unsigned int SyncCrypto::DecryptSync(
+int SyncCrypto::DecryptSync(
     const unsigned char* encr_msg,
     unsigned int encr_msg_len,
     std::shared_ptr<unsigned char>& decr_msg)
 {
     if (!encr_msg || !encr_msg_len)
     {
-        std::string msg = "enctypted message is empty";
-        NotifyError(msg);
+        LOG_INFO << "enctypted message is empty";
+        return -1;
     }
-    unsigned int decrMsgLen = 0;
-    unsigned int blockLen = 0;
+    int decrMsgLen = 0;
+    int blockLen = 0;
 
     size_t encrLen = ptrdiff_t(encr_msg_len);
     std::shared_ptr<unsigned char> msg(
@@ -312,23 +305,23 @@ unsigned int SyncCrypto::DecryptSync(
 
     if (!EVP_DecryptInit_ex(*m_aes_decr_ctx.get(), EVP_aes_256_cbc(), nullptr, *m_aes_key, *m_aes_iv))
     {
-        std::string msg = "EVP Decrypt Init fail";
-        NotifyError(msg);
+        LOG_INFO << "EVP Decrypt Init fail";
+        return -1;
     }
 
-    if (!EVP_DecryptUpdate(*m_aes_decr_ctx.get(), decr_msg.get(), (int*)&blockLen, encr_msg, encr_msg_len))
+    if (!EVP_DecryptUpdate(*m_aes_decr_ctx.get(), decr_msg.get(), &blockLen, encr_msg, encr_msg_len))
     {
-        std::string msg = "EVP Decrypt Update fail";
-        NotifyError(msg);
+        LOG_INFO << "EVP Decrypt Update fail";
+        return -1;
     }
 
     decrMsgLen += blockLen;
 
     unsigned char* ptr = decr_msg.get() + ptrdiff_t(decrMsgLen);
-    if (!EVP_DecryptFinal_ex(*m_aes_decr_ctx.get(), ptr, (int*)&blockLen))
+    if (!EVP_DecryptFinal_ex(*m_aes_decr_ctx.get(), ptr, &blockLen))
     {
-        std::string msg = "EVP Decrypt Final fail";
-        NotifyError(msg);
+        LOG_INFO << "EVP Decrypt Final fail";
+        return -1;
     }
 
     decrMsgLen += blockLen;
@@ -341,44 +334,43 @@ unsigned int SyncCrypto::DecryptSync(
     return decrMsgLen;
 }
 
-unsigned int SyncCrypto::DecryptSync(
+int SyncCrypto::DecryptSync(
     const std::vector<unsigned char>& encr_msg,
     std::vector<unsigned char>& decr_msg)
 {
     if (encr_msg.empty())
     {
-        std::string msg = "enctypted message is empty";
-        NotifyError(msg);
+        LOG_INFO << "enctypted message is empty";
         return -1;
     }
-    unsigned int decrMsgLen = 0;
-    unsigned int blockLen = 0;
+    int decrMsgLen = 0;
+    int blockLen = 0;
 
     decr_msg.resize(encr_msg.size());
 
     if (!EVP_DecryptInit_ex(*m_aes_decr_ctx.get(), EVP_aes_256_cbc(), nullptr, *m_aes_key, *m_aes_iv))
     {
-        std::string msg = "EVP Decrypt Init fail";
-        NotifyError(msg);
+        LOG_INFO << "EVP Decrypt Init fail";
+        return -1;
     }
 
     if (!EVP_DecryptUpdate(
         *m_aes_decr_ctx.get(),
         &decr_msg.front(),
-        (int*)&blockLen,
+        &blockLen,
         &encr_msg.front(),
         static_cast<unsigned int>(decr_msg.size())))
     {
-        std::string msg = "EVP Decrypt Update fail";
-        NotifyError(msg);
+        LOG_INFO << "EVP Decrypt Update fail";
+        return -1;
     }
 
     decrMsgLen += blockLen;
 
-    if (!EVP_DecryptFinal_ex(*m_aes_decr_ctx.get(), &decr_msg.front() + decrMsgLen, (int*)&blockLen))
+    if (!EVP_DecryptFinal_ex(*m_aes_decr_ctx.get(), &decr_msg.front() + decrMsgLen, &blockLen))
     {
-        std::string msg = "EVP Decrypt Final fail";
-        NotifyError(msg);
+        LOG_INFO << "EVP Decrypt Final fail";
+        return -1;
     }
 
     decrMsgLen += blockLen;
@@ -396,8 +388,8 @@ bool SyncCrypto::set_aes_key(unsigned char* aes_key, unsigned int aes_key_len)
 {
     if (aes_key_len != m_aes_key_len)
     {
-        std::string msg = "wrong key length";
-        NotifyError(msg);
+        LOG_INFO << "wrong key length";
+        return -1;
     }
 
     m_aes_key.reset();
@@ -420,8 +412,8 @@ bool SyncCrypto::set_aes_iv(unsigned char* aes_iv, unsigned int aes_iv_len)
 {
     if (aes_iv_len != m_aes_iv_len)
     {
-        std::string msg = "wrong iv length";
-        NotifyError(msg);
+        LOG_INFO << "wrong iv length";
+        return -1;
     }
 
     m_aes_iv.reset();

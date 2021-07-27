@@ -1,6 +1,4 @@
 #pragma once
-#pragma comment(lib,"libcrypto.lib")
-#include <string>
 
 #include <openssl/pem.h>    // engine interface
 #include <openssl/rand.h>   //generate arrays of random bytes
@@ -36,22 +34,6 @@ const unsigned int      g_key_len = KEYSIZE_32;
 const unsigned char     g_iv[] = "p9e8unjxajgstddd";
 const unsigned int      g_iv_len = IVSIZE_16;
 
-class exceptionSyncCrypto
-{
-public:
-    exceptionSyncCrypto(const std::string& msg) noexcept
-        : m_what_str(msg)
-    {
-
-    }
-    const std::string get_what_str() const
-    {
-        return m_what_str;
-    }
-private:
-    std::string m_what_str = "";
-};
-
 class SyncCrypto final : public ICrypt
 {
 public:
@@ -63,29 +45,29 @@ public:
         unsigned char iv_len);
     ~SyncCrypto();
 
-    virtual unsigned int EncryptSync(
+    virtual int EncryptSync(
         const unsigned char* msg,
         unsigned int msg_len,
         std::shared_ptr<unsigned char>& encr_msg) override;
 
-    virtual unsigned int EncryptSync(
+    virtual int EncryptSync(
         const std::vector<unsigned char>& msg,
         std::vector<unsigned char>& encr_msg) override;
 
-    virtual unsigned int DecryptSync(
+    virtual int DecryptSync(
         const unsigned char* encr_msg,
         unsigned int encr_msg_len,
         std::shared_ptr<unsigned char>& decr_msg) override;
 
-    virtual unsigned int DecryptSync(
+    virtual int DecryptSync(
         const std::vector<unsigned char>& encr_msg,
         std::vector<unsigned char>& decr_msg) override;
 
-    virtual bool GenerateKey(
+    virtual bool GenerateRandomKey(
         unsigned int key_len,
         unsigned int iv_len) override;
     //use password and random salt to generate key and iv
-    virtual bool GenerateKey(
+    virtual bool GenerateKeyFromPassword(
         const unsigned char* password,
         unsigned int password_len) override;
 
@@ -105,7 +87,6 @@ private:
     unsigned int                        m_aes_iv_len = 0;
     bool InitializeContext();
     void DestroyContext() const;
-    void NotifyError(std::string& msg);
 };
 
 #endif // SYNC_CRYPTO_H

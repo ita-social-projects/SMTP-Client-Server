@@ -40,11 +40,6 @@ void AsyncCrypto::DestroyContext()
     EVP_CIPHER_CTX_free(*m_rsa_decr_ctx.get());
 }
 
-void AsyncCrypto::NotifyError(std::string& msg)
-{
-    throw exceptionAsyncCrypto(msg);
-}
-
 bool AsyncCrypto::GenerateRsaKeypair()
 {
     EVP_PKEY_CTX* ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, nullptr);
@@ -64,7 +59,7 @@ bool AsyncCrypto::GenerateRsaKeypair()
     return true;
 }
 
-unsigned int AsyncCrypto::Encrypt(
+int AsyncCrypto::Encrypt(
     const unsigned char* msg,
     unsigned int msg_len,
     std::shared_ptr<unsigned char>& encr_msg,
@@ -75,12 +70,11 @@ unsigned int AsyncCrypto::Encrypt(
 {
     if (!msg || !msg_len)
     {
-        std::string msg = "message is empty";
-        NotifyError(msg);
+        return -1;
     }
 
-    unsigned int encrMsgLen = 0;
-    unsigned int blockLen = 0;
+    int encrMsgLen = 0;
+    int blockLen = 0;
 
     size_t keyLen = static_cast<size_t>(EVP_PKEY_size(*m_keypair.get()));
     std::shared_ptr<unsigned char> buffKey(
@@ -113,14 +107,12 @@ unsigned int AsyncCrypto::Encrypt(
         m_keypair.get(),
         PUBLIC_KEYS_AMOUNT))
     {
-        std::string msg = "EVP Seal Init fail";
-        NotifyError(msg);
+        return -1;
     }
 
-    if (!EVP_SealUpdate(*m_rsa_encr_ctx.get(), encr_msg.get() + encrMsgLen, (int*)&blockLen, msg, (unsigned int)msg_len))
+    if (!EVP_SealUpdate(*m_rsa_encr_ctx.get(), encr_msg.get() + encrMsgLen, &blockLen, msg, (unsigned int)msg_len))
     {
-        std::string msg = "message EVP Seal Update fail";
-        NotifyError(msg);
+        return -1;
     }
 
     encrMsgLen += blockLen;
@@ -128,10 +120,9 @@ unsigned int AsyncCrypto::Encrypt(
     unsigned char* ptr = encr_msg.get();
 
     unsigned char* ptr2 = ptr + ptrdiff_t(encrMsgLen);
-    if (!EVP_SealFinal(*m_rsa_encr_ctx.get(), ptr2, (int*)&blockLen))
+    if (!EVP_SealFinal(*m_rsa_encr_ctx.get(), ptr2, &blockLen))
     {
-        std::string msg = "message EVP Seal Final fail";
-        NotifyError(msg);
+        return -1;
     }
 
     encrMsgLen += blockLen;
@@ -139,7 +130,7 @@ unsigned int AsyncCrypto::Encrypt(
     return encrMsgLen;
 }
 
-unsigned int AsyncCrypto::Encrypt(
+int AsyncCrypto::Encrypt(
     const std::vector<unsigned char>& msg,
     unsigned int msg_len,
     std::vector<unsigned char>& encr_msg,
@@ -150,13 +141,12 @@ unsigned int AsyncCrypto::Encrypt(
 {
     if (msg.empty() || !msg_len)
     {
-        std::string msg = "message is empty";
-        NotifyError(msg);
+        return -1;
     }
-    unsigned int encrMsgLen = 0;
-    unsigned int blockLen = 0;
-
-    encr_key.resize(EVP_PKEY_size(*m_keypair.get()));
+    int encrMsgLen = 0;
+    int blockLen = 0;
+    size_t pubKeyLen = static_cast<size_t>(EVP_PKEY_size(*m_keypair.get()));
+    encr_key.resize(pubKeyLen);
     iv.resize(EVP_MAX_IV_LENGTH);
     *iv_len = EVP_MAX_IV_LENGTH;
 
@@ -175,22 +165,19 @@ unsigned int AsyncCrypto::Encrypt(
         m_keypair.get(),
         PUBLIC_KEYS_AMOUNT))
     {
-        std::string msg = "EVP Seal Init fail";
-        NotifyError(msg);
+        return -1;
     }
 
-    if (!EVP_SealUpdate(*m_rsa_encr_ctx.get(), &encr_msg.front() + encrMsgLen, (int*)&blockLen, &msg.front(), msg_len))
+    if (!EVP_SealUpdate(*m_rsa_encr_ctx.get(), &encr_msg.front() + encrMsgLen, &blockLen, &msg.front(), msg_len))
     {
-        std::string msg = "message EVP Seal Update fail";
-        NotifyError(msg);
+        return -1;
     }
 
     encrMsgLen += blockLen;
 
-    if (!EVP_SealFinal(*m_rsa_encr_ctx.get(), &encr_msg.front() + encrMsgLen, (int*)&blockLen))
+    if (!EVP_SealFinal(*m_rsa_encr_ctx.get(), &encr_msg.front() + encrMsgLen, &blockLen))
     {
-        std::string msg = "message EVP Seal Final fail";
-        NotifyError(msg);
+        return -1;
     }
 
     encrMsgLen += blockLen;
@@ -198,7 +185,7 @@ unsigned int AsyncCrypto::Encrypt(
     return encrMsgLen;
 }
 
-unsigned int AsyncCrypto::Decrypt(
+int AsyncCrypto::Decrypt(
     const unsigned char* encr_msg,
     unsigned int encr_msg_len,
     unsigned char* encr_key,
@@ -209,21 +196,18 @@ unsigned int AsyncCrypto::Decrypt(
 {
     if (!encr_msg || !encr_msg_len)
     {
-        std::string msg = "enctypted message is empty";
-        NotifyError(msg);
+        return -1;
     }
     if (!encr_key || !encr_key_len)
     {
-        std::string msg = "enctypted key is incorrect";
-        NotifyError(msg);
+        return -1;
     }
     if (!iv || !iv_len)
     {
-        std::string msg = "enctypted iv is incorrect";
-        NotifyError(msg);
+        return -1;
     }
-    unsigned int decrMsgLen = 0;
-    unsigned int blockLen = 0;
+    int decrMsgLen = 0;
+    int blockLen = 0;
 
     std::shared_ptr<unsigned char> msg(
         new unsigned char[ptrdiff_t(encr_msg_len) + ptrdiff_t(iv_len)],
@@ -232,24 +216,21 @@ unsigned int AsyncCrypto::Decrypt(
 
     if (!EVP_OpenInit(*m_rsa_decr_ctx.get(), EVP_aes_256_cbc(), encr_key, encr_key_len, iv, *m_keypair.get()))
     {
-        std::string msg = "EVP Open Init fail";
-        NotifyError(msg);
+        return -1;
     }
 
-    if (!EVP_OpenUpdate(*m_rsa_decr_ctx.get(), decr_msg.get() + decrMsgLen, (int*)&blockLen, encr_msg, encr_msg_len))
+    if (!EVP_OpenUpdate(*m_rsa_decr_ctx.get(), decr_msg.get() + decrMsgLen, &blockLen, encr_msg, encr_msg_len))
     {
-        std::string msg = "EVP Open Update fail";
-        NotifyError(msg);
+        return -1;
     }
 
     decrMsgLen += blockLen;
 
     unsigned char* decrMsgPtr = decr_msg.get() + ptrdiff_t(decrMsgLen);
 
-    if (!EVP_OpenFinal(*m_rsa_decr_ctx.get(), decrMsgPtr, (int*)&blockLen))
+    if (!EVP_OpenFinal(*m_rsa_decr_ctx.get(), decrMsgPtr, &blockLen))
     {
-        std::string msg = "EVP Open Final fail";
-        NotifyError(msg);
+        return -1;
     }
 
     decrMsgLen += blockLen;
@@ -261,7 +242,7 @@ unsigned int AsyncCrypto::Decrypt(
     return decrMsgLen;
 }
 
-unsigned int AsyncCrypto::Decrypt(
+int AsyncCrypto::Decrypt(
     const std::vector<unsigned char>& encr_msg,
     unsigned int encr_msg_len,
     std::vector<unsigned char>& decr_msg,
@@ -272,43 +253,37 @@ unsigned int AsyncCrypto::Decrypt(
 {
     if (encr_msg.empty() || !encr_msg_len)
     {
-        std::string msg = "encrypted message is empty";
-        NotifyError(msg);
+        return -1;
     }
     if (encr_key.empty() || !encr_key_len)
     {
-        std::string msg = "encrypted key is incorrect";
-        NotifyError(msg);
+        return -1;
     }
     if (iv.empty() || !iv_len)
     {
-        std::string msg = "iv is incorrect";
-        NotifyError(msg);
+        return -1;
     }
-    unsigned int decrMsgLen = 0;
-    unsigned int blockLen = 0;
+    int decrMsgLen = 0;
+    int blockLen = 0;
 
     size_t buff = ptrdiff_t(encr_msg_len) + ptrdiff_t(iv_len);
     decr_msg.resize(buff);
 
     if (!EVP_OpenInit(*m_rsa_decr_ctx.get(), EVP_aes_256_cbc(), &encr_key.front(), encr_key_len, &iv.front(), *m_keypair.get()))
     {
-        std::string msg = "EVP Open Init fail";
-        NotifyError(msg);
+        return -1;
     }
 
-    if (!EVP_OpenUpdate(*m_rsa_decr_ctx.get(), &decr_msg.front() + decrMsgLen, (int*)&blockLen, &encr_msg.front(), encr_msg_len))
+    if (!EVP_OpenUpdate(*m_rsa_decr_ctx.get(), &decr_msg.front() + decrMsgLen, &blockLen, &encr_msg.front(), encr_msg_len))
     {
-        std::string msg = "EVP Open Update fail";
-        NotifyError(msg);
+        return -1;
     }
 
     decrMsgLen += blockLen;
 
-    if (!EVP_OpenFinal(*m_rsa_decr_ctx.get(), &decr_msg.front() + decrMsgLen, (int*)&blockLen))
+    if (!EVP_OpenFinal(*m_rsa_decr_ctx.get(), &decr_msg.front() + decrMsgLen, &blockLen))
     {
-        std::string msg = "EVP Open Final fail";
-        NotifyError(msg);
+        return -1;
     }
 
     decrMsgLen += blockLen;
