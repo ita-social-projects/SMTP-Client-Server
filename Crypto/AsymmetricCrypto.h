@@ -7,10 +7,8 @@
 #include <openssl/aes.h>    // AES_BLOCK_SIZE
 #include <openssl/rand.h>   //generate arrays of random bytes
 
-#include "..\CPPLogger\CPPLogger.h"
-
-#ifndef ASYNC_CRYPTO_H
-#define ASYNC_CRYPTO_H
+#ifndef ASYMMETRIC_CRYPTO_H
+#define ASYMMETRIC_CRYPTO_H
 
 #define RSA_KEY_LEN 2048
 #define PUBLIC_KEYS_AMOUNT 1
@@ -70,4 +68,4 @@ private:
     void DestroyContext();
 };
 
-#endif // ASYNC_CRYPTO_H
+#endif // ASYMMETRIC_CRYPTO_H

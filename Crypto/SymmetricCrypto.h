@@ -6,8 +6,8 @@
 #include "ICrypto.h"
 #include "..\CPPLogger\CPPLogger.h"
 
-#ifndef SYNC_CRYPTO_H
-#define SYNC_CRYPTO_H
+#ifndef SYMMETRIC_CRYPTO_H
+#define SYMMETRIC_CRYPTO_H
 
 #define KEYSIZE_16 16   // 128 bit key. 10 rounds max
 #define KEYSIZE_24 24   // 192 bit key. 12 rounds max
@@ -89,4 +89,4 @@ private:
     void DestroyContext() const;
 };
 
-#endif // SYNC_CRYPTO_H
+#endif // SYMMETRIC_CRYPTO_H
