@@ -12,7 +12,7 @@ pipeline {
             steps {
                 dir(env.REPO_NAME) {
                     cleanWs()
-                    
+
                     checkout scm
                 }
             }
@@ -28,19 +28,19 @@ pipeline {
                }
            }
         }
-        stage('Static Analysis') {
-           steps{
-               dir(env.REPO_NAME){
-                   bat "PVS-Studio_Cmd.exe -t SMTPClientServer.sln -C filters.pvsconfig -o report.plog --progress"
-               }
-           }
-        }
         stage('Build') {
             steps{
                 dir(env.REPO_NAME) {
                     bat "msbuild SMTPClientServer.sln"
                 }
             }
+        }
+        stage('Static Analysis') {
+           steps{
+               dir(env.REPO_NAME){
+                   bat "PVS-Studio_Cmd.exe -t SMTPClientServer.sln -C filters.pvsconfig -o report.plog --progress"
+               }
+           }
         }
     }
 
