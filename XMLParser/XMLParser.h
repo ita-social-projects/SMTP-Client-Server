@@ -67,8 +67,8 @@ public:
 	}
 
 	~XMLParser()
-	{
-		m_root = nullptr;
+	{			
+		m_root = nullptr;		
 	}
 
 private:

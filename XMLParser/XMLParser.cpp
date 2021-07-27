@@ -154,7 +154,7 @@ bool XMLParser::FileCheck(const std::filesystem::path& filename)
 
 void XMLParser::FindByTag(const std::shared_ptr<XMLNode>& current_node, const std::string& tag_needed, std::string& data) const
 {
-	if (!current_node->children.size())
+	if (!current_node || !current_node->children.size())
 	{
 		return;
 	}

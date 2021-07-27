@@ -6,14 +6,15 @@
 #include "framework.h"
 #include "CPPLogger.h"
 
-const wchar_t* CLIENT_INIT_PARAM = L"/P7.Sink=FileTxt /P7.Dir=C:\\Program Files\\Logs\\ /P7.Format=\"%ti - %tf [%lv] - [%fs] [%fn] %ms\"";
+const wchar_t* CLIENT_INIT_PARAM = L"/P7.Sink=FileTxt /P7.Dir=C:\\Logs\\ /P7.Format=\"%ti - %tf [%lv] - [%fs] [%fn] %ms\"";
+
 const wchar_t* TRACE_CHANNEL = L"Trace";
 const tUINT16 TRACE_ID = NULL;
 const IP7_Trace::hModule I_HMODULE = NULL;
 
 Logger::Logger()
-{
-	m_log_level = eP7Trace_Level::EP7TRACE_LEVEL_TRACE;
+{	
+	m_log_level = eP7Trace_Level::EP7TRACE_LEVEL_TRACE;		
 	m_client = P7_Create_Client(CLIENT_INIT_PARAM);
 	m_trace = P7_Create_Trace(m_client, TRACE_CHANNEL);
 }
