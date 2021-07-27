@@ -14,24 +14,33 @@ pipeline {
                     cleanWs()
 
                     checkout scm
-
-                    bat "copylibs.bat"
                 }
             }
         }
-        //stage('Static Analysis') {
-        //    steps{
-        //        dir(env.REPO_NAME){
-        //            bat "PVS-Studio_Cmd.exe -t SMTPClientServer.sln -o report.plog --progress"
-        //        }
-        //    }
-        //}
+        stage('Copy 3rd party libraries') {
+           steps{
+               dir(env.REPO_NAME){
+                    bat "mkdir 3rdPartyLibs"
+
+                    bat "copy C:\\CPP594Libs\\3rdPartyLibs\\*.lib 3rdPartyLibs"
+
+                    bat "copy C:\\CPP594Libs\\3rdPartyLibs\\*.pdb 3rdPartyLibs"
+               }
+           }
+        }
         stage('Build') {
             steps{
                 dir(env.REPO_NAME) {
                     bat "msbuild SMTPClientServer.sln"
                 }
             }
+        }
+        stage('Static Analysis') {
+           steps{
+               dir(env.REPO_NAME){
+                   bat "PVS-Studio_Cmd.exe -t SMTPClientServer.sln -C filters.pvsconfig -o report.plog --progress"
+               }
+           }
         }
     }
 
@@ -50,11 +59,11 @@ pipeline {
                 enabledForFailure: true,
                 tool: msBuild()
             )
-            //recordIssues(
-            //    enabledForFailure: true,
-            //    sourceCodeEncoding:'UTF-8',
-            //    tool: PVSStudio(pattern: "${env.REPO_NAME}\\report.plog")
-            //)
+            recordIssues(
+               enabledForFailure: true,
+               sourceCodeEncoding:'UTF-8',
+               tool: PVSStudio(pattern: "${env.REPO_NAME}\\report.plog")
+            )
         }
         failure {
             script{
