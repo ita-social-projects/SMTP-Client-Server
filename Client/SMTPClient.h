@@ -14,10 +14,6 @@
 #include "base64.h"
 #include "..\CPPLogger\CPPLogger.h"
 
-#pragma comment(lib, "Ws2_32.lib")
-#pragma comment(lib, "Mswsock.lib")
-#pragma comment(lib, "AdvApi32.lib")
-
 constexpr auto	DEFAULT_SSL_PORT	= "465";	// default port for connection through ssl secure connection
 constexpr auto	DEFAULT_BUFFER_SIZE	= 10240;	// size of buffer, where will be storing answers from server
 const int		MAX_FILE_DESCRIPTOR	= 1;		// this value will be used in select method, to set max file descriptor we want to monitor
@@ -97,7 +93,7 @@ public:
 	// Set ServerChoice
 	bool	set_smtp_address(const std::string&);
 	// Starts the procedure of sending all part of e-mail message
-	bool	Send();		
+	bool	Send();
 
 protected:	
 	
