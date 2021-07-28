@@ -26,6 +26,7 @@ class SMTPServer
 {
 public:
 	SMTPServer() = default;
+	~SMTPServer();
 
 	bool Initialize();
 	bool SetSocketSettings();

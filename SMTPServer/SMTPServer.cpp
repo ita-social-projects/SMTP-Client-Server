@@ -46,6 +46,12 @@ void SMTPServer::WorkWithClient(SOCKET client_socket)
 	}
 }
 
+SMTPServer::~SMTPServer()
+{
+	closesocket(m_server_socket);
+	WSACleanup();
+}
+
 bool SMTPServer::Initialize()
 {
 	WSADATA wsa_data;
