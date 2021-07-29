@@ -17,6 +17,31 @@ constexpr auto MIN_MAIL_SIZE = 2;
 constexpr auto MAX_MAIL_SIZE = 255;
 constexpr auto RESPONSE_BUF_SIZE = 64;
 
+constexpr auto WELCOME_STR = "220 Welcome!\r\n";
+constexpr auto CLOSING_CHANNEL_STR = "221 Service closing transmission channel\r\n";
+constexpr auto LOGIN_STR = "235 Successfull login\r\n";
+constexpr auto OK_STR = "250 OK\r\n";
+constexpr auto LOGIN_RCV_STR = "334 Login has recieved\r\n";
+constexpr auto START_MAIL_STR = "354 Start mail input; end with <CRLF>.<CRLF>\r\n";
+constexpr auto SYNTAX_ERROR_STR = "501 Syntax error in parameters or arguments\r\n";
+constexpr auto COMMAND_N_IMPLEMENTED_STR = "502 Command not implemented\r\n";
+constexpr auto BAD_SEQUENCE_STR = "503 Bad sequence of commands\r\n";
+constexpr auto NO_USER_STR = "550 No such user\r\n";
+constexpr auto USER_NOT_LOCAL_STR = "551 User not local. Can not forward the mail\r\n";
+constexpr auto NO_DESCRIPTION_STR = "No description\r\n";
+constexpr auto EMAIL_N_RCV_STR = "504 Email not received!\r\n";
+
+constexpr auto HELO_COMMAND = "HELO";
+constexpr auto EHLO_COMMAND = "EHLO";
+constexpr auto AUTH_COMMAND = "AUTH";
+constexpr auto MAIL_COMMAND = "MAIL";
+constexpr auto RCPT_COMMAND = "RCPT";
+constexpr auto DATA_COMMAND = "DATA";
+constexpr auto QUIT_COMMAND = "QUIT";
+
+
+
+
 enum MailSessionStatus
 {
 	EMPTY,

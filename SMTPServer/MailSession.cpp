@@ -56,85 +56,67 @@ int MailSession::SendResponse(int response_type)
 	char buf[RESPONSE_BUF_SIZE];
 	ZeroMemory(&buf, sizeof(buf));
 
-	if (response_type == Responses::WELCOME_TO_CLIENT)
+	switch (response_type)
 	{
-		strcpy(buf, "220 Welcome!\r\n");
-	}
-
-	else if (response_type == Responses::SERVICE_CLOSING)
-	{
-		strcpy(buf, "221 Service closing transmission channel\r\n");
-	}
-
-	else if (response_type == Responses::LOGIN_SUCCESS)
-	{
-		strcpy(buf, "235 Successfull login\r\n");
-	}
-
-	else if (response_type == Responses::OK)
-	{
-		strcpy(buf, "250 OK\r\n");
-	}
-
-	else if (response_type == Responses::LOGIN_RCV)
-	{
-		strcpy(buf, "334 Login has recieved\r\n");
-	}
-
-	else if (response_type == Responses::START_MAIL)
-	{
-		strcpy(buf, "354 Start mail input; end with <CRLF>.<CRLF>\r\n");
-	}
-
-	else if (response_type == Responses::SYNTAX_ERROR)
-	{
-		strcpy(buf, "501 Syntax error in parameters or arguments\r\n");
-	}
-
-	else if (response_type == Responses::COMMAND_NOT_IMPLEMENTED)
-	{
-		strcpy(buf, "502 Command not implemented\r\n");
-	}
-
-	else if (response_type == Responses::BAD_SEQUENSE)
-	{
-		strcpy(buf, "503 Bad sequence of commands\r\n");
-	}
-
-	else if (response_type == Responses::NO_USER)
-	{
-		strcpy(buf, "550 No such user\r\n");
-	}
-
-	else if (response_type == Responses::USER_NOT_LOCAL)
-	{
-		strcpy(buf, "551 User not local. Can not forward the mail\r\n");
-	}
-
-	else
-	{
-		strcpy(buf, "No description\r\n");
+	case Responses::WELCOME_TO_CLIENT:
+		strcpy(buf, WELCOME_STR);
+		break;
+	case Responses::SERVICE_CLOSING:
+		strcpy(buf, CLOSING_CHANNEL_STR);
+		break;
+	case Responses::LOGIN_SUCCESS:
+		strcpy(buf, LOGIN_STR);
+		break;
+	case Responses::OK:
+		strcpy(buf, OK_STR);
+		break;
+	case Responses::BAD_SEQUENSE:
+		strcpy(buf, BAD_SEQUENCE_STR);
+		break;
+	case Responses::COMMAND_NOT_IMPLEMENTED:
+		strcpy(buf, COMMAND_N_IMPLEMENTED_STR);
+		break;
+	case Responses::EMAIL_N_RECEIVED:
+		strcpy(buf, COMMAND_N_IMPLEMENTED_STR);
+		break;
+	case Responses::LOGIN_RCV:
+		strcpy(buf, LOGIN_RCV_STR);
+		break;
+	case Responses::NO_USER:
+		strcpy(buf, NO_USER_STR);
+		break;
+	case Responses::START_MAIL:
+		strcpy(buf, START_MAIL_STR);
+		break;
+	case Responses::SYNTAX_ERROR:
+		strcpy(buf, SYNTAX_ERROR_STR);
+		break;
+	case Responses::USER_NOT_LOCAL:
+		strcpy(buf, USER_NOT_LOCAL_STR);
+		break;
+	default:
+		strcpy(buf, NO_DESCRIPTION_STR);
+		break;
 	}
 
 	send(m_client_socket, buf, sizeof(buf), 0);
-
 	return response_type;
 }
 
 int MailSession::Processes(char* buf)
 {
 
-	if (_strnicmp(buf, "HELO", FIRST_FOUR_SYMBOLS) == 0)
+	if (_strnicmp(buf, HELO_COMMAND, FIRST_FOUR_SYMBOLS) == 0)
 	{
 		return ProcessHELO(buf);
 	}
 
-	else if (_strnicmp(buf, "EHLO", FIRST_FOUR_SYMBOLS) == 0)
+	else if (_strnicmp(buf, EHLO_COMMAND, FIRST_FOUR_SYMBOLS) == 0)
 	{
 		return ProcessHELO(buf);
 	}
 
-	else if (_strnicmp(buf, "AUTH", FIRST_FOUR_SYMBOLS) == 0)
+	else if (_strnicmp(buf, AUTH_COMMAND, FIRST_FOUR_SYMBOLS) == 0)
 	{
 		return ProcessAUTH(buf);
 	}
@@ -149,17 +131,17 @@ int MailSession::Processes(char* buf)
 		return ProcessAUTH(buf);
 	}
 
-	else if (_strnicmp(buf, "MAIL", FIRST_FOUR_SYMBOLS) == 0)
+	else if (_strnicmp(buf, MAIL_COMMAND, FIRST_FOUR_SYMBOLS) == 0)
 	{
 		return ProcessMAIL(buf);
 	}
 
-	else if (_strnicmp(buf, "RCPT", FIRST_FOUR_SYMBOLS) == 0)
+	else if (_strnicmp(buf, RCPT_COMMAND, FIRST_FOUR_SYMBOLS) == 0)
 	{
 		return ProcessRCPT(buf);
 	}
 
-	else if (_strnicmp(buf, "DATA", FIRST_FOUR_SYMBOLS) == 0)
+	else if (_strnicmp(buf, DATA_COMMAND, FIRST_FOUR_SYMBOLS) == 0)
 	{
 		return ProcessDATA(buf);
 	}
@@ -174,7 +156,7 @@ int MailSession::Processes(char* buf)
 		return SubProcessSubject(buf);
 	}
 
-	else if (_strnicmp(buf, "QUIT", FIRST_FOUR_SYMBOLS) == 0)
+	else if (_strnicmp(buf, QUIT_COMMAND, FIRST_FOUR_SYMBOLS) == 0)
 	{
 		return ProcessQUIT();
 	}
