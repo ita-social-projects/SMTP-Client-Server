@@ -38,6 +38,7 @@ constexpr auto MAIL_COMMAND = "MAIL";
 constexpr auto RCPT_COMMAND = "RCPT";
 constexpr auto DATA_COMMAND = "DATA";
 constexpr auto QUIT_COMMAND = "QUIT";
+constexpr auto SUBJECT_COMMAND = "Subject:";
 
 
 

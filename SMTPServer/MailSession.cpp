@@ -296,7 +296,7 @@ int MailSession::SubProcessEmail(char* buf)
 
 int MailSession::SubProcessSubject(char* buf)
 {
-	if (_strnicmp(buf, "Subject:", FIRST_EIGHT_SYMBOLS) != 0)
+	if (_strnicmp(buf, SUBJECT_COMMAND, FIRST_EIGHT_SYMBOLS) != 0)
 	{
 		return SendResponse(Responses::SYNTAX_ERROR);
 	}
