@@ -10,8 +10,8 @@
 #ifndef ASYMMETRIC_CRYPTO_H
 #define ASYMMETRIC_CRYPTO_H
 
-#define RSA_KEY_LEN 2048
-#define PUBLIC_KEYS_AMOUNT 1
+constexpr auto RSA_KEY_LEN = 2048;
+constexpr auto PUBLIC_KEYS_AMOUNT = 1;
 
 class AsymmetricCrypto
 {
@@ -22,10 +22,10 @@ public:
     int Encrypt(
         const unsigned char* msg,
         unsigned int msg_len,
-        std::shared_ptr<unsigned char>& encr_msg,
-        std::shared_ptr<unsigned char>& encr_key,
+        std::shared_ptr<unsigned char[]>& encr_msg,
+        std::shared_ptr<unsigned char[]>& encr_key,
         unsigned int* encr_key_len,
-        std::shared_ptr<unsigned char>& iv,
+        std::shared_ptr<unsigned char[]>& iv,
         unsigned int* iv_len);
     int Encrypt(
         const std::vector<unsigned char>& msg,
@@ -42,7 +42,7 @@ public:
         unsigned int encr_key_len,
         unsigned char* iv,
         unsigned int iv_len,
-        std::shared_ptr<unsigned char>& decr_msg_len);
+        std::shared_ptr<unsigned char[]>& decr_msg_len);
     int Decrypt(
         const std::vector<unsigned char>& encr_msg,
         unsigned int encr_msg_len,
@@ -53,8 +53,8 @@ public:
         unsigned int iv_len);
     bool GenerateRsaKeypair();
 
-    void get_public_key(std::shared_ptr<unsigned char>& public_key);
-    void get_private_key(std::shared_ptr<unsigned char>& private_key);
+    void get_public_key(std::shared_ptr<unsigned char[]>& public_key);
+    void get_private_key(std::shared_ptr<unsigned char[]>& private_key);
 
 private:
     std::shared_ptr<EVP_PKEY*>          m_keypair;
@@ -62,8 +62,8 @@ private:
     std::shared_ptr<EVP_CIPHER_CTX*>    m_rsa_decr_ctx;
 
     unsigned int BioToString(
-        BIO* bio,
-        std::shared_ptr<unsigned char>& str);
+        std::shared_ptr<BIO*>& bio,
+        std::shared_ptr<unsigned char[]>& str);
     bool InitializeContext();
     void DestroyContext();
 };

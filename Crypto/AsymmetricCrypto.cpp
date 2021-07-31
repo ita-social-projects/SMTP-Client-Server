@@ -42,19 +42,21 @@ void AsymmetricCrypto::DestroyContext()
 
 bool AsymmetricCrypto::GenerateRsaKeypair()
 {
-    EVP_PKEY_CTX* ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, nullptr);
+    std::unique_ptr<EVP_PKEY_CTX*> ctx = std::make_unique<EVP_PKEY_CTX*>();
 
-    if (EVP_PKEY_keygen_init(ctx) <= 0) {
+    *ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, nullptr);
+
+    if (EVP_PKEY_keygen_init(*ctx.get()) <= 0) {
         return false;
     }
-    if (EVP_PKEY_CTX_set_rsa_keygen_bits(ctx, RSA_KEY_LEN) <= 0) {
+    if (EVP_PKEY_CTX_set_rsa_keygen_bits(*ctx.get(), RSA_KEY_LEN) <= 0) {
         return false;
     }
-    if (EVP_PKEY_keygen(ctx, m_keypair.get()) <= 0) {
+    if (EVP_PKEY_keygen(*ctx.get(), m_keypair.get()) <= 0) {
         return false;
     }
 
-    EVP_PKEY_CTX_free(ctx);
+    EVP_PKEY_CTX_free(*ctx.get());
 
     return true;
 }
@@ -62,10 +64,10 @@ bool AsymmetricCrypto::GenerateRsaKeypair()
 int AsymmetricCrypto::Encrypt(
     const unsigned char* msg,
     unsigned int msg_len,
-    std::shared_ptr<unsigned char>& encr_msg,
-    std::shared_ptr<unsigned char>& encr_key,
+    std::shared_ptr<unsigned char[]>& encr_msg,
+    std::shared_ptr<unsigned char[]>& encr_key,
     unsigned int* encr_key_len,
-    std::shared_ptr<unsigned char>& iv,
+    std::shared_ptr<unsigned char[]>& iv,
     unsigned int* iv_len)
 {
     if (!msg || !msg_len)
@@ -77,25 +79,18 @@ int AsymmetricCrypto::Encrypt(
     int block_len = 0;
 
     size_t key_len = static_cast<size_t>(EVP_PKEY_size(*m_keypair.get()));
-    std::shared_ptr<unsigned char> buff_key(
-        new unsigned char[key_len],
-        std::default_delete<unsigned char[]>());
-
+    std::shared_ptr<unsigned char[]> buff_key(new unsigned char[key_len]);
     unsigned char* key_ptr = buff_key.get();
     unsigned char** key_arr_ptr = &key_ptr;
     encr_key = buff_key;
 
-    std::shared_ptr<unsigned char> buff_iv(
-        new unsigned char[EVP_MAX_IV_LENGTH],
-        std::default_delete<unsigned char[]>());
+    std::shared_ptr<unsigned char[]> buff_iv(new unsigned char[EVP_MAX_IV_LENGTH]);
     iv = buff_iv;
 
     *iv_len = EVP_MAX_IV_LENGTH;
 
     size_t msg_len_plus_block_size = ptrdiff_t(msg_len) + EVP_MAX_IV_LENGTH;
-    std::shared_ptr<unsigned char> buff_msg(
-        new unsigned char[msg_len_plus_block_size],
-        std::default_delete<unsigned char[]>());
+    std::shared_ptr<unsigned char[]> buff_msg(new unsigned char[msg_len_plus_block_size]);
     encr_msg = buff_msg;
 
     if (!EVP_SealInit(
@@ -125,6 +120,10 @@ int AsymmetricCrypto::Encrypt(
     }
 
     encr_msg_len += block_len;
+
+    unsigned char* msg_final_ptr = encr_msg.get();
+    size_t encr_final_len = static_cast<size_t>(encr_msg_len);
+    msg_final_ptr[encr_final_len] = '\0';
 
     return encr_msg_len;
 }
@@ -193,7 +192,7 @@ int AsymmetricCrypto::Decrypt(
     unsigned int encr_key_len,
     unsigned char* iv,
     unsigned int iv_len,
-    std::shared_ptr<unsigned char>& decr_msg)
+    std::shared_ptr<unsigned char[]>& decr_msg)
 {
     if (!encr_msg || !encr_msg_len)
     {
@@ -212,9 +211,7 @@ int AsymmetricCrypto::Decrypt(
     int block_len = 0;
 
     size_t msg_len = ptrdiff_t(encr_msg_len) + ptrdiff_t(iv_len);
-    std::shared_ptr<unsigned char> msg(
-        new unsigned char[msg_len],
-        std::default_delete<unsigned char[]>());
+    std::shared_ptr<unsigned char[]> msg(new unsigned char[msg_len]);
     decr_msg = msg;
 
     if (!EVP_OpenInit(*m_rsa_decr_ctx.get(), EVP_aes_256_cbc(), encr_key, encr_key_len, iv, *m_keypair.get()))
@@ -239,8 +236,8 @@ int AsymmetricCrypto::Decrypt(
     decr_msg_len += block_len;
 
     unsigned char* msg_final_end_ptr = decr_msg.get();
-    size_t msg_final_len = ptrdiff_t(decr_msg_len);
-    msg_final_end_ptr[msg_final_len] = '\0';
+    size_t decr_final_len = static_cast<size_t>(decr_msg_len);
+    msg_final_end_ptr[decr_final_len] = '\0';
 
     return decr_msg_len;
 }
@@ -297,34 +294,36 @@ int AsymmetricCrypto::Decrypt(
 }
 
 
-void AsymmetricCrypto::get_public_key(std::shared_ptr<unsigned char>& public_key)
+void AsymmetricCrypto::get_public_key(std::shared_ptr<unsigned char[]>& public_key)
 {
-    BIO* bio = BIO_new(BIO_s_mem());
-    PEM_write_bio_PUBKEY(bio, *m_keypair.get());
+    std::shared_ptr<BIO*> bio = std::make_shared<BIO*>();
+    *bio = BIO_new(BIO_s_mem());
+    PEM_write_bio_PUBKEY(*bio.get(), *m_keypair.get());
     BioToString(bio, public_key);
 }
 
-void AsymmetricCrypto::get_private_key(std::shared_ptr<unsigned char>& private_key)
+void AsymmetricCrypto::get_private_key(std::shared_ptr<unsigned char[]>& private_key)
 {
-    BIO* bio = BIO_new(BIO_s_mem());
-    PEM_write_bio_PrivateKey(bio, *m_keypair.get(), nullptr, nullptr, 0, 0, nullptr);
+    std::shared_ptr<BIO*> bio = std::make_shared<BIO*>();
+    *bio = BIO_new(BIO_s_mem());
+    PEM_write_bio_PrivateKey(*bio.get(), *m_keypair.get(), nullptr, nullptr, 0, 0, nullptr);
     BioToString(bio, private_key);
 }
 
-unsigned int AsymmetricCrypto::BioToString(BIO* bio, std::shared_ptr<unsigned char>& str)
+unsigned int AsymmetricCrypto::BioToString(std::shared_ptr<BIO*>& bio, std::shared_ptr<unsigned char[]>& str)
 {
-    unsigned int bio_len = BIO_pending(bio);
-    str = std::make_shared<unsigned char>(bio_len + 1);
+    unsigned int bio_len = BIO_pending(*bio.get());
+    size_t buff_str_len = static_cast<size_t>(bio_len) + 1;
+    std::shared_ptr<unsigned char[]> buff_str(new unsigned char[buff_str_len]);
+    str = buff_str;
 
-    BIO_read(bio, str.get(), bio_len);
-    if (str.get())
-    {
-        unsigned char* strPtr = str.get();
-        size_t buffLen = ptrdiff_t(bio_len);
-        strPtr[buffLen] = '\0';
-    }
+    BIO_read(*bio.get(), str.get(), bio_len);
 
-    BIO_free_all(bio);
+    unsigned char* strPtr = str.get();
+    size_t buffLen = ptrdiff_t(bio_len);
+    strPtr[buffLen] = '\0';
+
+    BIO_free_all(*bio.get());
 
     return bio_len;
 }

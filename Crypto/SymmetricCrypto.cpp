@@ -11,23 +11,34 @@ SymmetricCrypto::SymmetricCrypto()
     m_aes_decr_ctx = std::make_shared<EVP_CIPHER_CTX*>();
 
     InitializeContext();
+    std::unique_ptr<unsigned char[]> key(new unsigned char[g_key_len + 1]);
+    unsigned char* key_ptr = key.get();
+    for (int i = 0; i < g_key_len; i++)
+    {
+        *(key_ptr + i) = *(g_key + i);
+    }
+    key_ptr[g_key_len] = '\0';
+    std::unique_ptr<unsigned char[]> iv(new unsigned char[g_iv_len + 1]);
+    unsigned char* iv_ptr = iv.get();
+    for (int i = 0; i < g_iv_len; i++)
+    {
+        *(iv_ptr + i) = *(g_iv + i);
+    }
+    iv_ptr[g_iv_len] = '\0';
 
-    unsigned char* key = (unsigned char*)g_key;
-    unsigned char* iv = (unsigned char*)g_iv;
-
-    m_aes_key = std::make_unique<unsigned char*>(key);
+    m_aes_key = std::move(key);
     m_aes_key_len = g_key_len;
 
-    m_aes_iv = std::make_unique<unsigned char*>(iv);
+    m_aes_iv = std::move(iv);
     m_aes_iv_len = g_iv_len;
 }
 
-SymmetricCrypto::SymmetricCrypto(unsigned char** key, unsigned char key_len, unsigned char** iv, unsigned char iv_len)
+SymmetricCrypto::SymmetricCrypto(unsigned char* key, unsigned char key_len, unsigned char* iv, unsigned char iv_len)
 {
     m_aes_encr_ctx = std::make_shared<EVP_CIPHER_CTX*>();
     m_aes_decr_ctx = std::make_shared<EVP_CIPHER_CTX*>();
 
-    if (!key || !iv || !*key || !*iv)
+    if (!key || !iv)
     {
         m_aes_key.reset();
         m_aes_iv.reset();
@@ -45,21 +56,33 @@ SymmetricCrypto::SymmetricCrypto(unsigned char** key, unsigned char key_len, uns
     else
     {
         InitializeContext();
-        if (key != nullptr)
+        if (key)
         {
-            if (!*key)
+            size_t smart_key_len = static_cast<size_t>(key_len) + 1;
+            std::unique_ptr<unsigned char[]> smart_key(new unsigned char[smart_key_len]);
+            unsigned char* smart_key_ptr = smart_key.get();
+            for (int i = 0; i < key_len; i++)
             {
-                m_aes_key = std::make_unique<unsigned char*>(*key);
-                m_aes_key_len = key_len;
+                *(smart_key_ptr + i) = *(key + i);
             }
+            smart_key_ptr[key_len] = '\0';
+
+            m_aes_key = std::move(smart_key);
+            m_aes_key_len = key_len;
         }
-        if (iv != nullptr)
+        if (iv)
         {
-            if (!*iv)
+            size_t smart_iv_len = static_cast<size_t>(key_len) + 1;
+            std::unique_ptr<unsigned char[]> smart_iv(new unsigned char[smart_iv_len]);
+            unsigned char* smart_iv_ptr = smart_iv.get();
+            for (int i = 0; i < iv_len; i++)
             {
-                m_aes_iv = std::make_unique<unsigned char*>(*iv);
-                m_aes_iv_len = iv_len;
+                *(smart_iv_ptr + i) = *(iv + i);
             }
+            smart_iv_ptr[iv_len] = '\0';
+
+            m_aes_iv = std::move(smart_iv);
+            m_aes_iv_len = iv_len;
         }
     }
 }
@@ -74,77 +97,27 @@ bool SymmetricCrypto::GenerateRandomKey(unsigned int key_len, unsigned int iv_le
         LOG_ERROR << "get wrong length";
         return false;
     }
+    std::unique_ptr<unsigned char[]> aes_key = std::make_unique<unsigned char[]>(static_cast<size_t>(key_len));
+    std::unique_ptr<unsigned char[]> aes_iv = std::make_unique<unsigned char[]>(static_cast<size_t>(iv_len));
 
-    std::unique_ptr<unsigned char> aes_key(std::make_unique<unsigned char>(key_len));
-    std::unique_ptr<unsigned char> aes_iv(std::make_unique<unsigned char>(iv_len));
-    unsigned char* aes_key_ptr = aes_key.get();
-    unsigned char* aes_iv_ptr = aes_iv.get();
-
-    if (RAND_bytes(aes_key_ptr, (int)key_len) == 0)
+    if (RAND_bytes(aes_key.get(), (int)key_len) == 0)
     {
         LOG_ERROR << "generate rand bytes for key failed";
         return false;
     }
-
-    if (RAND_bytes(aes_iv_ptr, (int)iv_len) == 0)
+    if (RAND_bytes(aes_iv.get(), (int)iv_len) == 0)
     {
         LOG_ERROR << "generate rand bytes for iv failed";
         return false;
     }
 
-    m_aes_key = std::make_unique<unsigned char*>(aes_key_ptr);
+    m_aes_key.reset();
+    m_aes_key = std::move(aes_key);
     m_aes_key_len = key_len;
-    m_aes_iv = std::make_unique<unsigned char*>(aes_iv_ptr);
+
+    m_aes_iv.reset();
+    m_aes_iv = std::move(aes_iv);
     m_aes_iv_len = iv_len;
-
-    return true;
-}
-
-bool SymmetricCrypto::GenerateKeyFromPassword(const unsigned char* password, unsigned int password_len)
-{
-    if (!password)
-    {
-        LOG_ERROR << "password is nullptr";
-        return false;
-    }
-    if (password_len != PASSWORD_SIZE_32)
-    {
-        LOG_ERROR << "get wrong length";
-        return false;
-    }
-
-    std::unique_ptr<unsigned char> aes_salt(std::make_unique<unsigned char>(SALT_SIZE));
-    unsigned char* aes_salt_ptr = aes_salt.get();
-
-    if (RAND_bytes(aes_salt_ptr, SALT_SIZE) == 0)
-    {
-        LOG_ERROR << "generate rand bytes for salt failed";
-        return false;
-    }
-
-    std::unique_ptr<unsigned char> aes_key(std::make_unique<unsigned char>(password_len));
-    std::unique_ptr<unsigned char> aes_iv(std::make_unique<unsigned char>(IVSIZE_16));
-    unsigned char* aes_key_ptr = aes_key.get();
-    unsigned char* aes_iv_ptr = aes_iv.get();
-
-    if (EVP_BytesToKey(
-        EVP_aes_256_cbc(),
-        EVP_sha256(),
-        aes_salt_ptr,
-        password,
-        password_len,
-        AES_ROUNDS,
-        aes_key_ptr,
-        aes_iv_ptr) == 0)
-    {
-        LOG_ERROR << "generate rand bytes for key and iv from salt and password failed";
-        return false;
-    }
-
-    m_aes_key = std::make_unique<unsigned char*>(aes_key_ptr);
-    m_aes_key_len = password_len;
-    m_aes_iv = std::make_unique<unsigned char*>(aes_iv_ptr);
-    m_aes_iv_len = IVSIZE_16;
 
     return true;
 }
@@ -159,7 +132,8 @@ bool SymmetricCrypto::InitializeContext()
     *m_aes_encr_ctx.get() = EVP_CIPHER_CTX_new();
     *m_aes_decr_ctx.get() = EVP_CIPHER_CTX_new();
 
-    if (m_aes_encr_ctx == nullptr || m_aes_decr_ctx == nullptr) {
+    if (m_aes_encr_ctx == nullptr || m_aes_decr_ctx == nullptr)
+    {
         LOG_ERROR << "contexts fail to initialize";
         return false;
     }
@@ -187,10 +161,10 @@ void SymmetricCrypto::DestroyContext() const
     EVP_CIPHER_CTX_free(*m_aes_decr_ctx.get());
 }
 
-int SymmetricCrypto::EncryptSymmetric(
+int SymmetricCrypto::Encrypt(
     const unsigned char* msg,
     unsigned int msg_len,
-    std::shared_ptr<unsigned char>& encr_msg)
+    std::shared_ptr<unsigned char[]>& encr_msg)
 {
     if (!msg || msg_len <= 0)
     {
@@ -202,12 +176,11 @@ int SymmetricCrypto::EncryptSymmetric(
     int encr_msg_len = 0;
 
     size_t msg_len_plus_block_size = static_cast<size_t>(msg_len) + static_cast<size_t>(BLOCK_SIZE);
-    std::shared_ptr<unsigned char> buff_msg(
-        new unsigned char[msg_len_plus_block_size],
-        std::default_delete<unsigned char[]>());
+    std::shared_ptr<unsigned char[]> buff_msg(new unsigned char[msg_len_plus_block_size]);
     encr_msg = buff_msg;
 
-    if (!EVP_EncryptInit_ex(*m_aes_encr_ctx.get(), EVP_aes_256_cbc(), nullptr, *m_aes_key, *m_aes_iv))
+    //
+    if (!EVP_EncryptInit_ex(*m_aes_encr_ctx.get(), EVP_aes_256_cbc(), nullptr, m_aes_key.get(), m_aes_iv.get()))
     {
         LOG_ERROR << "EVP Encrypt Init fail";
         return -1;
@@ -238,7 +211,7 @@ int SymmetricCrypto::EncryptSymmetric(
     return encr_msg_len;
 }
 
-int SymmetricCrypto::EncryptSymmetric(
+int SymmetricCrypto::Encrypt(
     const std::vector<unsigned char>& msg,
     std::vector<unsigned char>& encr_msg)
 {
@@ -253,7 +226,7 @@ int SymmetricCrypto::EncryptSymmetric(
 
     encr_msg.resize(msg.size() + BLOCK_SIZE);
 
-    if (!EVP_EncryptInit_ex(*m_aes_encr_ctx.get(), EVP_aes_256_cbc(), nullptr, *m_aes_key, *m_aes_iv))
+    if (!EVP_EncryptInit_ex(*m_aes_encr_ctx.get(), EVP_aes_256_cbc(), nullptr, m_aes_key.get(), m_aes_iv.get()))
     {
         LOG_ERROR << "EVP Encrypt Init fail";
         return -1;
@@ -284,10 +257,10 @@ int SymmetricCrypto::EncryptSymmetric(
     return encr_msg_len;
 }
 
-int SymmetricCrypto::DecryptSymmetric(
+int SymmetricCrypto::Decrypt(
     const unsigned char* encr_msg,
     unsigned int encr_msg_len,
-    std::shared_ptr<unsigned char>& decr_msg)
+    std::shared_ptr<unsigned char[]>& decr_msg)
 {
     if (!encr_msg || !encr_msg_len)
     {
@@ -298,12 +271,10 @@ int SymmetricCrypto::DecryptSymmetric(
     int block_len = 0;
 
     size_t encr_len = ptrdiff_t(encr_msg_len);
-    std::shared_ptr<unsigned char> msg(
-        new unsigned char[encr_len],
-        std::default_delete<unsigned char[]>());
+    std::shared_ptr<unsigned char[]> msg(new unsigned char[encr_len]);
     decr_msg = msg;
 
-    if (!EVP_DecryptInit_ex(*m_aes_decr_ctx.get(), EVP_aes_256_cbc(), nullptr, *m_aes_key, *m_aes_iv))
+    if (!EVP_DecryptInit_ex(*m_aes_decr_ctx.get(), EVP_aes_256_cbc(), nullptr, m_aes_key.get(), m_aes_iv.get()))
     {
         LOG_INFO << "EVP Decrypt Init fail";
         return -1;
@@ -334,7 +305,7 @@ int SymmetricCrypto::DecryptSymmetric(
     return decr_msg_len;
 }
 
-int SymmetricCrypto::DecryptSymmetric(
+int SymmetricCrypto::Decrypt(
     const std::vector<unsigned char>& encr_msg,
     std::vector<unsigned char>& decr_msg)
 {
@@ -348,7 +319,7 @@ int SymmetricCrypto::DecryptSymmetric(
 
     decr_msg.resize(encr_msg.size());
 
-    if (!EVP_DecryptInit_ex(*m_aes_decr_ctx.get(), EVP_aes_256_cbc(), nullptr, *m_aes_key, *m_aes_iv))
+    if (!EVP_DecryptInit_ex(*m_aes_decr_ctx.get(), EVP_aes_256_cbc(), nullptr, m_aes_key.get(), m_aes_iv.get()))
     {
         LOG_INFO << "EVP Decrypt Init fail";
         return -1;
@@ -381,7 +352,7 @@ int SymmetricCrypto::DecryptSymmetric(
 
 const unsigned char* SymmetricCrypto::get_aes_key() const
 {
-    return *m_aes_key;
+    return m_aes_key.get();
 }
 
 bool SymmetricCrypto::set_aes_key(unsigned char* aes_key, unsigned int aes_key_len)
@@ -389,12 +360,17 @@ bool SymmetricCrypto::set_aes_key(unsigned char* aes_key, unsigned int aes_key_l
     if (aes_key_len != m_aes_key_len)
     {
         LOG_INFO << "wrong key length";
-        return -1;
+        return false;
     }
-
+    size_t smart_key_len = static_cast<size_t>(aes_key_len) + 1;
+    std::unique_ptr<unsigned char[]> smart_key(new unsigned char[smart_key_len]);
+    unsigned char* key_ptr = smart_key.get();
     m_aes_key.reset();
-    m_aes_key = std::make_unique<unsigned char*>(aes_key);
-
+    for (size_t i = 0; i < static_cast<size_t>(aes_key_len); i++) {
+        *(key_ptr + i) = *(aes_key + i);
+    }
+    key_ptr[static_cast<size_t>(aes_key_len)] = '\0';
+    m_aes_key = std::move(smart_key);
     return true;
 }
 
@@ -405,7 +381,7 @@ unsigned int SymmetricCrypto::get_key_size() const
 
 const unsigned char* SymmetricCrypto::get_aes_iv() const
 {
-    return *m_aes_iv;
+    return m_aes_iv.get();
 }
 
 bool SymmetricCrypto::set_aes_iv(unsigned char* aes_iv, unsigned int aes_iv_len)
@@ -413,11 +389,17 @@ bool SymmetricCrypto::set_aes_iv(unsigned char* aes_iv, unsigned int aes_iv_len)
     if (aes_iv_len != m_aes_iv_len)
     {
         LOG_INFO << "wrong iv length";
-        return -1;
+        return false;
     }
-
+    size_t smart_iv_len = static_cast<size_t>(aes_iv_len) + 1;
+    std::unique_ptr<unsigned char[]> smart_iv(new unsigned char[smart_iv_len]);
+    unsigned char* key_ptr = smart_iv.get();
     m_aes_iv.reset();
-    m_aes_iv = std::make_unique<unsigned char*>(aes_iv);
+    for (size_t i = 0; i < static_cast<size_t>(aes_iv_len); i++) {
+        *(key_ptr + i) = *(aes_iv + i);
+    }
+    key_ptr[static_cast<size_t>(aes_iv_len)] = '\0';
+    m_aes_iv = std::move(smart_iv);
 
     return true;
 }
