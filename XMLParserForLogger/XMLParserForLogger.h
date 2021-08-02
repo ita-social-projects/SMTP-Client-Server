@@ -10,13 +10,13 @@
 #include <fstream>
 #include <memory>
 
-constexpr auto LOG_FILENAME = "C:\\Logs\\";
-constexpr unsigned int LOG_LEVEL = 2;
-constexpr auto XML_FILE_PATH = "..\\Config.xml";
+constexpr auto LOG_FILE_NAME			= "C:\\Logs\\";
+constexpr unsigned int LEVEL_FOR_LOG	= 2;
+constexpr auto FILE_PATH_FOR_XML		= "..\\Config.xml";
 
-constexpr auto ATTR_LOG_FILENAME = "filename";
-constexpr auto ATTR_LOG_LEVEL = "LogLevel";
-constexpr auto ATTR_LOG_FLUSH = "flush";
+constexpr auto ATTR_LOG_FILE_NAME		= "filename";
+constexpr auto ATTR_LEVEL_FOR_LOG		= "LogLevel";
+constexpr auto ATTR_FLUSH_FOR_LOG		= "flush";
 
 
 class IXMLParserForLogger
