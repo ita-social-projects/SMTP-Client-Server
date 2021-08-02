@@ -4,7 +4,6 @@
 #include <openssl/rand.h>           //generate arrays of random bytes
 
 #include "ICrypto.h"
-#include "..\CPPLogger\CPPLogger.h"
 
 #ifndef SYMMETRIC_CRYPTO_H
 #define SYMMETRIC_CRYPTO_H
@@ -18,6 +17,11 @@ constexpr auto AES_ROUNDS = 5;      // the more rounds get the slower encryption
 constexpr auto IVSIZE_16 = 16;      // for EVP_aes_256_cbc cipher type
 
 constexpr auto BLOCK_SIZE = 16;
+
+constexpr auto SALT_SIZE = 8;
+
+constexpr auto PASSWORD_MIN_SIZE = 8;
+constexpr auto PASSWORD_MAX_SIZE = 32;
 
 constexpr auto CIPHER_INIT_ENCRYPTION_CTX = 1;
 constexpr auto CIPHER_INIT_DECRYPTION_CTX = 0;
@@ -61,22 +65,27 @@ public:
         unsigned int key_len,
         unsigned int iv_len) override;
 
-    const unsigned char* get_aes_key() const;
+    virtual bool GenerateKeyFromPassword(
+        const unsigned char* password,
+        unsigned int password_len) override;
+
+    unsigned char* get_aes_key() const;
     bool set_aes_key(unsigned char* aes_key, const unsigned int aes_key_len);
     unsigned int get_key_size() const;
-    const unsigned char* get_aes_iv() const;
+    unsigned char* get_aes_iv() const;
     bool set_aes_iv(unsigned char* aes_iv, const unsigned int aes_iv_len);
     unsigned int get_iv_size() const;
 private:
-    Logger LOG;
-    std::shared_ptr<EVP_CIPHER_CTX*>    m_aes_encr_ctx;
-    std::shared_ptr<EVP_CIPHER_CTX*>    m_aes_decr_ctx;
+    EVP_CIPHER_CTX*                     m_aes_encr_ctx = nullptr;
+    EVP_CIPHER_CTX*                     m_aes_decr_ctx = nullptr;
     std::unique_ptr<unsigned char[]>    m_aes_key;
     std::unique_ptr<unsigned char[]>    m_aes_iv;
     unsigned int                        m_aes_key_len = 0;
     unsigned int                        m_aes_iv_len = 0;
-    bool InitializeContext();
     void DestroyContext() const;
+    void InitializeDefaultKeyAndIv();
+    bool InitializeEncryptContext();
+    bool InitializeDecryptContext();
 };
 
 #endif // SYMMETRIC_CRYPTO_H

@@ -30,6 +30,10 @@ public:
 	virtual bool GenerateRandomKey(
 		unsigned int key_len,
 		unsigned int iv_len) = 0;
+
+	virtual bool GenerateKeyFromPassword(
+		const unsigned char* password,
+		unsigned int password_len) = 0;
 };
 
 #endif // ICRYPTO_H

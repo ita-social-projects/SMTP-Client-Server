@@ -16,7 +16,8 @@ constexpr auto PUBLIC_KEYS_AMOUNT = 1;
 class AsymmetricCrypto
 {
 public:
-    AsymmetricCrypto();
+    //generate keypair to encrypt or decrypt first
+    AsymmetricCrypto() = default;
     ~AsymmetricCrypto();
 
     int Encrypt(
@@ -57,14 +58,13 @@ public:
     void get_private_key(std::shared_ptr<unsigned char[]>& private_key);
 
 private:
-    std::shared_ptr<EVP_PKEY*>          m_keypair;
-    std::shared_ptr<EVP_CIPHER_CTX*>    m_rsa_encr_ctx;
-    std::shared_ptr<EVP_CIPHER_CTX*>    m_rsa_decr_ctx;
+    EVP_PKEY*               m_keypair = nullptr;
+    EVP_CIPHER_CTX*         m_rsa_encr_ctx = nullptr;
+    EVP_CIPHER_CTX*         m_rsa_decr_ctx = nullptr;
 
     unsigned int BioToString(
         std::shared_ptr<BIO*>& bio,
         std::shared_ptr<unsigned char[]>& str);
-    bool InitializeContext();
     void DestroyContext();
 };
 
