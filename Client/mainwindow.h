@@ -42,7 +42,7 @@ private slots:
     void ExitButtonClicked();
 
 private:
-    Ui::MainWindow* ui;
+    Ui::MainWindow* m_ui;
     std::string     m_server_choice;
     std::string     m_login;
     std::string     m_password;
@@ -51,8 +51,8 @@ private:
     std::string     m_msg_data;
     std::string     m_server_port;
     std::string     m_server_address;
-    bool            m_gmail_server_clicked  = false;
-    bool            m_server_clicked        = true;
+    bool            m_gmail_server_clicked;
+    bool            m_server_clicked;
     XMLParser       m_xml;
     Logger          LOG;
 };

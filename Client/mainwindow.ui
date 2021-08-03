@@ -55,7 +55,8 @@
    <string>SMTP Client</string>
   </property>
   <property name="windowIcon">
-   <iconset theme="E:\PROGRAMMING\SMTP_CLIENT_TEST4\QTApp1\img\icon.png"/>
+   <iconset theme="E:\PROGRAMMING\SMTP_CLIENT_TEST4\QTApp1\img\icon.png">
+    <normaloff>.</normaloff>.</iconset>
   </property>
   <property name="toolTip">
    <string/>
@@ -296,12 +297,12 @@ p, li { white-space: pre-wrap; }
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
-        <widget class="QRadioButton" name="ownServerButton">
+        <widget class="QRadioButton" name="ServerButton">
          <property name="cursor">
           <cursorShape>PointingHandCursor</cursorShape>
          </property>
          <property name="text">
-          <string>Own SMTP Server</string>
+          <string>SMTP Server</string>
          </property>
          <property name="checked">
           <bool>true</bool>

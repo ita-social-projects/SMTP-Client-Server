@@ -60,8 +60,14 @@ private:
 	SMTPErrorEnum m_error_code;
 };
 
-class SMTPClientClass
+namespace SMTPClientUnitTests
 {
+	class SMTPClientUnitTests;
+}
+
+class SMTPClientClass
+{	
+	friend class SMTPClientUnitTests::SMTPClientUnitTests;
 public:
 	SMTPClientClass();
 	~SMTPClientClass();		
@@ -128,6 +134,7 @@ protected:
 
 	SOCKET						m_socket;
 	std::unique_ptr<char[]>		m_receive_buffer;	
+	bool						m_winsock_initialize;
 	bool						m_connect_status;	
 	std::string					m_smtp_address;
 	std::string					m_login;
@@ -162,10 +169,10 @@ private:
 	// Receives response from server through secure connection 
 	bool	ReceiveData() override; 
 
-private:
+private:	
 	
 	SSL_CTX* m_ctx;
-	SSL*	 m_ssl;	
+	SSL*	 m_ssl;
 };
 
 class Base64Coder
