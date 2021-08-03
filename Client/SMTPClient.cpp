@@ -34,7 +34,7 @@ SMTPClientClass::~SMTPClientClass()
 	if (m_winsock_initialize)
 	{
 		WSACleanup();
-	}
+	}	
 }
 
 bool	SMTPClientClass::OpenConnection()
