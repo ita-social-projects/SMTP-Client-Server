@@ -7,7 +7,6 @@
 #include "P7_Client.h"
 #include "P7_Trace.h"
 
-
 enum LogLevels
 {
 	L_TRACE = 0,
