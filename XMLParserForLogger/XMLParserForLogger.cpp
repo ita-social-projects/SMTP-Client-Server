@@ -190,51 +190,51 @@ std::string XMLParserForLogger::GetLogFilename()
 {
 	if (m_root == nullptr)
 	{
-		bool parsed = ParseFile(XML_FILE_PATH);
+		bool parsed = ParseFile(FILE_PATH_FOR_XML);
 		if (!parsed)
 		{
-			return LOG_FILENAME;
+			return LOG_FILE_NAME;
 		}
 	}
 	std::string data;
-	FindByTag(m_root, ATTR_LOG_FILENAME, data);
+	FindByTag(m_root, ATTR_LOG_FILE_NAME, data);
 	if (!data.empty())
 	{
 		return data;
 	}
-	return LOG_FILENAME;
+	return LOG_FILE_NAME;
 }
 
 unsigned int XMLParserForLogger::GetLogLevel()
 {
 	if (m_root == nullptr)
 	{
-		bool parsed = ParseFile(XML_FILE_PATH);
+		bool parsed = ParseFile(FILE_PATH_FOR_XML);
 		if (!parsed)
 		{
-			return LOG_LEVEL;
+			return LEVEL_FOR_LOG;
 		}
 	}
 	unsigned int log_level = 0;
-	bool flag = ValueCheck(ATTR_LOG_LEVEL, log_level);
+	bool flag = ValueCheck(ATTR_LEVEL_FOR_LOG, log_level);
 	if (flag)
 	{
 		return log_level;
 	}
-	return LOG_LEVEL;
+	return LEVEL_FOR_LOG;
 }
 
 bool XMLParserForLogger::UseLogFlush()
 {
 	if (m_root == nullptr)
 	{
-		bool parsed = ParseFile(XML_FILE_PATH);
+		bool parsed = ParseFile(FILE_PATH_FOR_XML);
 		if (!parsed)
 		{
 			return parsed;
 		}
 	}
 	unsigned int flush = 0;
-	bool flag = ValueCheck(ATTR_LOG_FLUSH, flush);
+	bool flag = ValueCheck(ATTR_FLUSH_FOR_LOG, flush);
 	return flag;
 }
