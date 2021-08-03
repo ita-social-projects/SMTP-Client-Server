@@ -4,8 +4,8 @@
 #include <string>
 #include <mutex>
 
-#include "P7_Client.h"
-#include "P7_Trace.h"
+#include "..\CPPLogger\include\p7Headers\P7_Client.h"
+#include "..\CPPLogger\include\p7Headers\P7_Trace.h"
 
 enum LogLevels
 {

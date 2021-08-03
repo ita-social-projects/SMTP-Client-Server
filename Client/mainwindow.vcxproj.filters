@@ -43,10 +43,10 @@
     <ClCompile Include="SMTPClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="base64.cpp">
+    <ClCompile Include="settingswindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="settingswindow.cpp">
+    <ClCompile Include="base64.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

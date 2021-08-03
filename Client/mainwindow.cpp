@@ -28,9 +28,8 @@ MainWindow::MainWindow(QWidget* parent)
 }
 
 MainWindow::~MainWindow()
-{
-    if (m_settings_ui != nullptr)
-        delete m_settings_ui;
+{    
+    delete m_settings_ui;
     delete m_ui;
 }
 

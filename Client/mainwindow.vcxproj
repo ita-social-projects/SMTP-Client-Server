@@ -122,8 +122,8 @@
     <QtUic Include="settingswindow.ui" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="base64.h" />
     <QtMoc Include="settingswindow.h" />
+    <ClInclude Include="base64.h" />
     <ClInclude Include="SMTPClient.h" />
   </ItemGroup>
   <ItemGroup>
