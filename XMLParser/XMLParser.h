@@ -95,5 +95,5 @@ public:
 
 private:
 	std::shared_ptr<XMLNode> m_root;
-	Logger* LOG;
+	Logger* LOG = nullptr;
 };
