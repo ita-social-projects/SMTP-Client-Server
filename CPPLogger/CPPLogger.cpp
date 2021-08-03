@@ -5,20 +5,23 @@
 #include "pch.h"
 #include "framework.h"
 #include <string.h>
+#include <atomic>
 #include "CPPLogger.h"
 #include "../XMLParserForLogger/XMLParserForLogger.h"
 
-std::wstring CLIENT_INIT_PARAM		= L"/P7.Sink=FileTxt /P7.Format=\"%ti-%tf-%lv-%fs-%fn-%ms\" /P7.Dir=";
-const wchar_t* TRACE_CHANNEL		= L"Trace";
-const tUINT16 TRACE_ID				= NULL;
-const IP7_Trace::hModule I_HMODULE	= NULL;
-Logger* Logger::s_instance;
+std::wstring CLIENT_INIT_PARAM				= L"/P7.Sink=FileTxt /P7.Format=\"%ti-%tf-%lv-%fs-%fn-%ms\" /P7.Dir=";
+const wchar_t* TRACE_CHANNEL				= L"Trace";
+const tUINT16 TRACE_ID						= NULL;
+const IP7_Trace::hModule I_HMODULE			= NULL;
+std::atomic<Logger*> Logger::s_instance;
+std::mutex Logger::s_mutex;
 
 Logger::Logger()
 {
 	XMLParserForLogger parser;
+	std::string path = parser.GetLogFilename();
 
-	std::wstring file_path = std::wstring(parser.GetLogFilename().begin(), parser.GetLogFilename().end());
+	std::wstring file_path = std::wstring(path.begin(), path.end());
 	CLIENT_INIT_PARAM += file_path;
 
 	m_log_level = eP7Trace_Level::EP7TRACE_LEVEL_TRACE;
@@ -81,9 +84,20 @@ void Logger::set_filter_level(unsigned int level)
 
 Logger* Logger::GetInstance()
 {
-	if (!s_instance)
+	Logger* tmp = s_instance.load(std::memory_order_relaxed);
+	std::atomic_thread_fence(std::memory_order_acquire);
+	
+	if (!tmp)
 	{
-		s_instance = new Logger;
+		std::lock_guard<std::mutex> lock(s_mutex);
+		tmp = s_instance.load(std::memory_order_relaxed);
+		if (!tmp)
+		{
+			tmp = new Logger;
+			std::atomic_thread_fence(std::memory_order_release);
+			s_instance.store(tmp, std::memory_order_relaxed);
+		}
 	}
-	return s_instance;
+	
+	return tmp;
 }
