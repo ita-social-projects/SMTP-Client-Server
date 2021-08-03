@@ -6,6 +6,7 @@
 #include <QMAinWindow>
 #include "../CPPLogger/CPPLogger.h"
 #include "../XMLParser/XMLParser.h"
+#include "settingswindow.h"
 
 constexpr auto GMAIL_SERVER_DOMAIN = "smtp.gmail.com";
 
@@ -27,7 +28,7 @@ public:
     std::string get_password() const;
     std::string get_rcpt_to() const;
     std::string get_subject() const;
-    std::string get_msg_data() const;    
+    std::string get_msg_data() const; 
 
 private:
 
@@ -40,6 +41,7 @@ private slots:
     void ServerButtonClicked();
     void GmailServerButtonClicked();
     void ExitButtonClicked();
+    void ChildWindowClosed();
 
     void on_pushButton_clicked();
 
@@ -56,6 +58,7 @@ private:
     bool            m_gmail_server_clicked;
     bool            m_server_clicked;
     XMLParser       m_xml;
-    Logger          LOG;
+    Logger          LOG;   
+    SettingsWindow* m_settings_ui;
 };
 #endif // MAINWINDOW_H

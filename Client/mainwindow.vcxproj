@@ -112,15 +112,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="base64.cpp" />
+    <ClCompile Include="settingswindow.cpp" />
     <ClCompile Include="SMTPClient.cpp" />
     <QtRcc Include="mainwindow.qrc" />
     <QtUic Include="mainwindow.ui" />
     <QtMoc Include="mainwindow.h" />
     <ClCompile Include="mainwindow.cpp" />
     <ClCompile Include="main.cpp" />
+    <QtUic Include="settingswindow.ui" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="base64.h" />
+    <QtMoc Include="settingswindow.h" />
     <ClInclude Include="SMTPClient.h" />
   </ItemGroup>
   <ItemGroup>

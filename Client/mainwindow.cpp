@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget* parent)
     m_server_address        = m_xml.GetIpAddress();    
     m_server_port           = std::to_string(m_xml.GetListenerPort());    
     m_server_choice         = m_server_address;
+    m_settings_ui           = nullptr;
 
     connect(m_ui->ServerButton, SIGNAL(clicked()), this, SLOT(ServerButtonClicked()));
     connect(m_ui->gmailServerButton, SIGNAL(clicked()), this, SLOT(GmailServerButtonClicked()));
@@ -26,7 +27,9 @@ MainWindow::MainWindow(QWidget* parent)
 }
 
 MainWindow::~MainWindow()
-{        
+{
+    if (m_settings_ui != nullptr)
+        delete m_settings_ui;
     delete m_ui;
 }
 
@@ -222,8 +225,23 @@ std::string MainWindow::get_msg_data() const
 {
     return m_msg_data;
 }
+
 void MainWindow::on_pushButton_clicked()
 {
-    // TODO open new window, hide this
+    if (m_settings_ui != nullptr)
+        return;
+    
+    m_settings_ui = new SettingsWindow(this);
+    connect(m_settings_ui, SIGNAL(windowClosed()), this, SLOT(ChildWindowClosed()));
+    m_settings_ui->show();
+}
+
+void MainWindow::ChildWindowClosed()
+{
+    delete m_settings_ui;
+    m_settings_ui = nullptr;
+    setWindowModality(Qt::NonModal);
+    this->hide();
+    this->show();
 }
 
