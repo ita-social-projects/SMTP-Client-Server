@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <mutex>
 
 #include "P7_Client.h"
 #include "P7_Trace.h"
@@ -41,13 +42,13 @@ private:
 	Logger();
 	Logger(const Logger&);
 
-	static Logger*	s_instance;
-	eP7Trace_Level	m_log_level;
-	IP7_Client*		m_client;
-	IP7_Trace*		m_trace;
-	std::string		m_func_name;
-	std::string		m_file_name;
-	bool			m_flush_flag;
+	static std::atomic<Logger*>	s_instance;
+	static std::mutex			s_mutex;
+	eP7Trace_Level				m_log_level;
+	IP7_Client*					m_client;
+	IP7_Trace*					m_trace;
+	std::string					m_func_name;
+	std::string					m_file_name;
 };
 
 #define LOG_TRACE (*LOG)(__FUNCTION__, __FILE__, eP7Trace_Level::EP7TRACE_LEVEL_TRACE)
