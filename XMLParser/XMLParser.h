@@ -64,6 +64,7 @@ public:
 
 	XMLParser() : m_root{ nullptr }
 	{
+		LOG = LOG->GetInstance();
 	}
 
 	~XMLParser()
@@ -94,5 +95,5 @@ public:
 
 private:
 	std::shared_ptr<XMLNode> m_root;
-	Logger LOG;
+	Logger* LOG;
 };

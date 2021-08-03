@@ -140,7 +140,7 @@ protected:
 	std::string					m_subject;
 	std::string					m_letter_message;
 	int							m_server_timeout;
-	Logger						LOG;
+	Logger*						LOG;
 
 private:
 	std::string					m_port;

@@ -7,6 +7,7 @@
 SMTPClientClass::SMTPClientClass()
 {	
 	m_receive_buffer = std::make_unique<char[]>(DEFAULT_BUFFER_SIZE);
+	LOG = LOG->GetInstance();
 
 	if (m_receive_buffer == nullptr)
 	{

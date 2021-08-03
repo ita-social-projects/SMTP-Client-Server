@@ -12,6 +12,8 @@ MainWindow::MainWindow(QWidget* parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);   
+
+    LOG = LOG->GetInstance();
     
     m_server_address    = m_xml.GetIpAddress();    
     m_server_port       = std::to_string(m_xml.GetListenerPort());    

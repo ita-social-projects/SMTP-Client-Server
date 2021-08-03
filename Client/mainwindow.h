@@ -54,6 +54,6 @@ private:
     bool            m_gmail_server_clicked  = false;
     bool            m_server_clicked        = true;
     XMLParser       m_xml;
-    Logger          LOG;
+    Logger*         LOG;
 };
 #endif // MAINWINDOW_H
