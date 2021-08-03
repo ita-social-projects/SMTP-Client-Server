@@ -77,7 +77,7 @@ int MailSession::SendResponse(int response_type)
 		strcpy(buf, COMMAND_N_IMPLEMENTED_STR);
 		break;
 	case Responses::EMAIL_N_RECEIVED:
-		strcpy(buf, COMMAND_N_IMPLEMENTED_STR);
+		strcpy(buf, EMAIL_N_RCV_STR);
 		break;
 	case Responses::LOGIN_RCV:
 		strcpy(buf, LOGIN_RCV_STR);
