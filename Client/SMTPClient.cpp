@@ -3,6 +3,7 @@
 // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 
 #include "SMTPClient.h"
+#include "..\Crypto\SymmetricCrypto.h"
 
 SMTPClientClass::SMTPClientClass()
 {	
@@ -326,7 +327,7 @@ bool	SMTPClientClass::Send()
 		}		
 
 		Base64Coder coder;		
-		std::string encoded_login = coder.Encode((const unsigned char*)m_login.c_str(), (u_int)m_login.size());
+		std::string encoded_login = coder.Encode((const unsigned char*)m_login.c_str(), (u_int)m_login.size());		
 		encoded_login.append("\r\n");
 		SendData(encoded_login);		
 
@@ -355,7 +356,7 @@ bool	SMTPClientClass::Send()
 			LOG_ERROR << "Server responded with error to user authorization.";
 			throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::SERVER_AUTHORIZATION_FAILED);
 		}
-		FlushBuffer();
+		FlushBuffer();		
 
 		SendMailFrom();
 		ReceiveData();

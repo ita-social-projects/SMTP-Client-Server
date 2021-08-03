@@ -222,3 +222,8 @@ std::string MainWindow::get_msg_data() const
 {
     return m_msg_data;
 }
+void MainWindow::on_pushButton_clicked()
+{
+    // TODO open new window, hide this
+}
+

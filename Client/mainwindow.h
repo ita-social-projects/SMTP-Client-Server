@@ -41,6 +41,8 @@ private slots:
     void GmailServerButtonClicked();
     void ExitButtonClicked();
 
+    void on_pushButton_clicked();
+
 private:
     Ui::MainWindow* m_ui;
     std::string     m_server_choice;

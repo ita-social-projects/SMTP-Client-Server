@@ -55,8 +55,8 @@
    <string>SMTP Client</string>
   </property>
   <property name="windowIcon">
-   <iconset theme="E:\PROGRAMMING\SMTP_CLIENT_TEST4\QTApp1\img\icon.png">
-    <normaloff>.</normaloff>.</iconset>
+   <iconset>
+    <normaloff>../../../PROGRAMMING/SMTP_CLIENT_TEST4/QTApp1/img/icon.png</normaloff>../../../PROGRAMMING/SMTP_CLIENT_TEST4/QTApp1/img/icon.png</iconset>
   </property>
   <property name="toolTip">
    <string/>
@@ -445,6 +445,23 @@ p, li { white-space: pre-wrap; }
     </property>
     <property name="text">
      <string>Message:</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton">
+    <property name="geometry">
+     <rect>
+      <x>549</x>
+      <y>550</y>
+      <width>31</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>../../../PROGRAMMING/SMTP_CLIENT_TEST4/QTApp1/img/settings.png</normaloff>../../../PROGRAMMING/SMTP_CLIENT_TEST4/QTApp1/img/settings.png</iconset>
     </property>
    </widget>
   </widget>
