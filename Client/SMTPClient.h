@@ -111,6 +111,10 @@ protected:
 	virtual bool SendData(const std::string&);
 	// Receives response from server through non-secure connection
 	virtual bool ReceiveData();
+	// Sends sender email to the server
+	virtual void SendEmail();
+	// Sends sender password
+	virtual void SendPassword();
 	// Checks response code in server answer
 	int		GetResponseCode() const;
 	// Sends 'ehlo gmail.com'
@@ -171,6 +175,10 @@ private:
 	bool	SendData(const std::string& msg_to_send) override;	
 	// Receives response from server through secure connection 
 	bool	ReceiveData() override; 
+	// Sends encoded email
+	void	SendEmail() override;
+	// Sends encoded password
+	void	SendPassword() override;
 
 private:	
 	

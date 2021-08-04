@@ -37,9 +37,7 @@ private:
 
 private slots:
 
-    void SendButtonClicked();
-    void ServerButtonClicked();
-    void GmailServerButtonClicked();
+    void SendButtonClicked();    
     void ExitButtonClicked();
     void ChildWindowClosed();
     void SettingsButtonClicked();    
@@ -53,9 +51,7 @@ private:
     std::string     m_subject;
     std::string     m_msg_data;
     std::string     m_server_port;
-    std::string     m_server_address;
-    bool            m_gmail_server_clicked;
-    bool            m_server_clicked;
+    std::string     m_server_address;    
     XMLParser       m_xml;
     Logger*         LOG;   
     SettingsWindow* m_settings_ui;
