@@ -12,8 +12,6 @@
 #include "ThreadPool.h"
 #include "MailSession.h"
 
-#pragma comment(lib, "Ws2_32.lib")
-
 #include "../CPPLogger/CPPLogger.h"
 #include "../XMLParser/XMLParser.h"
 

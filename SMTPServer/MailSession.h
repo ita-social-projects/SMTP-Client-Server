@@ -7,8 +7,6 @@
 
 #include "MailInfo.h"
 
-#pragma comment(lib, "Ws2_32.lib")
-
 constexpr auto MAX_ADDRESS_LENGTH = 256;
 constexpr auto SMTP_DATA_TERMINATOR = "\r\n.\r\n";
 constexpr auto FIRST_FOUR_SYMBOLS = 4;
