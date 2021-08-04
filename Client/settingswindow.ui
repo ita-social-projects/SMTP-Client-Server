@@ -6,12 +6,24 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>449</width>
-    <height>434</height>
+    <width>450</width>
+    <height>430</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>450</width>
+    <height>430</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>450</width>
+    <height>430</height>
+   </size>
+  </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Settings</string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -21,16 +33,15 @@
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>200</x>
+      <x>190</x>
       <y>30</y>
-      <width>71</width>
+      <width>91</width>
       <height>16</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <weight>50</weight>
-      <bold>false</bold>
+      <bold>true</bold>
      </font>
     </property>
     <property name="text">
@@ -79,16 +90,15 @@
    <widget class="QLabel" name="label_5">
     <property name="geometry">
      <rect>
-      <x>200</x>
-      <y>180</y>
-      <width>81</width>
+      <x>190</x>
+      <y>170</y>
+      <width>101</width>
       <height>16</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <weight>50</weight>
-      <bold>false</bold>
+      <bold>true</bold>
      </font>
     </property>
     <property name="text">
@@ -242,8 +252,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>449</width>
-     <height>20</height>
+     <width>450</width>
+     <height>22</height>
     </rect>
    </property>
   </widget>

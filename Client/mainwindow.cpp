@@ -25,6 +25,7 @@ MainWindow::MainWindow(QWidget* parent)
     connect(m_ui->gmailServerButton, SIGNAL(clicked()), this, SLOT(GmailServerButtonClicked()));
     connect(m_ui->sendButton, SIGNAL(clicked()), this, SLOT(SendButtonClicked()));
     connect(m_ui->exitButton, SIGNAL(clicked()), this, SLOT(ExitButtonClicked()));
+    connect(m_ui->pushButton, SIGNAL(clicked()), this, SLOT(SettingsButtonClicked()));
 }
 
 MainWindow::~MainWindow()
@@ -226,16 +227,6 @@ std::string MainWindow::get_msg_data() const
     return m_msg_data;
 }
 
-void MainWindow::on_pushButton_clicked()
-{
-    if (m_settings_ui != nullptr)
-        return;
-    
-    m_settings_ui = new SettingsWindow(this);
-    connect(m_settings_ui, SIGNAL(windowClosed()), this, SLOT(ChildWindowClosed()));
-    m_settings_ui->show();
-}
-
 void MainWindow::ChildWindowClosed()
 {
     delete m_settings_ui;
@@ -243,5 +234,15 @@ void MainWindow::ChildWindowClosed()
     setWindowModality(Qt::NonModal);
     this->hide();
     this->show();
+}
+
+void MainWindow::SettingsButtonClicked()
+{
+    if (m_settings_ui != nullptr)
+        return;
+
+    m_settings_ui = new SettingsWindow(this);
+    connect(m_settings_ui, SIGNAL(windowClosed()), this, SLOT(ChildWindowClosed()));
+    m_settings_ui->show();
 }
 

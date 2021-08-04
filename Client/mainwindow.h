@@ -42,8 +42,7 @@ private slots:
     void GmailServerButtonClicked();
     void ExitButtonClicked();
     void ChildWindowClosed();
-
-    void on_pushButton_clicked();
+    void SettingsButtonClicked();    
 
 private:
     Ui::MainWindow* m_ui;
