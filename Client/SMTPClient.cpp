@@ -113,8 +113,9 @@ bool	SMTPClientClass::SendData(const std::string &msg_to_send)
 	int			result;
 	u_int		index			= 0;		
 	std::shared_ptr<unsigned char[]> msg_crypt;
-	int			msg_crypt_len	= m_crypto_obj.Encrypt((unsigned char*)msg_to_send.c_str(), msg_to_send.size(), msg_crypt);
-	u_int		msg_left		= msg_crypt_len;
+	u_int		msg_crypt_len		= (u_int)(m_crypto_obj.Encrypt((unsigned char*)msg_to_send.c_str(), (unsigned int)msg_to_send.size(), msg_crypt));
+	u_int		msg_left			= msg_crypt_len;
+	unsigned char* msg_crypt_ptr	= msg_crypt.get();
 	
 	//u_int		msg_left	= (u_int)msg_to_send.size();
 	//u_int		msg_left = (u_int)(sizeof(msg_crypt.get()) / sizeof(char));
@@ -145,7 +146,7 @@ bool	SMTPClientClass::SendData(const std::string &msg_to_send)
 		if (result > 0 && FD_ISSET(m_socket, &fdwrite))
 		{
 			//result = send(m_socket, &msg_to_send.c_str()[(size_t)index], (int)msg_left, 0);
-			result = send(m_socket, (char*)msg_crypt.get()[(size_t)index], (int)msg_left, 0);
+			result = send(m_socket, (char*)&msg_crypt_ptr[(size_t)index], (int)msg_left, 0);
 			if (result == SOCKET_ERROR || result == 0)
 			{
 				FD_CLR(m_socket, &fdwrite);
