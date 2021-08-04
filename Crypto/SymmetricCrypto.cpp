@@ -17,10 +17,14 @@ SymmetricCrypto::SymmetricCrypto(unsigned char* key, unsigned char key_len, unsi
         m_aes_key.reset();
         m_aes_iv.reset();
     }
-    if (key_len != KEYSIZE_16
+    else if (key_len != KEYSIZE_16
         && key_len != KEYSIZE_24
-        && key_len != KEYSIZE_32
-        && iv_len != IVSIZE_16)
+        && key_len != KEYSIZE_32)
+    {
+        m_aes_key.reset();
+        m_aes_iv.reset();
+    }
+    else if (iv_len != IVSIZE_16)
     {
         m_aes_key.reset();
         m_aes_iv.reset();
@@ -62,8 +66,11 @@ bool SymmetricCrypto::GenerateRandomKey(unsigned int key_len, unsigned int iv_le
 {
     if (key_len != KEYSIZE_16
         && key_len != KEYSIZE_24
-        && key_len != KEYSIZE_32
-        && iv_len != IVSIZE_16)
+        && key_len != KEYSIZE_32)
+    {
+        return false;
+    }
+    if (iv_len != IVSIZE_16)
     {
         return false;
     }
@@ -226,10 +233,9 @@ int SymmetricCrypto::Encrypt(
     unsigned int msg_len,
     std::shared_ptr<unsigned char[]>& encr_msg)
 {
-    if (!msg || msg_len <= 0)
-    {
-        return -1;
-    }
+    if (!msg) { return (int)SymmetricErrors::E_EMPTY_MESSAGE; }
+
+    if (msg_len <= 0) { return (int)SymmetricErrors::E_INCORRECT_LENGTH; }
 
     int block_len = 0;
     int encr_msg_len = 0;
@@ -238,29 +244,25 @@ int SymmetricCrypto::Encrypt(
     std::shared_ptr<unsigned char[]> buff_msg(new unsigned char[msg_len_plus_block_size]);
     encr_msg = buff_msg;
 
-    if (!m_aes_encr_ctx)
-    {
+    if (!m_aes_encr_ctx) {
         if (!InitializeEncryptContext()) {
-            return -1;
+            return (int)SymmetricErrors::E_ENCRYPT_INITIALIZE_FAIL;
         }
     }
 
-    if (!EVP_EncryptInit_ex(m_aes_encr_ctx, EVP_aes_256_cbc(), nullptr, m_aes_key.get(), m_aes_iv.get()))
-    {
-        return -1;
+    if (!EVP_EncryptInit_ex(m_aes_encr_ctx, EVP_aes_256_cbc(), nullptr, m_aes_key.get(), m_aes_iv.get())) {
+        return (int)SymmetricErrors::E_ENCRYPT_INITIALIZE_FAIL;
     }
 
-    if (!EVP_EncryptUpdate(m_aes_encr_ctx, encr_msg.get(), &block_len, msg, (int)msg_len))
-    {
-        return -1;
+    if (!EVP_EncryptUpdate(m_aes_encr_ctx, encr_msg.get(), &block_len, msg, (int)msg_len)) {
+        return (int)SymmetricErrors::E_ENCRYPT_UPDATE_FAIL;
     }
 
     encr_msg_len += block_len;
 
     unsigned char* encr_msg_ptr = encr_msg.get() + ptrdiff_t(encr_msg_len);
-    if (!EVP_EncryptFinal_ex(m_aes_encr_ctx, encr_msg_ptr, &block_len))
-    {
-        return -1;
+    if (!EVP_EncryptFinal_ex(m_aes_encr_ctx, encr_msg_ptr, &block_len)) {
+        return (int)SymmetricErrors::E_ENCRYPT_FINAL_FAIL;
     }
 
     encr_msg_len += block_len;
@@ -276,9 +278,8 @@ int SymmetricCrypto::Encrypt(
     const std::vector<unsigned char>& msg,
     std::vector<unsigned char>& encr_msg)
 {
-    if (msg.empty())
-    {
-        return -1;
+    if (msg.empty()) {
+        return (int)SymmetricErrors::E_EMPTY_MESSAGE;
     }
 
     int block_len = 0;
@@ -286,16 +287,14 @@ int SymmetricCrypto::Encrypt(
 
     encr_msg.resize(msg.size() + BLOCK_SIZE);
 
-    if (!m_aes_encr_ctx)
-    {
+    if (!m_aes_encr_ctx) {
         if (!InitializeEncryptContext()) {
-            return -1;
+            return (int)SymmetricErrors::E_ENCRYPT_INITIALIZE_FAIL;
         }
     }
 
-    if (!EVP_EncryptInit_ex(m_aes_encr_ctx, EVP_aes_256_cbc(), nullptr, m_aes_key.get(), m_aes_iv.get()))
-    {
-        return -1;
+    if (!EVP_EncryptInit_ex(m_aes_encr_ctx, EVP_aes_256_cbc(), nullptr, m_aes_key.get(), m_aes_iv.get())) {
+        return (int)SymmetricErrors::E_ENCRYPT_INITIALIZE_FAIL;
     }
 
     if (!EVP_EncryptUpdate(
@@ -305,14 +304,13 @@ int SymmetricCrypto::Encrypt(
         &msg.front(),
         (int)msg.size()))
     {
-        return -1;
+        return (int)SymmetricErrors::E_ENCRYPT_UPDATE_FAIL;
     }
 
     encr_msg_len += block_len;
 
-    if (!EVP_EncryptFinal_ex(m_aes_encr_ctx, &encr_msg.front() + encr_msg_len, &block_len))
-    {
-        return -1;
+    if (!EVP_EncryptFinal_ex(m_aes_encr_ctx, &encr_msg.front() + encr_msg_len, &block_len)) {
+        return (int)SymmetricErrors::E_ENCRYPT_FINAL_FAIL;
     }
 
     encr_msg_len += block_len;
@@ -325,9 +323,11 @@ int SymmetricCrypto::Decrypt(
     unsigned int encr_msg_len,
     std::shared_ptr<unsigned char[]>& decr_msg)
 {
-    if (!encr_msg || !encr_msg_len)
-    {
-        return -1;
+    if (!encr_msg) {
+        return (int)SymmetricErrors::E_EMPTY_MESSAGE;
+    }
+    if (!encr_msg_len) {
+        return (int)SymmetricErrors::E_INCORRECT_LENGTH;
     }
     int decr_msg_len = 0;
     int block_len = 0;
@@ -336,29 +336,25 @@ int SymmetricCrypto::Decrypt(
     std::shared_ptr<unsigned char[]> msg(new unsigned char[encr_len]);
     decr_msg = msg;
 
-    if (!m_aes_decr_ctx)
-    {
+    if (!m_aes_decr_ctx) {
         if (!InitializeDecryptContext()) {
-            return -1;
+            return (int)SymmetricErrors::E_DECRYPT_INITIALIZE_FAIL;
         }
     }
 
-    if (!EVP_DecryptInit_ex(m_aes_decr_ctx, EVP_aes_256_cbc(), nullptr, m_aes_key.get(), m_aes_iv.get()))
-    {
-        return -1;
+    if (!EVP_DecryptInit_ex(m_aes_decr_ctx, EVP_aes_256_cbc(), nullptr, m_aes_key.get(), m_aes_iv.get())) {
+        return (int)SymmetricErrors::E_DECRYPT_INITIALIZE_FAIL;
     }
 
-    if (!EVP_DecryptUpdate(m_aes_decr_ctx, decr_msg.get(), &block_len, encr_msg, (int)encr_msg_len))
-    {
-        return -1;
+    if (!EVP_DecryptUpdate(m_aes_decr_ctx, decr_msg.get(), &block_len, encr_msg, (int)encr_msg_len)) {
+        return (int)SymmetricErrors::E_DECRYPT_UPDATE_FAIL;
     }
 
     decr_msg_len += block_len;
 
     unsigned char* msg_end_ptr = decr_msg.get() + ptrdiff_t(decr_msg_len);
-    if (!EVP_DecryptFinal_ex(m_aes_decr_ctx, msg_end_ptr, &block_len))
-    {
-        return -1;
+    if (!EVP_DecryptFinal_ex(m_aes_decr_ctx, msg_end_ptr, &block_len)) {
+        return (int)SymmetricErrors::E_DECRYPT_FINAL_FAIL;
     }
 
     decr_msg_len += block_len;
@@ -374,25 +370,22 @@ int SymmetricCrypto::Decrypt(
     const std::vector<unsigned char>& encr_msg,
     std::vector<unsigned char>& decr_msg)
 {
-    if (encr_msg.empty())
-    {
-        return -1;
+    if (encr_msg.empty()) {
+        return (int)SymmetricErrors::E_EMPTY_MESSAGE;
     }
     int decr_msg_len = 0;
     int block_len = 0;
 
     decr_msg.resize(encr_msg.size());
 
-    if (!m_aes_decr_ctx)
-    {
+    if (!m_aes_decr_ctx) {
         if (!InitializeDecryptContext()) {
-            return -1;
+            return (int)SymmetricErrors::E_DECRYPT_INITIALIZE_FAIL;
         }
     }
 
-    if (!EVP_DecryptInit_ex(m_aes_decr_ctx, EVP_aes_256_cbc(), nullptr, m_aes_key.get(), m_aes_iv.get()))
-    {
-        return -1;
+    if (!EVP_DecryptInit_ex(m_aes_decr_ctx, EVP_aes_256_cbc(), nullptr, m_aes_key.get(), m_aes_iv.get())) {
+        return (int)SymmetricErrors::E_DECRYPT_INITIALIZE_FAIL;
     }
 
     if (!EVP_DecryptUpdate(
@@ -402,14 +395,13 @@ int SymmetricCrypto::Decrypt(
         &encr_msg.front(),
         (int)(decr_msg.size())))
     {
-        return -1;
+        return (int)SymmetricErrors::E_DECRYPT_UPDATE_FAIL;
     }
 
     decr_msg_len += block_len;
 
-    if (!EVP_DecryptFinal_ex(m_aes_decr_ctx, &decr_msg.front() + decr_msg_len, &block_len))
-    {
-        return -1;
+    if (!EVP_DecryptFinal_ex(m_aes_decr_ctx, &decr_msg.front() + decr_msg_len, &block_len)) {
+        return (int)SymmetricErrors::E_DECRYPT_FINAL_FAIL;
     }
 
     decr_msg_len += block_len;
@@ -424,7 +416,9 @@ unsigned char* SymmetricCrypto::get_aes_key() const
 
 bool SymmetricCrypto::set_aes_key(unsigned char* aes_key, unsigned int aes_key_len)
 {
-    if (aes_key_len != m_aes_key_len)
+    if (aes_key_len != KEYSIZE_16
+        && aes_key_len != KEYSIZE_24
+        && aes_key_len != KEYSIZE_32)
     {
         return false;
     }
@@ -455,7 +449,7 @@ unsigned char* SymmetricCrypto::get_aes_iv() const
 
 bool SymmetricCrypto::set_aes_iv(unsigned char* aes_iv, unsigned int aes_iv_len)
 {
-    if (aes_iv_len != m_aes_iv_len)
+    if (aes_iv_len != IVSIZE_16)
     {
         return false;
     }

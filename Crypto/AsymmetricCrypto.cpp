@@ -48,13 +48,14 @@ int AsymmetricCrypto::Encrypt(
     std::shared_ptr<unsigned char[]>& iv,
     unsigned int* iv_len)
 {
-    if (!m_keypair)
-    {
-        return -1;
+    if (!m_keypair) {
+        return (int)AsymmetricErrors::E_KEYPAIR_EMPTY;
     }
-    if (!msg || !msg_len)
-    {
-        return -1;
+    if (!msg) {
+        return (int)AsymmetricErrors::E_EMPTY_MESSAGE;
+    }
+    if (!msg_len) {
+        return (int)AsymmetricErrors::E_INCORRECT_LENGTH;
     }
     int encr_msg_len = 0;
     int block_len = 0;
@@ -87,21 +88,19 @@ int AsymmetricCrypto::Encrypt(
         &m_keypair,
         PUBLIC_KEYS_AMOUNT))
     {
-        return -1;
+        return (int)AsymmetricErrors::E_ENCRYPT_INITIALIZE_FAIL;
     }
 
     unsigned char* msg_after_init_ptr = encr_msg.get() + ptrdiff_t(encr_msg_len);
-    if (!EVP_SealUpdate(m_rsa_encr_ctx, msg_after_init_ptr, &block_len, msg, (unsigned int)msg_len))
-    {
-        return -1;
+    if (!EVP_SealUpdate(m_rsa_encr_ctx, msg_after_init_ptr, &block_len, msg, (unsigned int)msg_len)) {
+        return (int)AsymmetricErrors::E_ENCRYPT_UPDATE_FAIL;
     }
 
     encr_msg_len += block_len;
 
     unsigned char* msg_end_ptr = encr_msg.get() + ptrdiff_t(encr_msg_len);
-    if (!EVP_SealFinal(m_rsa_encr_ctx, msg_end_ptr, &block_len))
-    {
-        return -1;
+    if (!EVP_SealFinal(m_rsa_encr_ctx, msg_end_ptr, &block_len)) {
+        return (int)AsymmetricErrors::E_ENCRYPT_FINAL_FAIL;
     }
 
     encr_msg_len += block_len;
@@ -122,13 +121,14 @@ int AsymmetricCrypto::Encrypt(
     std::vector<unsigned char>& iv,
     unsigned int* iv_len)
 {
-    if (!m_keypair)
-    {
-        return -1;
+    if (!m_keypair) {
+        return (int)AsymmetricErrors::E_KEYPAIR_EMPTY;
     }
-    if (msg.empty() || !msg_len)
-    {
-        return -1;
+    if (msg.empty()) {
+        return (int)AsymmetricErrors::E_EMPTY_MESSAGE;
+    }
+    if (!msg_len) {
+        return (int)AsymmetricErrors::E_INCORRECT_LENGTH;
     }
     int encr_msg_len = 0;
     int block_len = 0;
@@ -156,13 +156,13 @@ int AsymmetricCrypto::Encrypt(
         &m_keypair,
         PUBLIC_KEYS_AMOUNT))
     {
-        return -1;
+        return (int)AsymmetricErrors::E_ENCRYPT_INITIALIZE_FAIL;
     }
 
     unsigned char* msg_after_init_ptr = &encr_msg.front() + encr_msg_len;
     if (!EVP_SealUpdate(m_rsa_encr_ctx, msg_after_init_ptr, &block_len, &msg.front(), msg_len))
     {
-        return -1;
+        return (int)AsymmetricErrors::E_ENCRYPT_UPDATE_FAIL;
     }
 
     encr_msg_len += block_len;
@@ -170,7 +170,7 @@ int AsymmetricCrypto::Encrypt(
     unsigned char* msg_end_ptr = &encr_msg.front() + encr_msg_len;
     if (!EVP_SealFinal(m_rsa_encr_ctx, msg_end_ptr, &block_len))
     {
-        return -1;
+        return (int)AsymmetricErrors::E_ENCRYPT_FINAL_FAIL;
     }
 
     encr_msg_len += block_len;
@@ -187,21 +187,20 @@ int AsymmetricCrypto::Decrypt(
     unsigned int iv_len,
     std::shared_ptr<unsigned char[]>& decr_msg)
 {
-    if (!m_keypair)
-    {
-        return -1;
+    if (!m_keypair) {
+        return (int)AsymmetricErrors::E_KEYPAIR_EMPTY;
     }
-    if (!encr_msg || !encr_msg_len)
-    {
-        return -1;
+    if (!encr_msg) {
+        return (int)AsymmetricErrors::E_EMPTY_MESSAGE;
     }
-    if (!encr_key || !encr_key_len)
-    {
-        return -1;
+    if (!encr_key) {
+        return (int)AsymmetricErrors::E_EMPTY_KEY;
     }
-    if (!iv || !iv_len)
-    {
-        return -1;
+    if (!iv) {
+        return (int)AsymmetricErrors::E_EMPTY_IV;
+    }
+    if (!encr_msg_len || !encr_key_len || !iv_len) {
+        return (int)AsymmetricErrors::E_INCORRECT_LENGTH;
     }
 
     int decr_msg_len = 0;
@@ -215,23 +214,20 @@ int AsymmetricCrypto::Decrypt(
         m_rsa_decr_ctx = EVP_CIPHER_CTX_new();
     }
 
-    if (!EVP_OpenInit(m_rsa_decr_ctx, EVP_aes_256_cbc(), encr_key, encr_key_len, iv, m_keypair))
-    {
-        return -1;
+    if (!EVP_OpenInit(m_rsa_decr_ctx, EVP_aes_256_cbc(), encr_key, encr_key_len, iv, m_keypair)) {
+        return (int)AsymmetricErrors::E_DECRYPT_INITIALIZE_FAIL;
     }
 
     unsigned char* decr_msg_after_init_ptr = decr_msg.get() + ptrdiff_t(decr_msg_len);
-    if (!EVP_OpenUpdate(m_rsa_decr_ctx, decr_msg_after_init_ptr, &block_len, encr_msg, encr_msg_len))
-    {
-        return -1;
+    if (!EVP_OpenUpdate(m_rsa_decr_ctx, decr_msg_after_init_ptr, &block_len, encr_msg, encr_msg_len)) {
+        return (int)AsymmetricErrors::E_DECRYPT_UPDATE_FAIL;
     }
 
     decr_msg_len += block_len;
 
     unsigned char* decr_msg_end_ptr = decr_msg.get() + ptrdiff_t(decr_msg_len);
-    if (!EVP_OpenFinal(m_rsa_decr_ctx, decr_msg_end_ptr, &block_len))
-    {
-        return -1;
+    if (!EVP_OpenFinal(m_rsa_decr_ctx, decr_msg_end_ptr, &block_len)) {
+        return (int)AsymmetricErrors::E_DECRYPT_FINAL_FAIL;
     }
 
     decr_msg_len += block_len;
@@ -252,22 +248,22 @@ int AsymmetricCrypto::Decrypt(
     const std::vector<unsigned char>& iv,
     unsigned int iv_len)
 {
-    if (!m_keypair)
-    {
-        return -1;
+    if (!m_keypair) {
+        return (int)AsymmetricErrors::E_KEYPAIR_EMPTY;
     }
-    if (encr_msg.empty() || !encr_msg_len)
-    {
-        return -1;
+    if (encr_msg.empty()) {
+        return (int)AsymmetricErrors::E_EMPTY_MESSAGE;
     }
-    if (encr_key.empty() || !encr_key_len)
-    {
-        return -1;
+    if (encr_key.empty()) {
+        return (int)AsymmetricErrors::E_EMPTY_KEY;
     }
-    if (iv.empty() || !iv_len)
-    {
-        return -1;
+    if (iv.empty()) {
+        return (int)AsymmetricErrors::E_EMPTY_IV;
     }
+    if (!encr_msg_len || !encr_key_len || !iv_len) {
+        return (int)AsymmetricErrors::E_INCORRECT_LENGTH;
+    }
+
     int decr_msg_len = 0;
     int block_len = 0;
 
@@ -278,23 +274,20 @@ int AsymmetricCrypto::Decrypt(
         m_rsa_decr_ctx = EVP_CIPHER_CTX_new();
     }
 
-    if (!EVP_OpenInit(m_rsa_decr_ctx, EVP_aes_256_cbc(), &encr_key.front(), encr_key_len, &iv.front(), m_keypair))
-    {
-        return -1;
+    if (!EVP_OpenInit(m_rsa_decr_ctx, EVP_aes_256_cbc(), &encr_key.front(), encr_key_len, &iv.front(), m_keypair)) {
+        return (int)AsymmetricErrors::E_DECRYPT_INITIALIZE_FAIL;
     }
 
     unsigned char* decr_msg_after_init_ptr = &decr_msg.front() + decr_msg_len;
-    if (!EVP_OpenUpdate(m_rsa_decr_ctx, decr_msg_after_init_ptr, &block_len, &encr_msg.front(), encr_msg_len))
-    {
-        return -1;
+    if (!EVP_OpenUpdate(m_rsa_decr_ctx, decr_msg_after_init_ptr, &block_len, &encr_msg.front(), encr_msg_len)) {
+        return (int)AsymmetricErrors::E_DECRYPT_UPDATE_FAIL;
     }
 
     decr_msg_len += block_len;
 
     unsigned char* decr_msg_final_ptr = &decr_msg.front() + decr_msg_len;
-    if (!EVP_OpenFinal(m_rsa_decr_ctx, decr_msg_final_ptr, &block_len))
-    {
-        return -1;
+    if (!EVP_OpenFinal(m_rsa_decr_ctx, decr_msg_final_ptr, &block_len)) {
+        return (int)AsymmetricErrors::E_DECRYPT_FINAL_FAIL;
     }
 
     decr_msg_len += block_len;
