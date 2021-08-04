@@ -46,6 +46,12 @@ void SMTPServer::WorkWithClient(SOCKET client_socket)
 	}
 }
 
+SMTPServer::SMTPServer()
+{
+	LOG = LOG->GetInstance();
+	m_server_socket = INVALID_SOCKET;
+}
+
 SMTPServer::~SMTPServer()
 {
 	closesocket(m_server_socket);

@@ -23,7 +23,7 @@ constexpr auto SERVER_CLOSED = 221;
 class SMTPServer
 {
 public:
-	SMTPServer() = default;
+	SMTPServer();
 	~SMTPServer();
 
 	bool Initialize();
@@ -35,9 +35,9 @@ private:
 	static void WorkWithClient(SOCKET client_socket);
 
 private:
-	SOCKET m_server_socket = INVALID_SOCKET;
+	SOCKET m_server_socket;
 	std::unique_ptr<ThreadPool> m_thread_pool;
 
-	Logger LOG;
+	Logger* LOG;
 };
 
