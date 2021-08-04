@@ -38,8 +38,8 @@ public:
 	void set_filter_level(unsigned int level) override;
 
 private:
-	Logger();
-	Logger(const Logger&);
+	Logger();	
+	Logger(const Logger&) = default;
 
 	static std::atomic<Logger*>	s_instance;
 	static std::mutex			s_mutex;
