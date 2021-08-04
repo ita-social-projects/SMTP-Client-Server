@@ -38,6 +38,6 @@ private:
 	SOCKET m_server_socket;
 	std::unique_ptr<ThreadPool> m_thread_pool;
 
-	Logger* LOG;
+	Logger* LOG = nullptr;
 };
 
