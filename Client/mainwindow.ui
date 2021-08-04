@@ -57,7 +57,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>../img/icons8-mail-64.png</normaloff>../img/icons8-mail-64.png</iconset>
+    <normaloff>../../../PROGRAMMING/SMTP_CLIENT_TEST4/QTApp1/img/icon.png</normaloff>../../../PROGRAMMING/SMTP_CLIENT_TEST4/QTApp1/img/icon.png</iconset>
   </property>
   <property name="toolTip">
    <string/>
@@ -202,6 +202,9 @@
     <property name="frameShape">
      <enum>QFrame::StyledPanel</enum>
     </property>
+    <property name="tabChangesFocus">
+     <bool>false</bool>
+    </property>
     <property name="html">
      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -210,7 +213,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:7.8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="overwriteMode">
-     <bool>true</bool>
+     <bool>false</bool>
     </property>
     <property name="placeholderText">
      <string>Enter your letter data</string>
@@ -295,12 +298,12 @@ p, li { white-space: pre-wrap; }
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
-        <widget class="QRadioButton" name="ownServerButton">
+        <widget class="QRadioButton" name="ServerButton">
          <property name="cursor">
           <cursorShape>PointingHandCursor</cursorShape>
          </property>
          <property name="text">
-          <string>Own SMTP Server</string>
+          <string>SMTP Server</string>
          </property>
          <property name="checked">
           <bool>true</bool>
@@ -449,6 +452,23 @@ p, li { white-space: pre-wrap; }
     </property>
     <property name="text">
      <string>Message:</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton">
+    <property name="geometry">
+     <rect>
+      <x>549</x>
+      <y>550</y>
+      <width>31</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>../../../PROGRAMMING/SMTP_CLIENT_TEST4/QTApp1/img/settings.png</normaloff>../../../PROGRAMMING/SMTP_CLIENT_TEST4/QTApp1/img/settings.png</iconset>
     </property>
    </widget>
   </widget>

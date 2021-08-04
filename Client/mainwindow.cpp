@@ -9,23 +9,28 @@
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+    , m_ui(new Ui::MainWindow)
 {
-    ui->setupUi(this);   
-    
-    m_server_address    = m_xml.GetIpAddress();    
-    m_server_port       = std::to_string(m_xml.GetListenerPort());    
-    m_server_choice     = m_server_address;
+    m_ui->setupUi(this);  
 
-    connect(ui->ownServerButton, SIGNAL(clicked()), this, SLOT(ServerButtonClicked()));
-    connect(ui->gmailServerButton, SIGNAL(clicked()), this, SLOT(GmailServerButtonClicked()));
-    connect(ui->sendButton, SIGNAL(clicked()), this, SLOT(SendButtonClicked()));
-    connect(ui->exitButton, SIGNAL(clicked()), this, SLOT(ExitButtonClicked()));
+    LOG = LOG->GetInstance();
+    m_gmail_server_clicked  = false;
+    m_server_clicked        = true;    
+    m_server_address        = m_xml.GetIpAddress();    
+    m_server_port           = std::to_string(m_xml.GetListenerPort());    
+    m_server_choice         = m_server_address;
+    m_settings_ui           = nullptr;
+
+    connect(m_ui->ServerButton, SIGNAL(clicked()), this, SLOT(ServerButtonClicked()));
+    connect(m_ui->gmailServerButton, SIGNAL(clicked()), this, SLOT(GmailServerButtonClicked()));
+    connect(m_ui->sendButton, SIGNAL(clicked()), this, SLOT(SendButtonClicked()));
+    connect(m_ui->exitButton, SIGNAL(clicked()), this, SLOT(ExitButtonClicked()));
 }
 
 MainWindow::~MainWindow()
-{        
-    delete ui;
+{    
+    delete m_settings_ui;
+    delete m_ui;
 }
 
 void MainWindow::SendButtonClicked()
@@ -39,7 +44,7 @@ void MainWindow::SendButtonClicked()
         m_server_choice = GMAIL_SERVER_DOMAIN;
     }
 
-    QString qs = ui->lineLogin->text();    
+    QString qs = m_ui->lineLogin->text();    
     QString qs2;
     if (!qs.isEmpty())
     {        
@@ -52,8 +57,8 @@ void MainWindow::SendButtonClicked()
         return;
     }
 
-    qs = ui->linePassword1->text();
-    qs2 = ui->linePassword2->text();
+    qs = m_ui->linePassword1->text();
+    qs2 = m_ui->linePassword2->text();
 
     if (!qs.isEmpty() && !qs2.isEmpty())
     {
@@ -75,7 +80,7 @@ void MainWindow::SendButtonClicked()
         return;
     }
 
-    qs = ui->lineRCPT->text();
+    qs = m_ui->lineRCPT->text();
     if (qs.size())
     {        
         m_rcpt_to = qs.toLocal8Bit().constData();
@@ -87,13 +92,13 @@ void MainWindow::SendButtonClicked()
         return;
     }
 
-    qs = ui->lineSubject->text();
+    qs = m_ui->lineSubject->text();
     if (!qs.isEmpty())
     {        
         m_subject = qs.toLocal8Bit().constData();
     }    
 
-    qs = ui->lineData->toPlainText();
+    qs = m_ui->lineData->toPlainText();
     if (qs.size())
     {        
         m_msg_data = qs.toLocal8Bit().constData();
@@ -220,3 +225,23 @@ std::string MainWindow::get_msg_data() const
 {
     return m_msg_data;
 }
+
+void MainWindow::on_pushButton_clicked()
+{
+    if (m_settings_ui != nullptr)
+        return;
+    
+    m_settings_ui = new SettingsWindow(this);
+    connect(m_settings_ui, SIGNAL(windowClosed()), this, SLOT(ChildWindowClosed()));
+    m_settings_ui->show();
+}
+
+void MainWindow::ChildWindowClosed()
+{
+    delete m_settings_ui;
+    m_settings_ui = nullptr;
+    setWindowModality(Qt::NonModal);
+    this->hide();
+    this->show();
+}
+
