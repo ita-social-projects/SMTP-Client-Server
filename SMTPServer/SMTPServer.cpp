@@ -20,8 +20,7 @@ void SMTPServer::AcceptConnections()
 
 		else
 		{		
-			//m_thread_pool->AddTask(WorkWithClient, client_socket);
-			WorkWithClient(client_socket);
+			m_thread_pool->AddTask(WorkWithClient, client_socket);
 		}
 	}
 }
