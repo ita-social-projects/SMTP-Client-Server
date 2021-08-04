@@ -31,34 +31,29 @@ SymmetricCrypto::SymmetricCrypto(unsigned char* key, unsigned char key_len, unsi
     }
     else
     {
-        if (key)
-        {
-            size_t smart_key_len = static_cast<size_t>(key_len) + 1;
-            std::unique_ptr<unsigned char[]> smart_key = std::make_unique<unsigned char[]>(smart_key_len);
-            unsigned char* smart_key_ptr = smart_key.get();
+        size_t smart_key_len = static_cast<size_t>(key_len) + 1;
+        std::unique_ptr<unsigned char[]> smart_key = std::make_unique<unsigned char[]>(smart_key_len);
+        unsigned char* smart_key_ptr = smart_key.get();
 
-            for (int i = 0; i < key_len; i++) {
-                *(smart_key_ptr + i) = *(key + i);
-            }
-            smart_key_ptr[key_len] = '\0';
-
-            m_aes_key = std::move(smart_key);
-            m_aes_key_len = key_len;
+        for (int i = 0; i < key_len; i++) {
+            *(smart_key_ptr + i) = *(key + i);
         }
-        if (iv)
-        {
-            size_t smart_iv_len = static_cast<size_t>(key_len) + 1;
-            std::unique_ptr<unsigned char[]> smart_iv = std::make_unique<unsigned char[]>(smart_iv_len);
-            unsigned char* smart_iv_ptr = smart_iv.get();
+        smart_key_ptr[key_len] = '\0';
 
-            for (int i = 0; i < iv_len; i++) {
-                *(smart_iv_ptr + i) = *(iv + i);
-            }
-            smart_iv_ptr[iv_len] = '\0';
+        m_aes_key = std::move(smart_key);
+        m_aes_key_len = key_len;
 
-            m_aes_iv = std::move(smart_iv);
-            m_aes_iv_len = iv_len;
+        size_t smart_iv_len = static_cast<size_t>(key_len) + 1;
+        std::unique_ptr<unsigned char[]> smart_iv = std::make_unique<unsigned char[]>(smart_iv_len);
+        unsigned char* smart_iv_ptr = smart_iv.get();
+
+        for (int i = 0; i < iv_len; i++) {
+            *(smart_iv_ptr + i) = *(iv + i);
         }
+        smart_iv_ptr[iv_len] = '\0';
+
+        m_aes_iv = std::move(smart_iv);
+        m_aes_iv_len = iv_len;
     }
 }
 
