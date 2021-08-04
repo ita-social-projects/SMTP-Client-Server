@@ -20,23 +20,31 @@ void SMTPServer::AcceptConnections()
 
 		else
 		{		
-			m_thread_pool->AddTask(WorkWithClient, client_socket);
+			//m_thread_pool->AddTask(WorkWithClient, client_socket);
+			WorkWithClient(client_socket);
 		}
 	}
 }
 
 void SMTPServer::WorkWithClient(SOCKET client_socket)
 {
+	SymmetricCrypto symmetric_crypto;
 	MailSession mail_session(client_socket);
+
 	char buf[BUF_SIZE];
 	int len;
+
+	std::shared_ptr<unsigned char[]> decrypted_message;
+
 	ZeroMemory(&buf, sizeof(buf));
 
 	mail_session.SendResponse(WELCOME);
 
 	while (len = recv(mail_session.get_client_socket(), (char*)&buf, sizeof(buf), 0))
 	{
-		if (SERVER_CLOSED == mail_session.Processes(buf))
+		symmetric_crypto.Decrypt((unsigned char*)buf, len, decrypted_message);
+
+		if (SERVER_CLOSED == mail_session.Processes((char *)decrypted_message.get()))
 		{
 			closesocket(mail_session.get_client_socket());
 			break;

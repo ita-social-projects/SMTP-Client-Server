@@ -301,8 +301,7 @@ int MailSession::SubProcessSubject(char* buf)
 		return SendResponse(Responses::SYNTAX_ERROR);
 	}
 
-	std::string subject;
-	subject = CutSubject(buf);
+	std::string subject = CutSubject(buf);
 
 	m_current_status = MailSessionStatus::SUBJECT;
 	m_mail_info.set_subject(subject);

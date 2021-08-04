@@ -73,7 +73,7 @@ void ThreadPool::AddTask(void* in_task, SOCKET socket)
     m_thread_pool.emplace_back(&ThreadPool::DoTask, this);
 }
 
-void ThreadPool::set_size(size_t m_threadpool_size)
+void ThreadPool::set_threadpool_size(size_t threadpool_size)
 {
-    this->m_threadpool_size = m_threadpool_size;
+    this->m_threadpool_size = threadpool_size;
 }

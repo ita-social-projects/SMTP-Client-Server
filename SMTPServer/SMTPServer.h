@@ -14,6 +14,7 @@
 
 #include "../CPPLogger/CPPLogger.h"
 #include "../XMLParser/XMLParser.h"
+#include "../Crypto/SymmetricCrypto.h"
 
 constexpr auto WINSOCK_VER = 2;
 constexpr auto BUF_SIZE = 128;
