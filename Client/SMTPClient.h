@@ -13,6 +13,8 @@
 #include <openssl/err.h>
 #include "base64.h"
 #include "..\CPPLogger\CPPLogger.h"
+#include "..\Crypto\SymmetricCrypto.h"
+#include "..\Crypto\ICrypto.h"
 
 constexpr auto	DEFAULT_SSL_PORT	= "465";	// default port for connection through ssl secure connection
 constexpr auto	DEFAULT_BUFFER_SIZE	= 10240;	// size of buffer, where will be storing answers from server
@@ -147,6 +149,7 @@ protected:
 
 private:
 	std::string					m_port;
+	SymmetricCrypto				m_crypto_obj;
 };
 
 class SMTPSecureClientClass final : public SMTPClientClass
