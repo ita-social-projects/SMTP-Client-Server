@@ -3,7 +3,6 @@
 // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 
 #include "SMTPClient.h"
-#include "..\Crypto\SymmetricCrypto.h"
 
 SMTPClientClass::SMTPClientClass()
 {	
@@ -106,14 +105,19 @@ bool	SMTPClientClass::OpenConnection()
 
 bool	SMTPClientClass::SendData(const std::string &msg_to_send) 
 {
+	if (msg_to_send.empty())
+		throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::SEND_MSG_EMPTY);
+
 	fd_set		fdwrite;
 	timeval		time;
 	int			result;
-	u_int		index		= 0;
-	u_int		msg_left	= (u_int)msg_to_send.size();	
-
-	if (msg_to_send.empty())
-		throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::SEND_MSG_EMPTY);
+	u_int		index			= 0;		
+	std::shared_ptr<unsigned char[]> msg_crypt;
+	int			msg_crypt_len	= m_crypto_obj.Encrypt((unsigned char*)msg_to_send.c_str(), msg_to_send.size(), msg_crypt);
+	u_int		msg_left		= msg_crypt_len;
+	
+	//u_int		msg_left	= (u_int)msg_to_send.size();
+	//u_int		msg_left = (u_int)(sizeof(msg_crypt.get()) / sizeof(char));
 
 	while ((int)msg_left > 0)
 	{
@@ -140,7 +144,8 @@ bool	SMTPClientClass::SendData(const std::string &msg_to_send)
 
 		if (result > 0 && FD_ISSET(m_socket, &fdwrite))
 		{
-			result = send(m_socket, &msg_to_send.c_str()[(size_t)index], (int)msg_left, 0);
+			//result = send(m_socket, &msg_to_send.c_str()[(size_t)index], (int)msg_left, 0);
+			result = send(m_socket, (char*)msg_crypt.get()[(size_t)index], (int)msg_left, 0);
 			if (result == SOCKET_ERROR || result == 0)
 			{
 				FD_CLR(m_socket, &fdwrite);
