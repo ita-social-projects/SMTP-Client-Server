@@ -35,6 +35,17 @@ const unsigned int      g_iv_len = IVSIZE_16;
 class SymmetricCrypto final : public ICrypt
 {
 public:
+    enum class SymmetricErrors : int
+    {
+        E_INCORRECT_LENGTH          = -1,
+        E_EMPTY_MESSAGE             = -2,
+        E_ENCRYPT_INITIALIZE_FAIL   = -3,
+        E_ENCRYPT_UPDATE_FAIL       = -4,
+        E_ENCRYPT_FINAL_FAIL        = -5,
+        E_DECRYPT_INITIALIZE_FAIL   = -6,
+        E_DECRYPT_UPDATE_FAIL       = -7,
+        E_DECRYPT_FINAL_FAIL        = -8
+    };
     SymmetricCrypto();
     SymmetricCrypto(
         unsigned char* key,
@@ -76,8 +87,8 @@ public:
     bool set_aes_iv(unsigned char* aes_iv, const unsigned int aes_iv_len);
     unsigned int get_iv_size() const;
 private:
-    EVP_CIPHER_CTX*                     m_aes_encr_ctx = nullptr;
-    EVP_CIPHER_CTX*                     m_aes_decr_ctx = nullptr;
+    EVP_CIPHER_CTX* m_aes_encr_ctx = nullptr;
+    EVP_CIPHER_CTX* m_aes_decr_ctx = nullptr;
     std::unique_ptr<unsigned char[]>    m_aes_key;
     std::unique_ptr<unsigned char[]>    m_aes_iv;
     unsigned int                        m_aes_key_len = 0;
