@@ -2,6 +2,7 @@
 #include <iostream>
 #include "SQLConnection.h"
 #include "../CPPLogger/CPPLogger.h"
+#include "../Crypto/SymmetricCrypto.h"
 
 class SQLServer : public SQLConnection
 {
@@ -24,4 +25,6 @@ protected:
 	ConnectParams params;
 
 	Logger LOG;
+	SymmetricCrypto crypto;
+
 };

@@ -44,8 +44,13 @@ void SQLServer::InsertEmail(const Email& email)
 
 	insert_statement += " (" + column_name_id + ", " + column_name_address + ") ";
 
+	
+	std::shared_ptr<unsigned char[]> encrypted_pass;
+	int encrypted_pass_len;
+	encrypted_pass_len = crypto.Encrypt((unsigned char*)email.password.c_str(), email.password.size(), encrypted_pass);
+	std::string str = (char*)encrypted_pass.get();
 	insert_statement += "VALUES ('" + email.address + "', ";
-	insert_statement += "'" + email.password + "')";
+	insert_statement += "'" + str + "')";
 
 	SACommand insert(&m_connection);
 	insert.setCommandText(_TSA(insert_statement.c_str()));
@@ -81,18 +86,27 @@ void SQLServer::InsertMessage(const Message& message, const Email& email)
 
 void SQLServer::SelectUsers()
 {
+
+
 	std::string table_name{ "Users" };
 	std::string select_command{ "SELECT *\nFROM " };
 	std::string select_statement = select_command + table_name;
 	SACommand select(&m_connection, _TSA((select_statement).c_str()));
 	select.Execute();
 
+	std::shared_ptr<unsigned char[]> decrypted_pass;
+
 	while (select.FetchNext())
 	{
-		auto result1 = select.Field(_TSA("Email_address")).asString().GetMultiByteChars();
-		auto result2 = select.Field(_TSA("Password")).asString().GetMultiByteChars();
+		auto str1 = select.Field(_TSA("Email_address")).asString().GetMultiByteChars();
+		auto pass = select.Field(_TSA("Password")).asString().GetMultiByteChars();
 
-		LOG_INFO << result1 << "\t" << result2;
+		int len = sizeof(pass);
+		crypto.Decrypt((unsigned char*)pass, len, decrypted_pass);
+
+		auto str2 = (char*)decrypted_pass.get();
+
+		LOG_INFO << str1 << "\t" << str2;
 		LOG_INFO << "\n";
 	}
 

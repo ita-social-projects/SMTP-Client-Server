@@ -124,7 +124,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)3rdPartyLibs;C:\Users\Lenovo\Documents\SQLAPI\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Crypto\include;$(SolutionDir)3rdPartyLibs;C:\Users\Lenovo\Documents\SQLAPI\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -132,7 +132,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>sqlapid.lib;CPPLogger.lib;p7.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Crypto.lib;sqlapid.lib;CPPLogger.lib;p7.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionDir)3rdPartyLibs;C:\Users\Lenovo\Documents\SQLAPI\include;%(AdditionalIncludeDirectories)</AdditionalLibraryDirectories>
