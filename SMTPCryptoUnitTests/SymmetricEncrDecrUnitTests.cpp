@@ -18,7 +18,7 @@ namespace SMTPCryptoUnitTests
 		TEST_METHOD(EncryptAndDecryptMessageArrayTest)
 		{
 			unsigned char expected_msg[] = "1:Symmetric encryption and decryption of unsigned char array";
-			int expected_msg_len = strlen((char*)expected_msg);
+			int expected_msg_len = static_cast<int>(strlen((char*)expected_msg));
 
 			std::shared_ptr<unsigned char[]>  encr_msg, actual_msg;
 
