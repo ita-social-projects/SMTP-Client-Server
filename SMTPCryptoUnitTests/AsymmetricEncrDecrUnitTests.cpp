@@ -22,7 +22,7 @@ namespace SMTPCryptoUnitTests
 		TEST_METHOD(AsymEncryptAndDecryptMessageArrayTest)
 		{
 			unsigned char expected_msg[] = "3:Asymmetric encryption and decryption of unsigned char array";
-			int expected_msg_len = strlen((char*)expected_msg);
+			int expected_msg_len = static_cast<int>(strlen((char*)expected_msg));
 
 			std::shared_ptr<unsigned char[]> encr_msg, actual_msg;
 
@@ -82,7 +82,7 @@ namespace SMTPCryptoUnitTests
 
 			Assert::AreEqual(
 				(int)AsymmetricCrypto::AsymmetricErrors::E_EMPTY_MESSAGE,
-				crypto.Encrypt(plain_vec, plain_vec.size(), encr_vec, key_vector, &key_len, iv_vector, &iv_len));
+				crypto.Encrypt(plain_vec, static_cast<int>(plain_vec.size()), encr_vec, key_vector, &key_len, iv_vector, &iv_len));
 		}
 		TEST_METHOD(DecryptMessageVectorWithEmptyVectorTest)
 		{
