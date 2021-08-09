@@ -37,7 +37,7 @@ void SMTPServer::WorkWithClient(SOCKET client_socket)
 
 	ZeroMemory(&buf, sizeof(buf));
 
-	mail_session.SendResponse(WELCOME);
+	int response = mail_session.SendResponse(WELCOME);
 
 	while (len = recv(mail_session.get_client_socket(), (char*)&buf, sizeof(buf), 0))
 	{

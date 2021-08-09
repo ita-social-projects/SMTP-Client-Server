@@ -18,9 +18,9 @@ namespace SMTPServerUnitTests
 		TEST_METHOD(TestMethodGetClientSocket)
 		{
 			MailSession obj(0);
-			int result = obj.get_client_socket();
+			auto result = obj.get_client_socket();
 
-			Assert::AreEqual(result, 0);
+			Assert::AreEqual((int)result, 0);
 		}
 
 		TEST_METHOD(TestMethodSendResponse)
