@@ -107,15 +107,15 @@ bool SMTPServer::SetSocketSettings()
 	return true;
 }
 
-void SMTPServer::ServerStart()
+bool SMTPServer::ServerStart()
 {
 	if (listen(m_server_socket, SOMAXCONN) == SOCKET_ERROR)
 	{
 		LOG_FATAL << "Error with server starting!\n";
-		exit(WSAGetLastError());
+		return false;
 	}
 
 	LOG_INFO << "Server started!\n\n";
 
-	AcceptConnections();
+	return true;
 }
