@@ -7,6 +7,7 @@
 SMTPClientClass::SMTPClientClass()
 {	
 	m_receive_buffer = std::make_unique<char[]>(DEFAULT_BUFFER_SIZE);
+	LOG = LOG->GetInstance();
 
 	if (m_receive_buffer == nullptr)
 	{
@@ -16,9 +17,10 @@ SMTPClientClass::SMTPClientClass()
 		
 	SecureZeroMemory(m_receive_buffer.get(), DEFAULT_BUFFER_SIZE);
 	
-	m_socket			= INVALID_SOCKET;	
-	m_connect_status	= false;	
-	m_server_timeout	= 0;
+	m_socket				= INVALID_SOCKET;
+	m_winsock_initialize	= false;
+	m_connect_status		= false;	
+	m_server_timeout		= 0;
 }
 
 SMTPClientClass::~SMTPClientClass()
@@ -28,7 +30,10 @@ SMTPClientClass::~SMTPClientClass()
 		DisconnectFromServer();
 	}
 	
-	WSACleanup();
+	if (m_winsock_initialize)
+	{
+		WSACleanup();
+	}	
 }
 
 bool	SMTPClientClass::OpenConnection()
@@ -93,19 +98,27 @@ bool	SMTPClientClass::OpenConnection()
 	}
 
 	LOG_INFO << "Successfully connected to the server.";
+
+	m_winsock_initialize = true;
 	return true;
 }
 
 bool	SMTPClientClass::SendData(const std::string &msg_to_send) 
 {
+	if (msg_to_send.empty())
+		throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::SEND_MSG_EMPTY);
+
 	fd_set		fdwrite;
 	timeval		time;
 	int			result;
-	u_int		index		= 0;
-	u_int		msg_left	= (u_int)msg_to_send.size();	
-
-	if (msg_to_send.empty())
-		throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::SEND_MSG_EMPTY);
+	u_int		index			= 0;		
+	std::shared_ptr<unsigned char[]> msg_crypt;
+	u_int		msg_crypt_len		= (u_int)(m_crypto_obj.Encrypt((unsigned char*)msg_to_send.c_str(), (unsigned int)msg_to_send.size(), msg_crypt));
+	u_int		msg_left			= msg_crypt_len;
+	unsigned char* msg_crypt_ptr	= msg_crypt.get();
+	
+	//u_int		msg_left	= (u_int)msg_to_send.size();
+	//u_int		msg_left = (u_int)(sizeof(msg_crypt.get()) / sizeof(char));
 
 	while ((int)msg_left > 0)
 	{
@@ -132,7 +145,8 @@ bool	SMTPClientClass::SendData(const std::string &msg_to_send)
 
 		if (result > 0 && FD_ISSET(m_socket, &fdwrite))
 		{
-			result = send(m_socket, &msg_to_send.c_str()[(size_t)index], (int)msg_left, 0);
+			//result = send(m_socket, &msg_to_send.c_str()[(size_t)index], (int)msg_left, 0);
+			result = send(m_socket, (char*)&msg_crypt_ptr[(size_t)index], (int)msg_left, 0);
 			if (result == SOCKET_ERROR || result == 0)
 			{
 				FD_CLR(m_socket, &fdwrite);
@@ -320,7 +334,7 @@ bool	SMTPClientClass::Send()
 		}		
 
 		Base64Coder coder;		
-		std::string encoded_login = coder.Encode((const unsigned char*)m_login.c_str(), (u_int)m_login.size());
+		std::string encoded_login = coder.Encode((const unsigned char*)m_login.c_str(), (u_int)m_login.size());		
 		encoded_login.append("\r\n");
 		SendData(encoded_login);		
 
@@ -349,7 +363,7 @@ bool	SMTPClientClass::Send()
 			LOG_ERROR << "Server responded with error to user authorization.";
 			throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::SERVER_AUTHORIZATION_FAILED);
 		}
-		FlushBuffer();
+		FlushBuffer();		
 
 		SendMailFrom();
 		ReceiveData();
@@ -426,7 +440,7 @@ int		SMTPClientClass::GetResponseCode() const
 
 void	SMTPClientClass::SendHello()
 {
-	const char	AT_SIGN = '@';
+	const char	AT_SIGN		= '@';
 	size_t		index;
 	std::string	mail_domain;
 	
@@ -512,13 +526,14 @@ void	SMTPClientClass::FlushBuffer()
 
 bool SMTPClientClass::set_smtp_address(const std::string& s)
 {
-	if (s.size())
-	{		
-		m_smtp_address = s;
-		return true;
-	}	
-	
-	return false;
+	if (s.empty())
+	{
+		LOG_ERROR << "SMTP server address is not specified.";
+		throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::STRING_ARGUMENT_EMPTY);
+	}
+	m_smtp_address = s;
+
+	return true;
 }
 
 std::string SMTPErrorClass::GetErrorText() const
@@ -683,6 +698,7 @@ bool SMTPSecureClientClass::InitSSLCTX()
 	OpenSSL_add_all_algorithms();
 	SSL_load_error_strings();
 	m_ctx = SSL_CTX_new(SSLv23_client_method());
+
 	if (m_ctx == nullptr)
 	{
 		LOG_ERROR << "SSL initialization error";
@@ -703,7 +719,7 @@ void SMTPSecureClientClass::FreeOpenSSLResources()
 	}
 	if (m_ctx != nullptr)
 	{
-		SSL_CTX_free(m_ctx);
+		SSL_CTX_free(m_ctx);		
 		m_ctx = nullptr;
 	}
 }
@@ -717,6 +733,7 @@ bool SMTPSecureClientClass::OpenSSLConnect()
 	}
 
 	m_ssl = SSL_new(m_ctx);
+	
 	if (m_ssl == nullptr)
 	{
 		LOG_ERROR << "SSL error(SSL).";

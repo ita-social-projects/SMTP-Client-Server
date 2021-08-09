@@ -13,10 +13,8 @@
 #include <openssl/err.h>
 #include "base64.h"
 #include "..\CPPLogger\CPPLogger.h"
-
-#pragma comment(lib, "Ws2_32.lib")
-#pragma comment(lib, "Mswsock.lib")
-#pragma comment(lib, "AdvApi32.lib")
+#include "..\Crypto\SymmetricCrypto.h"
+#include "..\Crypto\ICrypto.h"
 
 constexpr auto	DEFAULT_SSL_PORT	= "465";	// default port for connection through ssl secure connection
 constexpr auto	DEFAULT_BUFFER_SIZE	= 10240;	// size of buffer, where will be storing answers from server
@@ -64,8 +62,14 @@ private:
 	SMTPErrorEnum m_error_code;
 };
 
-class SMTPClientClass
+namespace SMTPClientUnitTests
 {
+	class SMTPClientUnitTests;
+}
+
+class SMTPClientClass
+{	
+	friend class SMTPClientUnitTests::SMTPClientUnitTests;
 public:
 	SMTPClientClass();
 	~SMTPClientClass();		
@@ -97,7 +101,7 @@ public:
 	// Set ServerChoice
 	bool	set_smtp_address(const std::string&);
 	// Starts the procedure of sending all part of e-mail message
-	bool	Send();		
+	bool	Send();
 
 protected:	
 	
@@ -132,6 +136,7 @@ protected:
 
 	SOCKET						m_socket;
 	std::unique_ptr<char[]>		m_receive_buffer;	
+	bool						m_winsock_initialize;
 	bool						m_connect_status;	
 	std::string					m_smtp_address;
 	std::string					m_login;
@@ -140,10 +145,11 @@ protected:
 	std::string					m_subject;
 	std::string					m_letter_message;
 	int							m_server_timeout;
-	Logger						LOG;
+	Logger*						LOG;
 
 private:
 	std::string					m_port;
+	SymmetricCrypto				m_crypto_obj;
 };
 
 class SMTPSecureClientClass final : public SMTPClientClass
@@ -166,10 +172,10 @@ private:
 	// Receives response from server through secure connection 
 	bool	ReceiveData() override; 
 
-private:
+private:	
 	
 	SSL_CTX* m_ctx;
-	SSL*	 m_ssl;	
+	SSL*	 m_ssl;
 };
 
 class Base64Coder
