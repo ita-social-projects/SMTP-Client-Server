@@ -24,7 +24,7 @@ protected:
 	SACommand m_command;
 	ConnectParams params;
 
-	Logger LOG;
+	Logger *LOG;
 	SymmetricCrypto crypto;
 
 };

@@ -9,6 +9,7 @@
 
 SQLServer::SQLServer(const ConnectParams& connect_string)
 {
+	LOG = LOG->GetInstance();
 	Connect(connect_string);
 }
 
