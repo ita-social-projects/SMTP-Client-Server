@@ -4,6 +4,7 @@
 
 
 #include "pch.h"
+#include "framework.h"
 #include "SQLServer.h"
 
 
@@ -25,7 +26,7 @@ bool SQLServer::Connect(const ConnectParams& connect_string)
 
 	if (!check_connection)
 	{
-		params = connect_string;
+		m_params = connect_string;
 		std::string con = connect_string.server + "@" + connect_string.database;
 		m_connection.Connect(_TSA(con.c_str()), _TSA(connect_string.username.c_str()), _TSA(connect_string.password.c_str()), SA_SQLServer_Client);
 		LOG_INFO << "Connected to SQL Server...\n";
@@ -36,11 +37,12 @@ bool SQLServer::Connect(const ConnectParams& connect_string)
 
 void SQLServer::InsertEmail(const Email& email)
 {
-	std::string table_name{ "Users" };
-	std::string column_name_id{ "Email_address" };
-	std::string column_name_address{ "Password" };
+	const std::string table_name{ "Users" };
+	const std::string column_name_id{ "Email_address" };
+	const std::string column_name_address{ "Password" };
+	
 
-	std::string insert_command{ "INSERT INTO " };
+	const std::string insert_command{ "INSERT INTO " };
 	std::string insert_statement = insert_command + table_name;
 
 	insert_statement += " (" + column_name_id + ", " + column_name_address + ") ";
@@ -62,12 +64,12 @@ void SQLServer::InsertEmail(const Email& email)
 void SQLServer::InsertMessage(const Message& message, const Email& email)
 {
 
-	std::string table_name{ "Message" };
-	std::string column_name_content{ "Content" };
-	std::string column_name_email_address{ "Email_address" };
-	std::string column_name_date{ "was_sent" };
+	const std::string table_name{ "Message" };
+	const std::string column_name_content{ "Content" };
+	const std::string column_name_email_address{ "Email_address" };
+	const std::string column_name_date{ "was_sent" };
 
-	std::string insert_command{ "INSERT INTO " };
+	const std::string insert_command{ "INSERT INTO " };
 	std::string insert_statement = insert_command + table_name;
 
 	insert_statement +=
@@ -89,9 +91,9 @@ void SQLServer::SelectUsers()
 {
 
 
-	std::string table_name{ "Users" };
-	std::string select_command{ "SELECT *\nFROM " };
-	std::string select_statement = select_command + table_name;
+	const std::string table_name{ "Users" };
+	const std::string select_command{ "SELECT *\nFROM " };
+	const std::string select_statement = select_command + table_name;
 	SACommand select(&m_connection, _TSA((select_statement).c_str()));
 	select.Execute();
 
@@ -107,8 +109,9 @@ void SQLServer::SelectUsers()
 
 		auto str2 = (char*)decrypted_pass.get();
 
-		LOG_INFO << str1 << "\t" << str2;
-		LOG_INFO << "\n";
+		std::string tab = "\t";
+		std::string str_for_log = str1 + tab + str2;
+		LOG_INFO << str_for_log.c_str();
 	}
 
 	m_connection.Commit();
@@ -116,7 +119,7 @@ void SQLServer::SelectUsers()
 
 void SQLServer::ClearTable(const std::string& table)
 {
-	std::string delete_command{ "DELETE FROM " };
+	const std::string delete_command{ "DELETE FROM " };
 	SACommand delete_statement(&m_connection, _TSA((delete_command + table).c_str()));
 	delete_statement.Execute();
 }

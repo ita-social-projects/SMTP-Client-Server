@@ -4,7 +4,7 @@
 #include "../CPPLogger/CPPLogger.h"
 #include "../Crypto/SymmetricCrypto.h"
 
-class SQLServer : public SQLConnection
+class SQLServer : public ISQLConnection
 {
 public:
 
@@ -19,10 +19,10 @@ public:
 	void ClearTable(const std::string& table) override;
 	bool Disconnect() override;
 
-protected:
+private:
 	SAConnection m_connection;
 	SACommand m_command;
-	ConnectParams params;
+	ConnectParams m_params;
 
 	Logger *LOG;
 	SymmetricCrypto crypto;

@@ -23,7 +23,7 @@ struct ConnectParams
 	std::string table;
 };
 
-class SQLConnection abstract
+class ISQLConnection abstract
 {
 public:
 
