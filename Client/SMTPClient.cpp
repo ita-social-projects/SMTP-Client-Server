@@ -442,7 +442,7 @@ int		SMTPClientClass::GetResponseCode() const
 
 void	SMTPClientClass::SendHello()
 {
-	const char	AT_SIGN		= '@';
+	const char	AT_SIGN = '@';
 	size_t		index;
 	std::string	mail_domain;
 	
@@ -748,9 +748,9 @@ bool SMTPSecureClientClass::OpenSSLConnect()
 	fd_set	fdwrite;
 	fd_set	fdread;
 	timeval	time;
-	int		result = 0;
-	int		write_blocked = 0;
-	int		read_blocked = 0;
+	int		result			= 0;
+	int		write_blocked	= 0;
+	int		read_blocked	= 0;
 
 	while (true)
 	{
@@ -766,8 +766,8 @@ bool SMTPSecureClientClass::OpenSSLConnect()
 
 		if (write_blocked || read_blocked)
 		{
-			write_blocked = 0;
-			read_blocked = 0;
+			write_blocked	= 0;
+			read_blocked	= 0;
 			result = select((int)m_socket + MAX_FILE_DESCRIPTOR, &fdread, &fdwrite, NULL, &time);
 
 			if (result == SOCKET_ERROR)

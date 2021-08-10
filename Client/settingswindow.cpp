@@ -5,18 +5,25 @@
 #include <QMessageBox>
 #include "settingswindow.h"
 #include "ui_settingswindow.h"
+#include "..\XMLParser\XMLParser.h"
 
 SettingsWindow::SettingsWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::SettingsWindow)
+    m_ui(new Ui::SettingsWindow)
 {
-    ui->setupUi(this);
+    m_ui->setupUi(this);
+    XMLParser parser;    
+    m_ui->lineServerAddress->setPlaceholderText(QString::fromLocal8Bit(parser.GetIpAddress().c_str()));
+    m_ui->linePort->setPlaceholderText(QString::number(parser.GetListenerPort()));
+    m_ui->lineTimeout->setPlaceholderText(QString::number(parser.GetSocketTimeOut()));
+    connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(SaveButtonClicked()));
+    connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(CloseButtonClicked()));
     setWindowModality(Qt::ApplicationModal);
 }
 
 SettingsWindow::~SettingsWindow()
 {
-    delete ui;    
+    delete m_ui;    
 }
 
 void SettingsWindow::closeEvent(QCloseEvent* event)
@@ -24,25 +31,25 @@ void SettingsWindow::closeEvent(QCloseEvent* event)
     emit windowClosed();
 }
 
-void SettingsWindow::on_buttonBox_rejected()
+void SettingsWindow::CloseButtonClicked()
 {
     emit windowClosed();
 }
 
-void SettingsWindow::on_buttonBox_accepted()
+void SettingsWindow::SaveButtonClicked()
 {
-    QString     qs = ui->lineServerAddress->text();
+    QString     qs = m_ui->lineServerAddress->text();
     std::string str_val;
     int         int_val;
 
-    enum class  INDEX { DEF = -1, FIRST, SECOND, THIRD };    
+    enum class  INDEX { DEF = -1, FIRST, SECOND, THIRD, FOURTH, FIFTH, SIXTH };    
 
     if (!qs.isEmpty())
     {
         //TODO call parser for write
     }
 
-    qs = ui->linePort->text();
+    qs = m_ui->linePort->text();
     if (!qs.isEmpty())
     {
         str_val = qs.toLocal8Bit().constData();
@@ -58,7 +65,7 @@ void SettingsWindow::on_buttonBox_accepted()
         }
     }
     
-    qs = ui->lineTimeout->text();
+    qs = m_ui->lineTimeout->text();
     if (!qs.isEmpty())
     {
         str_val = qs.toLocal8Bit().constData();
@@ -74,7 +81,7 @@ void SettingsWindow::on_buttonBox_accepted()
         }
     }
 
-    int_val = (ui->comboLogLevel->itemData(ui->comboLogLevel->currentIndex())).toInt();
+    int_val = (m_ui->comboLogLevel->itemData(m_ui->comboLogLevel->currentIndex())).toInt();
     
     if (int_val != (int)INDEX::DEF)
     {
@@ -85,7 +92,16 @@ void SettingsWindow::on_buttonBox_accepted()
             break;
         case ((int)INDEX::SECOND):
             //TODO call parser for write
-            break;        
+            break;
+        case ((int)INDEX::THIRD):
+            //TODO call parser for write
+            break;
+        case ((int)INDEX::FOURTH):
+            //TODO call parser for write
+            break;
+        case ((int)INDEX::FIFTH):
+            //TODO call parser for write
+            break;
         default:
             //TODO call parser for write
             break;
@@ -93,11 +109,11 @@ void SettingsWindow::on_buttonBox_accepted()
         //TODO call parser for write
     }
 
-    if (ui->flushOn->isChecked())
+    if (m_ui->flushOn->isChecked())
     {
         //TODO call parser for write
     }
-    else if (ui->flushOff->isChecked())
+    else if (m_ui->flushOff->isChecked())
     {
         //TODO call parser for write
     }
