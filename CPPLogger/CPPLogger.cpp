@@ -19,12 +19,18 @@ std::mutex Logger::s_mutex;
 Logger::Logger()
 {
 	XMLParserForLogger parser;
-	std::string path = parser.GetLogFilename();
+	m_file_dir = parser.GetLogFilename();
 
-	std::wstring file_path = std::wstring(path.begin(), path.end());
+	std::wstring file_path = std::wstring(m_file_dir.begin(), m_file_dir.end());
 	CLIENT_INIT_PARAM += file_path;
 
 	m_log_level = eP7Trace_Level::EP7TRACE_LEVEL_TRACE;
+
+	time_t     now = time(0);
+	struct tm  tstruct;
+	localtime_s(&tstruct, &now);
+	strftime(buf, sizeof(buf), "%Y%m%d-%H%M%S000", &tstruct);
+
 	m_client = P7_Create_Client(CLIENT_INIT_PARAM.c_str());
 	m_trace = P7_Create_Trace(m_client, TRACE_CHANNEL);
 
@@ -35,6 +41,30 @@ Logger::~Logger()
 {
 	m_trace->Release();
 	m_client->Release();
+
+	std::string full_path{ m_file_dir + buf + ".txt" };
+	std::ifstream file(full_path);
+	std::ofstream encrypted_file(m_file_dir + "encrypted_file.txt", std::ios::app);
+	std::string str, str2;
+	std::shared_ptr<unsigned char[]> encrypted_line, decrypted_line;
+
+	while (!file)
+	{
+		if (str.size() == 1 && str.at(0) == '\0')
+			continue;
+		std::getline(file, str, '\n');
+		unsigned int len = m_crypto.Encrypt((unsigned char*)str.c_str(), str.size(), encrypted_line);
+
+		m_crypto.Decrypt(encrypted_line.get(), len, decrypted_line);
+		unsigned char* ptr = decrypted_line.get();
+		str2 = (char*)ptr;
+		encrypted_file << str2;
+	}
+
+	file.close();
+	encrypted_file.close();
+	
+	remove(full_path.c_str());
 }
 
 Logger& Logger::operator()(const std::string& func, const std::string& filename, short level)
@@ -98,6 +128,5 @@ Logger* Logger::GetInstance()
 			s_instance.store(tmp, std::memory_order_relaxed);
 		}
 	}
-	
 	return tmp;
 }
