@@ -50,7 +50,8 @@ void SQLServer::InsertEmail(const Email& email)
 	
 	std::shared_ptr<unsigned char[]> encrypted_pass;
 	int encrypted_pass_len;
-	encrypted_pass_len = crypto.Encrypt((unsigned char*)email.password.c_str(), email.password.size(), encrypted_pass);
+	unsigned int password_size = static_cast<unsigned int>(email.password.size());
+	encrypted_pass_len = crypto.Encrypt((unsigned char*)email.password.c_str(), password_size, encrypted_pass);
 	std::string str = (char*)encrypted_pass.get();
 	insert_statement += "VALUES ('" + email.address + "', ";
 	insert_statement += "'" + str + "')";

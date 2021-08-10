@@ -25,7 +25,7 @@ private:
 	SACommand m_command;
 	ConnectParams m_params;
 
-	Logger *LOG;
+	Logger *LOG = nullptr;
 	SymmetricCrypto crypto;
 
 };
