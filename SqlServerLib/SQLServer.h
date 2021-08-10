@@ -4,6 +4,7 @@
 #include "../CPPLogger/CPPLogger.h"
 #include "../Crypto/SymmetricCrypto.h"
 
+
 class SQLServer : public ISQLConnection
 {
 public:
