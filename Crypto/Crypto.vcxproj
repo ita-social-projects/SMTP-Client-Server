@@ -163,7 +163,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>libcrypto.lib;p7.lib</AdditionalDependencies>
+      <AdditionalDependencies>libcrypto.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)3rdPartyLibs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <PostBuildEvent>

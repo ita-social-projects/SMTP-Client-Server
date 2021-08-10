@@ -25,7 +25,8 @@ MainWindow::MainWindow(QWidget* parent)
 }
 
 MainWindow::~MainWindow()
-{    
+{   
+    LOG->~Logger();
     delete m_settings_ui;
     delete m_ui;
 }
@@ -169,7 +170,7 @@ bool MainWindow::InitializeSecureSMTPClient()
 }
 
 void MainWindow::ExitButtonClicked()
-{
+{    
     QApplication::quit();
 }
 
