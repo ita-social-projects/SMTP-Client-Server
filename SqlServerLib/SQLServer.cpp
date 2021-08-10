@@ -37,15 +37,15 @@ bool SQLServer::Connect(const ConnectParams& connect_string)
 
 void SQLServer::InsertEmail(const Email& email)
 {
-	const std::string table_name{ "Users" };
-	const std::string column_name_id{ "Email_address" };
-	const std::string column_name_address{ "Password" };
+	const std::string TABLE_NAME{ "Users" };
+	const std::string COLUMN_NAME_ID{ "Email_address" };
+	const std::string COLUMN_NAME_ADDRESS{ "Password" };
 	
 
-	const std::string insert_command{ "INSERT INTO " };
-	std::string insert_statement = insert_command + table_name;
+	const std::string INSERT_COMMAND{ "INSERT INTO " };
+	std::string insert_statement = INSERT_COMMAND + TABLE_NAME;
 
-	insert_statement += " (" + column_name_id + ", " + column_name_address + ") ";
+	insert_statement += " (" + COLUMN_NAME_ID + ", " + COLUMN_NAME_ADDRESS + ") ";
 
 	
 	std::shared_ptr<unsigned char[]> encrypted_pass;
@@ -64,18 +64,18 @@ void SQLServer::InsertEmail(const Email& email)
 void SQLServer::InsertMessage(const Message& message, const Email& email)
 {
 
-	const std::string table_name{ "Message" };
-	const std::string column_name_content{ "Content" };
-	const std::string column_name_email_address{ "Email_address" };
-	const std::string column_name_date{ "was_sent" };
+	const std::string TABLE_NAME{ "Message" };
+	const std::string COLUMN_NAME_CONTENT{ "Content" };
+	const std::string COLUMN_NAME_EMAIL_ADDRESS{ "Email_address" };
+	const std::string COLUMN_NAME_DATE{ "was_sent" };
 
 	const std::string insert_command{ "INSERT INTO " };
-	std::string insert_statement = insert_command + table_name;
+	std::string insert_statement = insert_command + TABLE_NAME;
 
 	insert_statement +=
-		"(" + column_name_content +
-		", " + column_name_email_address +
-		", " + column_name_date + ")";
+		"(" + COLUMN_NAME_CONTENT +
+		", " + COLUMN_NAME_EMAIL_ADDRESS +
+		", " + COLUMN_NAME_DATE + ")";
 
 	insert_statement += " VALUES ('" + message.content + "',\n";
 	insert_statement += "'" + email.address + "',\n";
@@ -91,10 +91,10 @@ void SQLServer::SelectUsers()
 {
 
 
-	const std::string table_name{ "Users" };
-	const std::string select_command{ "SELECT *\nFROM " };
-	const std::string select_statement = select_command + table_name;
-	SACommand select(&m_connection, _TSA((select_statement).c_str()));
+	const std::string TABLE_NAME{ "Users" };
+	const std::string SELECT_COMMAND{ "SELECT *\nFROM " };
+	const std::string SELECT_STATEMENT = SELECT_COMMAND + TABLE_NAME;
+	SACommand select(&m_connection, _TSA((SELECT_STATEMENT).c_str()));
 	select.Execute();
 
 	std::shared_ptr<unsigned char[]> decrypted_pass;
@@ -119,8 +119,8 @@ void SQLServer::SelectUsers()
 
 void SQLServer::ClearTable(const std::string& table)
 {
-	const std::string delete_command{ "DELETE FROM " };
-	SACommand delete_statement(&m_connection, _TSA((delete_command + table).c_str()));
+	const std::string DELETE_COMMAND{ "DELETE FROM " };
+	SACommand delete_statement(&m_connection, _TSA((DELETE_COMMAND + table).c_str()));
 	delete_statement.Execute();
 }
 
