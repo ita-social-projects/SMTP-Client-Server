@@ -42,10 +42,23 @@ pipeline {
                }
            }
         }
+        stage('Unit tests') {
+           steps{
+               dir(env.REPO_NAME){
+                   bat "vstest.console x64\\Debug\\*.dll"
+               }
+           }
+        }
     }
 
     post {
         success {
+            script {
+                archiveArtifacts(
+                    artifacts: "${env.REPO_NAME}/x64/Debug/*",
+                    fingerprint: true
+                )
+            }
             script {
                 sendToTelegram(
                     env.CHAT_ID,
