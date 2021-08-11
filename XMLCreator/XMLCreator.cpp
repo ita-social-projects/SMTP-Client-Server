@@ -1,8 +1,12 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
 #include "pch.h"
 #include "framework.h"
 #include "XMLCreator.h"
 
-bool XMLCreator::CheckIfSet(const std::string tag, const std::string& new_value)
+bool XMLCreator::CheckIfSet(const std::string& tag, const std::string& new_value)
 {
 	if (new_value.empty())
 	{
@@ -51,13 +55,13 @@ void XMLCreator::SetValueByTag(const std::shared_ptr<XMLNode>& current_node, con
 	}
 }
 
-void XMLCreator::WriteTreeToFile(std::shared_ptr<XMLNode> current, int depth, std::ofstream& file_name, Symbols& character)
+void XMLCreator::WriteTreeToFile(std::shared_ptr<XMLNode> current, size_t depth, std::ofstream& file_name, Symbols& character)
 {
 	if (current == nullptr)
 	{
 		return;
 	}
-	for (int j = 0; j < depth; j++)
+	for (size_t j = 0; j < depth; j++)
 	{
 		file_name << character.TAB;
 	}
@@ -66,12 +70,12 @@ void XMLCreator::WriteTreeToFile(std::shared_ptr<XMLNode> current, int depth, st
 	{
 		file_name << character.NEW_LINE;
 		depth++;
-		for (int i = 0; i < current->children.size(); i++)
+		for (size_t i = 0; i < current->children.size(); i++)
 		{
 			WriteTreeToFile(current->children[i], depth, file_name, character);
 		}
 		--depth;
-		for (int j = 0; j < depth; j++)
+		for (size_t j = 0; j < depth; j++)
 		{
 			file_name << character.TAB;
 		}
@@ -93,23 +97,27 @@ bool XMLCreator::CreateStandartTree()
 	const std::string WORKING_THREADS = std::to_string(MAX_WORKING_THREADS);
 	const std::string BLOCKING = "0";
 
-	std::vector<std::string> root_tags{ ATTR_SERVER, ATTR_COMMUNICATION_SETTINGS,
+	const int ROOT_TAGS_SIZE = 5;
+	const int SERVER_TAGS_SIZE = 4;
+	const int COMMUNICATION_TAGS_SIZE = 2;
+	const int LOGGING_TAGS_SIZE = 3;
+	std::array<std::string, ROOT_TAGS_SIZE> root_tags{ ATTR_SERVER, ATTR_COMMUNICATION_SETTINGS,
 										ATTR_LOGGING, ATTR_TIME, ATTR_THREAD_POOL };
-	std::vector<std::string> server_tags{ ATTR_SERVER_NAME, ATTR_SERVER_DISPLAY_NAME,
+	std::array<std::string, SERVER_TAGS_SIZE> server_tags{ ATTR_SERVER_NAME, ATTR_SERVER_DISPLAY_NAME,
 										ATTR_SERVER_LISTENER_PORT, ATTR_SERVER_IP_ADDRESS };
-	std::vector<std::string> server_values{ SERVER_NAME, SERVER_DISPLAY_NAME, LISTENER_PORT,
+	std::array<std::string, SERVER_TAGS_SIZE> server_values{ SERVER_NAME, SERVER_DISPLAY_NAME, LISTENER_PORT,
 											SERVER_IP_ADDRESS };
-	std::vector<std::string> communication_tags{ ATTR_SOCKET_BLOCKING, ATTR_SOCKET_TIMEOUT };
-	std::vector<std::string> communication_values{ BLOCKING, TIMEOUT };
-	std::vector<std::string> logging_tags{ ATTR_LOG_FILENAME, ATTR_LOG_LEVEL, ATTR_LOG_FLUSH };
-	std::vector<std::string> logging_values{ LOG_FILENAME, LEVEL, BLOCKING };
+	std::array<std::string, COMMUNICATION_TAGS_SIZE> communication_tags{ ATTR_SOCKET_BLOCKING, ATTR_SOCKET_TIMEOUT };
+	std::array<std::string, COMMUNICATION_TAGS_SIZE> communication_values{ BLOCKING, TIMEOUT };
+	std::array<std::string, LOGGING_TAGS_SIZE> logging_tags{ ATTR_LOG_FILENAME, ATTR_LOG_LEVEL, ATTR_LOG_FLUSH };
+	std::array<std::string, LOGGING_TAGS_SIZE> logging_values{ LOG_FILENAME, LEVEL, BLOCKING };
 
 	std::shared_ptr<XMLNode> parent_node = nullptr;
 	std::shared_ptr<XMLNode> new_node = nullptr;
 	std::string node_value;
 	CreateElement(parent_node, ATTR_ROOT, node_value);
 	m_root = parent_node;
-	for (int i = 0; i < root_tags.size(); i++)
+	for (int i = 0; i < ROOT_TAGS_SIZE; i++)
 	{
 		CreateElement(new_node, root_tags[i], node_value);
 		ChildAppend(parent_node, new_node);
@@ -123,19 +131,19 @@ bool XMLCreator::CreateStandartTree()
 		return false;
 	}
 	parent_node = m_root->children[(int)Children::SERVER];
-	for (int i = 0; i < server_tags.size(); i++)
+	for (size_t i = 0; i < SERVER_TAGS_SIZE; i++)
 	{
 		CreateElement(new_node, server_tags[i], server_values[i]);
 		ChildAppend(parent_node, new_node);
 	}
 	parent_node = m_root->children[(int)Children::COMMUNICATION];
-	for (int i = 0; i < communication_tags.size(); i++)
+	for (size_t i = 0; i < COMMUNICATION_TAGS_SIZE; i++)
 	{
 		CreateElement(new_node, communication_tags[i], communication_values[i]);
 		ChildAppend(parent_node, new_node);
 	}
 	parent_node = m_root->children[(int)Children::LOGGING];
-	for (int i = 0; i < logging_tags.size(); i++)
+	for (size_t i = 0; i < LOGGING_TAGS_SIZE; i++)
 	{
 		CreateElement(new_node, logging_tags[i], logging_values[i]);
 		ChildAppend(parent_node, new_node);
@@ -278,7 +286,7 @@ bool XMLCreator::Write(const char* filename)
 	std::ofstream file{ filename };
 	std::shared_ptr<XMLNode> current_node = m_root;
 	Symbols symbol;
-	int depth = 0;
+	size_t depth = 0;
 	WriteTreeToFile(current_node, depth, file, symbol);
 	return true;
 }

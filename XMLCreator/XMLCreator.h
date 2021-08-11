@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <array>
 
 #include "..\\XMLParser\XMLParser.h"
 
@@ -34,9 +35,9 @@ private:
 		const char NEW_LINE = '\n';
 	};
 
-	bool CheckIfSet(const std::string tag, const std::string& new_value);
+	bool CheckIfSet(const std::string& tag, const std::string& new_value);
 	void SetValueByTag(const std::shared_ptr<XMLNode>& current_node, const std::string& tag_needed, const std::string& data, bool& set_flag);
-	void WriteTreeToFile(std::shared_ptr<XMLNode> current, int depth, std::ofstream& file_name, Symbols& character);
+	void WriteTreeToFile(std::shared_ptr<XMLNode> current, size_t depth, std::ofstream& file_name, Symbols& character);
 	bool CreateStandartTree();
 
 public:
