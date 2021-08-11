@@ -4,8 +4,10 @@
 #include "../CPPLogger/CPPLogger.h"
 #include "../Crypto/SymmetricCrypto.h"
 
+constexpr auto INSERT_COMMAND = "INSERT INTO ";
 
-class SQLServer : public ISQLConnection
+
+class SQLServer final : public ISQLConnection
 {
 public:
 
@@ -26,6 +28,6 @@ private:
 	ConnectParams m_params;
 
 	Logger *LOG = nullptr;
-	SymmetricCrypto crypto;
+	SymmetricCrypto m_crypto;
 
 };

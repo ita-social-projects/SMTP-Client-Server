@@ -42,7 +42,6 @@ void SQLServer::InsertEmail(const Email& email)
 	const std::string COLUMN_NAME_ADDRESS{ "Password" };
 	
 
-	const std::string INSERT_COMMAND{ "INSERT INTO " };
 	std::string insert_statement = INSERT_COMMAND + TABLE_NAME;
 
 	insert_statement += " (" + COLUMN_NAME_ID + ", " + COLUMN_NAME_ADDRESS + ") ";
@@ -51,7 +50,7 @@ void SQLServer::InsertEmail(const Email& email)
 	std::shared_ptr<unsigned char[]> encrypted_pass;
 	int encrypted_pass_len;
 	unsigned int password_size = static_cast<unsigned int>(email.password.size());
-	encrypted_pass_len = crypto.Encrypt((unsigned char*)email.password.c_str(), password_size, encrypted_pass);
+	encrypted_pass_len = m_crypto.Encrypt((unsigned char*)email.password.c_str(), password_size, encrypted_pass);
 	std::string str = (char*)encrypted_pass.get();
 	insert_statement += "VALUES ('" + email.address + "', ";
 	insert_statement += "'" + str + "')";
@@ -70,8 +69,7 @@ void SQLServer::InsertMessage(const Message& message, const Email& email)
 	const std::string COLUMN_NAME_EMAIL_ADDRESS{ "Email_address" };
 	const std::string COLUMN_NAME_DATE{ "was_sent" };
 
-	const std::string insert_command{ "INSERT INTO " };
-	std::string insert_statement = insert_command + TABLE_NAME;
+	std::string insert_statement = INSERT_COMMAND + TABLE_NAME;
 
 	insert_statement +=
 		"(" + COLUMN_NAME_CONTENT +
@@ -106,7 +104,7 @@ void SQLServer::SelectUsers()
 		auto pass = select.Field(_TSA("Password")).asString().GetMultiByteChars();
 
 		int len = sizeof(pass);
-		crypto.Decrypt((unsigned char*)pass, len, decrypted_pass);
+		m_crypto.Decrypt((unsigned char*)pass, len, decrypted_pass);
 
 		auto str2 = (char*)decrypted_pass.get();
 
