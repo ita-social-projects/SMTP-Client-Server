@@ -262,9 +262,9 @@ int SymmetricCrypto::Encrypt(
 
     encr_msg_len += block_len;
 
-    unsigned char* encr_msg_end_ptr = encr_msg.get();
-    size_t arr_end = ptrdiff_t(encr_msg_len);
-    encr_msg_end_ptr[arr_end] = '\0';
+    //unsigned char* encr_msg_end_ptr = encr_msg.get();
+    //size_t arr_end = ptrdiff_t(encr_msg_len);
+    ////encr_msg_end_ptr[arr_end] = '\0';
 
     return encr_msg_len;
 }
@@ -354,9 +354,9 @@ int SymmetricCrypto::Decrypt(
 
     decr_msg_len += block_len;
 
-    unsigned char* decr_ptr = decr_msg.get();
+    /*unsigned char* decr_ptr = decr_msg.get();
     size_t arr_end = ptrdiff_t(decr_msg_len);
-    decr_ptr[arr_end] = '\0';
+    decr_ptr[arr_end] = '\0';*/
 
     return decr_msg_len;
 }

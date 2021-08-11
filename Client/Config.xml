@@ -2,8 +2,8 @@
 	<Server>
 		<servername>ServTest</servername>
 		<serverdisplayname>ServTestserver</serverdisplayname>
-		<listenerport>465</listenerport>
-		<ipaddress>192.168.0.1</ipaddress>
+		<listenerport>25</listenerport>
+		<ipaddress>localhost</ipaddress>
 	</Server>
 	<communicationsettings>
 		<blocking>0</blocking>
