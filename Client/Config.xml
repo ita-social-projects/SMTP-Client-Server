@@ -11,7 +11,7 @@
 	</communicationsettings>
 	<logging>
 		<filename>C:\Logs\</filename>
-		<LogLevel>3</LogLevel>
+		<LogLevel>1</LogLevel>
 		<flush>0</flush>
 	</logging>
 	<time>
