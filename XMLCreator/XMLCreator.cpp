@@ -290,5 +290,3 @@ bool XMLCreator::Write(const char* filename)
 	WriteTreeToFile(current_node, depth, file, symbol);
 	return true;
 }
-
-

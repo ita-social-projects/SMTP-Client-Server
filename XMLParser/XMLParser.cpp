@@ -280,7 +280,11 @@ bool XMLParser::UseBlockingSockets()
 	}
 	unsigned int block = 0;
 	bool flag = ValueCheck(ATTR_SOCKET_BLOCKING, block);
-	return flag;
+	if (!block)
+	{
+		return false;
+	}
+	return true;
 }
 
 unsigned int XMLParser::GetSocketTimeOut()
