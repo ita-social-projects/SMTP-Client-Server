@@ -29,10 +29,11 @@ public:
 
 	bool Initialize();
 	bool SetSocketSettings();
-	void ServerStart();
+	bool ServerStart();
+
+	void AcceptConnections();
 
 private:
-	void AcceptConnections();
 	static void WorkWithClient(SOCKET client_socket);
 
 private:

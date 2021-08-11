@@ -37,7 +37,7 @@ void SMTPServer::WorkWithClient(SOCKET client_socket)
 
 	ZeroMemory(&buf, sizeof(buf));
 
-	mail_session.SendResponse(WELCOME);
+	int response = mail_session.SendResponse(WELCOME);
 
 	while (len = recv(mail_session.get_client_socket(), (char*)&buf, sizeof(buf), 0))
 	{
@@ -107,15 +107,15 @@ bool SMTPServer::SetSocketSettings()
 	return true;
 }
 
-void SMTPServer::ServerStart()
+bool SMTPServer::ServerStart()
 {
 	if (listen(m_server_socket, SOMAXCONN) == SOCKET_ERROR)
 	{
 		LOG_FATAL << "Error with server starting!\n";
-		exit(WSAGetLastError());
+		return false;
 	}
 
 	LOG_INFO << "Server started!\n\n";
 
-	AcceptConnections();
+	return true;
 }
