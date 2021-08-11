@@ -6,6 +6,7 @@
 #include "settingswindow.h"
 #include "ui_settingswindow.h"
 #include "..\XMLParser\XMLParser.h"
+#include "..\XMLCreator\XMLCreator.h"
 
 SettingsWindow::SettingsWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -41,12 +42,14 @@ void SettingsWindow::SaveButtonClicked()
     QString     qs = m_ui->lineServerAddress->text();
     std::string str_val;
     int         int_val;
+    XMLCreator  xml_writer;    
 
     enum class  INDEX { DEF = -1, FIRST, SECOND, THIRD, FOURTH, FIFTH, SIXTH };    
 
     if (!qs.isEmpty())
-    {
-        //TODO call parser for write
+    {        
+        str_val = qs.toLocal8Bit().constData();
+        xml_writer.SetIpAddress(str_val);
     }
 
     qs = m_ui->linePort->text();
@@ -55,8 +58,8 @@ void SettingsWindow::SaveButtonClicked()
         str_val = qs.toLocal8Bit().constData();
         try
         {
-            int_val = stoi(str_val);
-            //TODO call parser for write
+            int_val = stoi(str_val);            
+            xml_writer.SetListenerPort(str_val);
         }
         catch (const std::exception&)
         {
@@ -71,8 +74,8 @@ void SettingsWindow::SaveButtonClicked()
         str_val = qs.toLocal8Bit().constData();
         try
         {
-            int_val = stoi(str_val);
-            //TODO call parser for write
+            int_val = stoi(str_val);            
+            xml_writer.SetSocketTimeOut(str_val);
         }
         catch (const std::exception&)
         {
@@ -81,43 +84,43 @@ void SettingsWindow::SaveButtonClicked()
         }
     }
 
-    int_val = (m_ui->comboLogLevel->itemData(m_ui->comboLogLevel->currentIndex())).toInt();
+    int_val = m_ui->comboLogLevel->currentIndex();    
     
     if (int_val != (int)INDEX::DEF)
     {
         switch (int_val)
         {
-        case ((int)INDEX::FIRST):
-            //TODO call parser for write
+        case ((int)INDEX::FIRST):            
+            xml_writer.SetLogLevel(std::to_string(++int_val));
             break;
-        case ((int)INDEX::SECOND):
-            //TODO call parser for write
+        case ((int)INDEX::SECOND):            
+            xml_writer.SetLogLevel(std::to_string(++int_val));
             break;
-        case ((int)INDEX::THIRD):
-            //TODO call parser for write
+        case ((int)INDEX::THIRD):            
+            xml_writer.SetLogLevel(std::to_string(++int_val));
             break;
-        case ((int)INDEX::FOURTH):
-            //TODO call parser for write
+        case ((int)INDEX::FOURTH):            
+            xml_writer.SetLogLevel(std::to_string(++int_val));
             break;
-        case ((int)INDEX::FIFTH):
-            //TODO call parser for write
+        case ((int)INDEX::FIFTH):            
+            xml_writer.SetLogLevel(std::to_string(++int_val));
             break;
-        default:
-            //TODO call parser for write
+        default:            
+            xml_writer.SetLogLevel(std::to_string(++int_val));
             break;
-        }
-        //TODO call parser for write
+        }        
     }
 
     if (m_ui->flushOn->isChecked())
-    {
-        //TODO call parser for write
+    {        
+        xml_writer.SetLogFlush("1");
     }
     else if (m_ui->flushOff->isChecked())
-    {
-        //TODO call parser for write
+    {        
+        xml_writer.SetLogFlush("0");
     }
 
+    xml_writer.Write();
     QMessageBox::information(this, "Saved", "Your preferences was successfully saved in XML configuration file");
 }
 
