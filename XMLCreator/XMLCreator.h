@@ -53,6 +53,4 @@ public:
 	bool SetThreadIntervalTime(const std::string& new_value) override;
 	bool SetMaxWorkingThreads(const std::string& new_value) override;
 	bool Write(const char* filename = FILE_NAME) override;
-
-
 };
