@@ -13,10 +13,23 @@ SettingsWindow::SettingsWindow(QWidget *parent) :
     m_ui(new Ui::SettingsWindow)
 {
     m_ui->setupUi(this);
-    XMLParser parser;    
+    XMLParser parser;  
+    unsigned int uint_val = parser.GetLogLevel();    
+
     m_ui->lineServerAddress->setPlaceholderText(QString::fromLocal8Bit(parser.GetIpAddress().c_str()));
     m_ui->linePort->setPlaceholderText(QString::number(parser.GetListenerPort()));
     m_ui->lineTimeout->setPlaceholderText(QString::number(parser.GetSocketTimeOut()));
+    m_ui->comboLogLevel->setCurrentIndex(--uint_val);
+    
+    if (parser.UseLogFlush())
+    {        
+        m_ui->flushOn->setChecked(true);
+    }
+    else
+    {        
+        m_ui->flushOff->setChecked(true);
+    }
+
     connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(SaveButtonClicked()));
     connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(CloseButtonClicked()));
     setWindowModality(Qt::ApplicationModal);

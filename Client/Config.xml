@@ -2,16 +2,16 @@
 	<Server>
 		<servername>ServTest</servername>
 		<serverdisplayname>ServTestserver</serverdisplayname>
-		<listenerport>25</listenerport>
-		<ipaddress>localhost</ipaddress>
+		<listenerport>465</listenerport>
+		<ipaddress>192.168.0.1</ipaddress>
 	</Server>
 	<communicationsettings>
 		<blocking>0</blocking>
-		<socket_timeout>30</socket_timeout>
+		<socket_timeout>60</socket_timeout>
 	</communicationsettings>
 	<logging>
 		<filename>C:\Logs\</filename>
-		<LogLevel>1</LogLevel>
+		<LogLevel>3</LogLevel>
 		<flush>0</flush>
 	</logging>
 	<time>

@@ -352,7 +352,11 @@ bool XMLParser::UseLogFlush()
 	}
 	unsigned int flush = 0;
 	bool flag = ValueCheck(ATTR_LOG_FLUSH, flush);
-	return flag;
+	if (!flush)
+	{
+		return false;
+	}
+	return true;
 }
 
 unsigned int XMLParser::GetThreadIntervalTime()
