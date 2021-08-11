@@ -64,6 +64,16 @@ const std::string& MailInfo::get_text() const
 	return m_text;
 }
 
+void MailInfo::CutSymbols(std::string& str)
+{
+	size_t pos = str.find("\r\n", 0);
+
+	if (pos != -1)
+	{
+		str = str.substr(0, pos);
+	}
+}
+
 void MailInfo::SaveToFile()
 {
 	std::ofstream file("email.txt", std::ofstream::app);
@@ -73,32 +83,35 @@ void MailInfo::SaveToFile()
 	file.close();
 }
 
-void MailInfo::ConnectToDB()
-{
-	ConnectParams conect_params;
-
-	conect_params.server = "localhost\\SQLEXPRESS";
-	conect_params.database = "SMTP-Client-Server";
-	conect_params.username = "";
-	conect_params.password = "";
-
-	m_db.Connect(conect_params);
-}
-
-bool MailInfo::TakeDataFromDB()
-{
-	m_db.SelectUsers(m_data_from_db);
-
-	if (m_data_from_db.empty())
-	{
-		return false;
-	}
-
-	return true;
-}
+//void MailInfo::ConnectToDB()
+//{
+//	ConnectParams conect_params;
+//
+//	conect_params.server = "localhost\\SQLEXPRESS";
+//	conect_params.database = "SMTP-Client-Server";
+//	conect_params.username = "";
+//	conect_params.password = "";
+//
+//	m_db.Connect(conect_params);
+//}
+//
+//bool MailInfo::TakeDataFromDB()
+//{
+//	m_db.SelectUsers(m_data_from_db);
+//
+//	if (m_data_from_db.empty())
+//	{
+//		return false;
+//	}
+//
+//	return true;
+//}
 
 bool MailInfo::IsUserExist()
 {
+	CutSymbols(m_login);
+	CutSymbols(m_password);
+
 	std::pair<const std::string, std::string> data = std::make_pair(m_login, m_password);
 	auto find_result = find(m_data_from_db.begin(), m_data_from_db.end(), data);
 

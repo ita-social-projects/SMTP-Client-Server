@@ -28,10 +28,12 @@ public:
 	const std::string& get_subject() const;
 	const std::string& get_text() const;
 
+	void CutSymbols(std::string& str);
+
 	void SaveToFile();
 
-	void ConnectToDB();
-	bool TakeDataFromDB();
+	//void ConnectToDB();
+	//bool TakeDataFromDB();
 	bool IsUserExist();
 
 private:
@@ -46,7 +48,7 @@ private:
 
 	std::map<std::string, std::string> m_data_from_db
 	{
-		{"Peter", "1234"}
+		{"peter@gmail.com", "1234"}
 	};
 		
 };
