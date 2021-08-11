@@ -86,7 +86,7 @@ void SQLServer::InsertMessage(const Message& message, const Email& email)
 
 }
 
-void SQLServer::SelectUsers()
+void SQLServer::SelectUsers(std::map<std::string, std::string>& info)
 {
 
 
@@ -107,6 +107,8 @@ void SQLServer::SelectUsers()
 		m_crypto.Decrypt((unsigned char*)pass, len, decrypted_pass);
 
 		auto str2 = (char*)decrypted_pass.get();
+
+		info.emplace(str1, str2);
 
 		std::string tab = "\t";
 		std::string str_for_log = str1 + tab + str2;

@@ -185,7 +185,7 @@ int MailSession::ProcessHELO(char* buf)
 	}
 
 	m_current_status = MailSessionStatus::AUTH;
-
+	//m_mail_info.ConnectToDB();
 	return SendResponse(Responses::OK);
 }
 
@@ -266,14 +266,26 @@ int MailSession::ProcessDATA(char* buf)
 
 int MailSession::SubProcessLoginRecieve(char* buf)
 {
+	m_mail_info.set_login(buf);
+
 	m_current_status = MailSessionStatus::PASSWORD;
 	return SendResponse(Responses::LOGIN_RCV);
 }
 
 int MailSession::SubProcessPasswordRecieve(char* buf)
 {
-	m_current_status = MailSessionStatus::AUTH_SUCCESS;
-	return SendResponse(Responses::LOGIN_SUCCESS);
+	m_mail_info.set_password(buf);
+
+	if (m_mail_info.IsUserExist())
+	{
+		m_current_status = MailSessionStatus::AUTH_SUCCESS;
+		return SendResponse(Responses::LOGIN_SUCCESS);
+	}
+
+	else
+	{
+		return SendResponse(Responses::USER_NOT_LOCAL);
+	}
 }
 
 int MailSession::SubProcessEmail(char* buf)

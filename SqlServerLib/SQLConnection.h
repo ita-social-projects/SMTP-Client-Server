@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <SQLAPI.h>
+#include <map>
 
 struct Email
 {
@@ -30,7 +31,7 @@ public:
 	virtual bool Connect(const ConnectParams& connect_string) = 0;
 	virtual void InsertEmail(const Email& email) = 0;
 	virtual void InsertMessage(const Message& message, const Email& email) = 0;
-	virtual void SelectUsers() = 0;
+	virtual void SelectUsers(std::map<std::string, std::string>& info) = 0;
 	virtual void ClearTable(const std::string& table) = 0;
 	virtual bool Disconnect() = 0;
 };

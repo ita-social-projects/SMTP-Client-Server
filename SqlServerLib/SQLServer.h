@@ -1,6 +1,9 @@
 #pragma once
 #include <iostream>
+#include <map>
+
 #include "SQLConnection.h"
+
 #include "../CPPLogger/CPPLogger.h"
 #include "../Crypto/SymmetricCrypto.h"
 
@@ -18,7 +21,7 @@ public:
 	bool Connect(const ConnectParams& connect_string) override;
 	void InsertEmail(const Email& email) override;
 	void InsertMessage(const Message& message, const Email& email) override;
-	void SelectUsers() override;
+	void SelectUsers(std::map<std::string, std::string>& info) override;
 	void ClearTable(const std::string& table) override;
 	bool Disconnect() override;
 

@@ -9,7 +9,7 @@
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
-namespace SMTPServerUnitTests
+namespace MailSessionUnitTests
 {
 	TEST_CLASS(MailSessionUnitTests)
 	{

@@ -166,6 +166,7 @@
     </ClCompile>
     <ClCompile Include="SMTPServerUnitTests.cpp" />
     <ClCompile Include="MailSessionUnitTests.cpp" />
+    <ClCompile Include="MailInfoUnitTests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
