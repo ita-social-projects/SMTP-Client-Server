@@ -1,0 +1,23 @@
+<root>
+	<Server>
+		<servername>ServTest</servername>
+		<serverdisplayname>ServTestserver</serverdisplayname>
+		<listenerport>25</listenerport>
+		<ipaddress>localhost</ipaddress>
+	</Server>
+	<communicationsettings>
+		<blocking>0</blocking>
+		<socket_timeout>30</socket_timeout>
+	</communicationsettings>
+	<logging>
+		<filename>C:\Logs\</filename>
+		<LogLevel>3</LogLevel>
+		<flush>0</flush>
+	</logging>
+	<time>
+		<Period_time>30</Period_time>
+	</time>
+	<threadpool>
+		<maxworkingthreads>10</maxworkingthreads>
+	</threadpool>
+</root>

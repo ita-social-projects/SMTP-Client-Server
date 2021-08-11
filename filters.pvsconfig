@@ -1,5 +1,6 @@
 //V_EXCLUDE_PATH *\openssl\*
 //V_EXCLUDE_PATH *\p7Headers\*
+//V_EXCLUDE_PATH *\SQLapid\*
 //V_EXCLUDE_PATH *\msvc2019_64\include\*
 //V_EXCLUDE_PATH *base64.cpp
 //V_EXCLUDE_PATH *ui_settingswindow.h
