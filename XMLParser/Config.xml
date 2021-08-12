@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<root>
+	<Server>
+		<!--servername is name that server will have when it will be installed-->
+		<servername>ServTest</servername>
+		<serverdisplayname>ServTestserver</serverdisplayname>
+		<!--port which server is listen-->
+		<listenerport>25</listenerport>
+		<!--ip address from which we receive requests of client side-->
+		<ipaddress>localhost</ipaddress>
+	</Server>
+	<communicationsettings>
+		<!--parameter for block or unblock listen socket (1 - enable / 0 - disable)-->
+		<blocking>0</blocking>
+		<!--timeout in seconds for accept function. Warning this parameter used only for unblocked socket-->
+		<socket_timeout>5</socket_timeout>
+	</communicationsettings>
+	<logging>
+		<!--path to log file-->
+		<filename>C:\Logs\</filename>
+		<!--supports only 3 levels of logging: 0 - No logs, 1 - Production logs/Warning/Erros, 2 - Debug logs, 3 - Trace logs-->
+		<LogLevel>2</LogLevel>
+		<!--parameter for flushing output to log file (1 - enable / 0 - disable). Warning this parameter will slow dowm output!-->
+		<flush>0</flush>
+	</logging>
+	<time>
+		<!--time in seconds with interval which we call threads-->
+		<Period_time>30</Period_time>
+	</time>
+	<threadpool>
+		<maxworkingthreads>10</maxworkingthreads>
+	</threadpool>
+</root>
+
+
