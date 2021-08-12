@@ -83,29 +83,29 @@ void MailInfo::SaveToFile()
 	file.close();
 }
 
-//void MailInfo::ConnectToDB()
-//{
-//	ConnectParams conect_params;
-//
-//	conect_params.server = "localhost\\SQLEXPRESS";
-//	conect_params.database = "SMTP-Client-Server";
-//	conect_params.username = "";
-//	conect_params.password = "";
-//
-//	m_db.Connect(conect_params);
-//}
-//
-//bool MailInfo::TakeDataFromDB()
-//{
-//	m_db.SelectUsers(m_data_from_db);
-//
-//	if (m_data_from_db.empty())
-//	{
-//		return false;
-//	}
-//
-//	return true;
-//}
+void MailInfo::ConnectToDB()
+{
+	ConnectParams conect_params;
+
+	conect_params.server = SERVER_NAME;
+	conect_params.database = DATABASE_NAME;
+	conect_params.username = USERNAME;
+	conect_params.password = PASSWORD;
+
+	m_db.Connect(conect_params);
+}
+
+bool MailInfo::TakeDataFromDB()
+{
+	m_db.SelectUsers(m_data_from_db);
+
+	if (m_data_from_db.empty())
+	{
+		return false;
+	}
+
+	return true;
+}
 
 bool MailInfo::IsUserExist()
 {

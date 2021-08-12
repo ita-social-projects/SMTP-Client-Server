@@ -9,6 +9,11 @@
 
 #include "../SqlServerLib/SQLServer.h"
 
+auto constexpr SERVER_NAME = "";
+auto constexpr DATABASE_NAME = "";
+auto constexpr USERNAME = "";
+auto constexpr PASSWORD = "";
+
 class MailInfo
 {
 public:
@@ -32,8 +37,8 @@ public:
 
 	void SaveToFile();
 
-	//void ConnectToDB();
-	//bool TakeDataFromDB();
+	void ConnectToDB();
+	bool TakeDataFromDB();
 	bool IsUserExist();
 
 private:
@@ -46,10 +51,6 @@ private:
 	std::string m_login;
 	std::string m_password;
 
-	std::map<std::string, std::string> m_data_from_db
-	{
-		{"peter@gmail.com", "1234"}
-	};
-		
+	std::map<std::string, std::string> m_data_from_db;
 };
 

@@ -41,7 +41,6 @@ void SQLServer::InsertEmail(const Email& email)
 	const std::string COLUMN_NAME_ID{ "Email_address" };
 	const std::string COLUMN_NAME_ADDRESS{ "Password" };
 	
-
 	std::string insert_statement = INSERT_COMMAND + TABLE_NAME;
 
 	insert_statement += " (" + COLUMN_NAME_ID + ", " + COLUMN_NAME_ADDRESS + ") ";
@@ -88,8 +87,6 @@ void SQLServer::InsertMessage(const Message& message, const Email& email)
 
 void SQLServer::SelectUsers(std::map<std::string, std::string>& info)
 {
-
-
 	const std::string TABLE_NAME{ "Users" };
 	const std::string SELECT_COMMAND{ "SELECT *\nFROM " };
 	const std::string SELECT_STATEMENT = SELECT_COMMAND + TABLE_NAME;

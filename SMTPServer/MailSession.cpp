@@ -185,7 +185,10 @@ int MailSession::ProcessHELO(char* buf)
 	}
 
 	m_current_status = MailSessionStatus::AUTH;
+
 	//m_mail_info.ConnectToDB();
+	//m_mail_info.TakeDataFromDB();
+
 	return SendResponse(Responses::OK);
 }
 
