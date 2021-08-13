@@ -31,25 +31,32 @@ void SMTPServer::WorkWithClient(SOCKET client_socket)
 	MailSession mail_session(client_socket);
 
 	char buf[BUF_SIZE];
+	unsigned char* decrypted_message;
 	int len;
+	int len_encrypted_message;
 
-	std::shared_ptr<unsigned char[]> decrypted_message;
+	std::shared_ptr<unsigned char[]> decrypted_message_ptr;
 
 	ZeroMemory(&buf, sizeof(buf));
+	ZeroMemory(&decrypted_message, sizeof(decrypted_message));
 
 	int response = mail_session.SendResponse(WELCOME);
 
 	while (len = recv(mail_session.get_client_socket(), (char*)&buf, sizeof(buf), 0))
 	{
-		symmetric_crypto.Decrypt((unsigned char*)buf, len, decrypted_message);
+		len_encrypted_message = symmetric_crypto.Decrypt((unsigned char*)buf, len, decrypted_message_ptr);
+		decrypted_message = decrypted_message_ptr.get();
+		decrypted_message[static_cast<size_t>(len_encrypted_message)] = TERMINATOR;
 
-		if (SERVER_CLOSED == mail_session.Processes((char *)decrypted_message.get()))
+
+		if (SERVER_CLOSED == mail_session.Processes((char*)decrypted_message))
 		{
 			closesocket(mail_session.get_client_socket());
 			break;
 		}
 
 		ZeroMemory(&buf, sizeof(buf));
+		ZeroMemory(&decrypted_message, sizeof(decrypted_message));
 	}
 }
 
