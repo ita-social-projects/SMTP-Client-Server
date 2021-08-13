@@ -52,7 +52,8 @@ public:
 		UNDEF_USER_PASSWORD,
 		SERVER_NOT_READY,
 		UNDEF_SERVER_CHOICE,
-		INVALID_LOGIN
+		INVALID_LOGIN,
+		ENCRYPTION_FAILED
 	};
 
 	SMTPErrorClass(SMTPErrorEnum error) : m_error_code(error) {}

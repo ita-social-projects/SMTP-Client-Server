@@ -163,6 +163,10 @@
       <Command>copy /Y "$(SolutionDir)x64\Release\XMLCreator.lib" "$(SolutionDir)3rdPartyLibs\Release\XMLCreator.lib"</Command>
       <Message>Copy XMLPCreator.lib to 3rdPartyLibs Release folder</Message>
     </PostBuildEvent>
+    <Lib>
+      <AdditionalDependencies>XMLParser.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)3rdPartyLibs\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="framework.h" />

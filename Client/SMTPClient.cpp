@@ -113,9 +113,15 @@ bool	SMTPClientClass::SendData(const std::string &msg_to_send)
 	int			result;
 	u_int		index			= 0;		
 	std::shared_ptr<unsigned char[]> msg_crypt;
-	u_int		msg_crypt_len		= (u_int)(m_crypto_obj.Encrypt((unsigned char*)msg_to_send.c_str(), (unsigned int)msg_to_send.size(), msg_crypt));
-	u_int		msg_left			= msg_crypt_len;
-	unsigned char* msg_crypt_ptr	= msg_crypt.get();	
+	u_int		msg_left			= (u_int)(m_crypto_obj.Encrypt((unsigned char*)msg_to_send.c_str(), (unsigned int)msg_to_send.size(), msg_crypt));
+	unsigned char* msg_crypt_ptr	= msg_crypt.get();
+
+	if (msg_crypt_ptr == nullptr)
+	{		
+		LOG_ERROR << "Nullptr was returned after encryption procedure.";
+		throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::ENCRYPTION_FAILED);
+	}
+
 
 	while ((int)msg_left > 0)
 	{
@@ -592,6 +598,8 @@ std::string SMTPErrorClass::GetErrorText() const
 		return "Server returned 'NOT READY' after connection was open";
 	case SMTPErrorEnum::UNDEF_SERVER_CHOICE:
 		return "User didn't define server to connect";
+	case SMTPErrorEnum::ENCRYPTION_FAILED:
+		return "Error occurred during encryption procedure";
 	default:
 		return "Undefined error id";
 	}
