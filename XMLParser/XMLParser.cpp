@@ -199,7 +199,7 @@ std::string XMLParser::GetServerName()
 		bool parsed = ParseFile(XML_FILE_PATH);
 		if (!parsed)
 		{
-			return SERVER_NAME;
+			return SERVER_NAME_DB;
 		}
 	}
 	std::string data;
@@ -208,7 +208,7 @@ std::string XMLParser::GetServerName()
 	{
 		return data;
 	}
-	return SERVER_NAME;
+	return SERVER_NAME_DB;
 }
 
 std::string XMLParser::GetServerDisplayName()

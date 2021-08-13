@@ -23,6 +23,11 @@ ThreadPool::~ThreadPool()
 
 void ThreadPool::Join()
 {
+    if (m_thread_pool.empty())
+    {
+        return;
+    }
+
     for (size_t i = 0; i < m_threadpool_size; ++i)
     {
         m_thread_pool.at(i).join();
@@ -33,10 +38,12 @@ void ThreadPool::Stop()
 {
     m_is_stop = true;
 
-    for (size_t i = 0; i < m_threadpool_size; ++i)
+    if (m_thread_pool.empty())
     {
-        m_thread_pool.pop_back();
+        return;
     }
+
+    m_thread_pool.clear();
 }
 
 void ThreadPool::DoTask()
@@ -68,6 +75,12 @@ void ThreadPool::AddTask(void* in_task, SOCKET socket)
     if (m_task.size() == 1)
     {
         m_task_not_empty.notify_one();
+    }
+
+    if (m_thread_pool.size() == m_threadpool_size)
+    {
+        Join();
+        m_thread_pool.clear();
     }
 
     m_thread_pool.emplace_back(&ThreadPool::DoTask, this);

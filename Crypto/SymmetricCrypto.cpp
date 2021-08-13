@@ -350,10 +350,6 @@ int SymmetricCrypto::Decrypt(
 
     decr_msg_len += block_len;
 
-    /*unsigned char* decr_ptr = decr_msg.get();
-    size_t arr_end = ptrdiff_t(decr_msg_len);
-    decr_ptr[arr_end] = '\0';*/
-
     return decr_msg_len;
 }
 

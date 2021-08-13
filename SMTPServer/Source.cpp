@@ -13,7 +13,10 @@ int main()
 	{
 		if (auto res_settings = smtp_server.SetSocketSettings())
 		{
-			smtp_server.ServerStart();
+			if (auto res_starting = smtp_server.ServerStart())
+			{
+				smtp_server.AcceptConnections();
+			}
 		}
 	}
 
