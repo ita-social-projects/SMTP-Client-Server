@@ -46,7 +46,8 @@ void SMTPServer::WorkWithClient(SOCKET client_socket)
 	{
 		len_encrypted_message = symmetric_crypto.Decrypt((unsigned char*)buf, len, decrypted_message_ptr);
 		decrypted_message = decrypted_message_ptr.get();
-		decrypted_message[len_encrypted_message] = TERMINATOR;
+		decrypted_message[static_cast<size_t>(len_encrypted_message)] = TERMINATOR;
+
 
 		if (SERVER_CLOSED == mail_session.Processes((char*)decrypted_message))
 		{
