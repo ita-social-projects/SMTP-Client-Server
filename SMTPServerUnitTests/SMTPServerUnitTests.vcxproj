@@ -101,7 +101,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>$(SolutionDir)3rdPartyLibs;$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>CPPLogger.lib;XMLParser.lib;p7.lib;Crypto.lib;Ws2_32.lib;XMLParserForLogger.lib;SqlServerLib.lib;sqlapid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>CPPLogger.lib;XMLParser.lib;Crypto.lib;Ws2_32.lib;XMLParserForLogger.lib;SqlServerLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
