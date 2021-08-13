@@ -17,9 +17,11 @@
 #include "../Crypto/SymmetricCrypto.h"
 
 constexpr auto WINSOCK_VER = 2;
-constexpr auto BUF_SIZE = 128;
+constexpr auto BUF_SIZE = 1024;
 constexpr auto WELCOME = 220;
 constexpr auto SERVER_CLOSED = 221;
+
+constexpr auto TERMINATOR = '\0';
 
 class SMTPServer
 {
