@@ -23,12 +23,14 @@ namespace SMTPCryptoUnitTests
 			std::shared_ptr<unsigned char[]>  encr_msg, actual_msg;
 
 			int enc_msg_len;
-			enc_msg_len = crypto.Encrypt(expected_msg, expected_msg_len, encr_msg);
+			enc_msg_len = crypto.Encrypt(expected_msg, expected_msg_len, encr_msg);			
 
 			int actual_msg_len;
 			actual_msg_len = crypto.Decrypt(encr_msg.get(), enc_msg_len, actual_msg);
+			unsigned char* ptr = actual_msg.get();
+			ptr[actual_msg_len] = '\0';
 
-			Assert::AreEqual(EQUAL, strcmp((char*)expected_msg, (char*)actual_msg.get()));
+			Assert::AreEqual(EQUAL, strcmp((char*)expected_msg, (char*)ptr));
 		}
 		TEST_METHOD(EncryptMessageArrayWithNullPointerTest)
 		{
