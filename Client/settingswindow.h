@@ -23,12 +23,12 @@ signals:
     void windowClosed();
 
 private slots:
-
-    void on_buttonBox_rejected();
-    void on_buttonBox_accepted();
+    
+    void SaveButtonClicked();
+    void CloseButtonClicked();
 
 private:
-    Ui::SettingsWindow *ui;
+    Ui::SettingsWindow *m_ui;
 };
 
 #endif // SETTINGSWINDOW_H

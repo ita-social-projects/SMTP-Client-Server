@@ -260,7 +260,7 @@ int SymmetricCrypto::Encrypt(
         return (int)SymmetricErrors::E_ENCRYPT_FINAL_FAIL;
     }
 
-    encr_msg_len += block_len;
+    encr_msg_len += block_len;   
 
     return encr_msg_len;
 }

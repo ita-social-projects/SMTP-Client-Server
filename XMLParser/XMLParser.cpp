@@ -199,7 +199,7 @@ std::string XMLParser::GetServerName()
 		bool parsed = ParseFile(XML_FILE_PATH);
 		if (!parsed)
 		{
-			return SERVER_NAME_DB;
+			return SERVER_NAME;
 		}
 	}
 	std::string data;
@@ -208,7 +208,7 @@ std::string XMLParser::GetServerName()
 	{
 		return data;
 	}
-	return SERVER_NAME_DB;
+	return SERVER_NAME;
 }
 
 std::string XMLParser::GetServerDisplayName()
@@ -280,7 +280,11 @@ bool XMLParser::UseBlockingSockets()
 	}
 	unsigned int block = 0;
 	bool flag = ValueCheck(ATTR_SOCKET_BLOCKING, block);
-	return flag;
+	if (!block)
+	{
+		return false;
+	}
+	return true;
 }
 
 unsigned int XMLParser::GetSocketTimeOut()
@@ -352,7 +356,11 @@ bool XMLParser::UseLogFlush()
 	}
 	unsigned int flush = 0;
 	bool flag = ValueCheck(ATTR_LOG_FLUSH, flush);
-	return flag;
+	if (!flush)
+	{
+		return false;
+	}
+	return true;
 }
 
 unsigned int XMLParser::GetThreadIntervalTime()

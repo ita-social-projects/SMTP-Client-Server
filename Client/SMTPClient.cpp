@@ -113,12 +113,15 @@ bool	SMTPClientClass::SendData(const std::string &msg_to_send)
 	int			result;
 	u_int		index			= 0;		
 	std::shared_ptr<unsigned char[]> msg_crypt;
-	u_int		msg_crypt_len		= (u_int)(m_crypto_obj.Encrypt((unsigned char*)msg_to_send.c_str(), (unsigned int)msg_to_send.size(), msg_crypt));
-	u_int		msg_left			= msg_crypt_len;
+	u_int		msg_left			= (u_int)(m_crypto_obj.Encrypt((unsigned char*)msg_to_send.c_str(), (unsigned int)msg_to_send.size(), msg_crypt));
 	unsigned char* msg_crypt_ptr	= msg_crypt.get();
-	
-	//u_int		msg_left	= (u_int)msg_to_send.size();
-	//u_int		msg_left = (u_int)(sizeof(msg_crypt.get()) / sizeof(char));
+
+	if (msg_crypt_ptr == nullptr)
+	{		
+		LOG_ERROR << "Nullptr was returned after encryption procedure.";
+		throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::ENCRYPTION_FAILED);
+	}
+
 
 	while ((int)msg_left > 0)
 	{
@@ -212,6 +215,18 @@ bool	SMTPClientClass::ReceiveData()
 
 	return true;
 
+}
+
+void SMTPClientClass::SendEmail()
+{
+	std::string msg = m_login.append("\r\n");
+	SendData(msg);
+}
+
+void SMTPClientClass::SendPassword()
+{
+	std::string msg = m_password.append("\r\n");
+	SendData(msg);
 }
 
 bool	SMTPClientClass::set_login(const std::string& s)
@@ -333,10 +348,7 @@ bool	SMTPClientClass::Send()
 			throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::UNDEF_USER_LOGIN);
 		}		
 
-		Base64Coder coder;		
-		std::string encoded_login = coder.Encode((const unsigned char*)m_login.c_str(), (u_int)m_login.size());		
-		encoded_login.append("\r\n");
-		SendData(encoded_login);		
+		SendEmail();				
 
 		ReceiveData();
 		if (GetResponseCode() != (int)SMTPServerResponce::SERVER_AUTH_LOGIN)
@@ -352,10 +364,7 @@ bool	SMTPClientClass::Send()
 			throw SMTPErrorClass(SMTPErrorClass::SMTPErrorEnum::UNDEF_USER_PASSWORD);
 		}		
 		
-		std::string encoded_password = coder.Encode((const unsigned char*)m_password.c_str(), (u_int)m_password.size());
-		encoded_password.append("\r\n");
-		SendData(encoded_password);
-		
+		SendPassword();
 
 		ReceiveData();
 		if (GetResponseCode() != (int)SMTPServerResponce::SERVER_AUTH_SUCCESSFUL)
@@ -398,8 +407,7 @@ bool	SMTPClientClass::Send()
 			SendSubject();
 		}
 
-		SendData(m_letter_message.append("\r\n"));
-		SendEndingDot();
+		SendData(m_letter_message.append("\r\n.\r\n"));		
 
 		ReceiveData();
 		if (GetResponseCode() != (int)SMTPServerResponce::SERVER_OKAY)
@@ -440,7 +448,7 @@ int		SMTPClientClass::GetResponseCode() const
 
 void	SMTPClientClass::SendHello()
 {
-	const char	AT_SIGN		= '@';
+	const char	AT_SIGN = '@';
 	size_t		index;
 	std::string	mail_domain;
 	
@@ -590,6 +598,8 @@ std::string SMTPErrorClass::GetErrorText() const
 		return "Server returned 'NOT READY' after connection was open";
 	case SMTPErrorEnum::UNDEF_SERVER_CHOICE:
 		return "User didn't define server to connect";
+	case SMTPErrorEnum::ENCRYPTION_FAILED:
+		return "Error occurred during encryption procedure";
 	default:
 		return "Undefined error id";
 	}
@@ -746,9 +756,9 @@ bool SMTPSecureClientClass::OpenSSLConnect()
 	fd_set	fdwrite;
 	fd_set	fdread;
 	timeval	time;
-	int		result = 0;
-	int		write_blocked = 0;
-	int		read_blocked = 0;
+	int		result			= 0;
+	int		write_blocked	= 0;
+	int		read_blocked	= 0;
 
 	while (true)
 	{
@@ -764,8 +774,8 @@ bool SMTPSecureClientClass::OpenSSLConnect()
 
 		if (write_blocked || read_blocked)
 		{
-			write_blocked = 0;
-			read_blocked = 0;
+			write_blocked	= 0;
+			read_blocked	= 0;
 			result = select((int)m_socket + MAX_FILE_DESCRIPTOR, &fdread, &fdwrite, NULL, &time);
 
 			if (result == SOCKET_ERROR)
@@ -1011,4 +1021,20 @@ bool SMTPSecureClientClass::ReceiveData()
 	}
 
 	return true;
+}
+
+void SMTPSecureClientClass::SendEmail()
+{
+	Base64Coder coder;
+	std::string encoded_login = coder.Encode((const unsigned char*)m_login.c_str(), (u_int)m_login.size());
+	encoded_login.append("\r\n");
+	SendData(encoded_login);
+}
+
+void SMTPSecureClientClass::SendPassword()
+{
+	Base64Coder coder;
+	std::string encoded_password = coder.Encode((const unsigned char*)m_password.c_str(), (u_int)m_password.size());
+	encoded_password.append("\r\n");
+	SendData(encoded_password);
 }

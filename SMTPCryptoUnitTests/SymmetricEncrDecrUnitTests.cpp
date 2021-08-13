@@ -23,7 +23,7 @@ namespace SMTPCryptoUnitTests
 			std::shared_ptr<unsigned char[]>  encr_msg, actual_msg;
 
 			int enc_msg_len;
-			enc_msg_len = crypto.Encrypt(expected_msg, expected_msg_len, encr_msg);
+			enc_msg_len = crypto.Encrypt(expected_msg, expected_msg_len, encr_msg);			
 
 			int actual_msg_len;
 			actual_msg_len = crypto.Decrypt(encr_msg.get(), enc_msg_len, actual_msg);

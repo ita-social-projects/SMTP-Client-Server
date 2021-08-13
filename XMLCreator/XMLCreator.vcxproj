@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{9d6c21c4-b62a-46b0-ac6b-dcb91d09c8a2}</ProjectGuid>
-    <RootNamespace>XMLParser</RootNamespace>
+    <ProjectGuid>{6179b3b8-4b11-4ae4-a768-396c4d8fdbcb}</ProjectGuid>
+    <RootNamespace>XMLCreator</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -90,17 +90,12 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>
       </SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
-    <Lib>
-      <AdditionalDependencies>p7.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\3rdPartyLibs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -130,8 +125,6 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>$(SolutionDir)CPPLogger\include\p7Headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -140,13 +133,11 @@
     </Link>
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionDir)3rdPartyLibs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>CPPLogger.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>XMLParser.lib</AdditionalDependencies>
     </Lib>
     <PostBuildEvent>
-      <Command>copy /Y "$(SolutionDir)x64\Debug\XMLParser.lib" "$(SolutionDir)3rdPartyLibs\XMLParser.lib"</Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Message>Copy XMLParser.lib to 3rdPartyLibs folder</Message>
+      <Command>copy /Y "$(SolutionDir)x64\Debug\XMLCreator.lib" "$(SolutionDir)3rdPartyLibs\XMLCreator.lib"</Command>
+      <Message>Copy XMLPCreator.lib to 3rdPartyLibs folder</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -160,7 +151,6 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)CPPLogger\include\p7Headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -169,28 +159,28 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
-    <Lib>
-      <AdditionalDependencies>CPPLogger.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\3rdPartyLibs\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Lib>
     <PostBuildEvent>
-      <Message>Copy XMLParser.lib to 3rdPartyLibs</Message>
-      <Command>copy /Y "$(SolutionDir)x64\Release\XMLParser.lib" "$(SolutionDir)3rdPartyLibs\Release\XMLParser.lib"</Command>
+      <Command>copy /Y "$(SolutionDir)x64\Release\XMLCreator.lib" "$(SolutionDir)3rdPartyLibs\Release\XMLCreator.lib"</Command>
+      <Message>Copy XMLPCreator.lib to 3rdPartyLibs Release folder</Message>
     </PostBuildEvent>
+    <Lib>
+      <AdditionalDependencies>XMLParser.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)3rdPartyLibs\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="XMLParser.h" />
+    <ClInclude Include="XMLCreator.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="XMLParser.cpp" />
+    <ClCompile Include="XMLCreator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="Config.xml" />

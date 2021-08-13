@@ -154,6 +154,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(SolutionDir)Crypto\include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -163,9 +164,12 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>libcrypto.lib;</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)3rdPartyLibs\Release</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libcrypto.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)3rdPartyLibs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
+    <PostBuildEvent>
+      <Command>copy /Y "$(SolutionDir)x64\Release\Crypto.lib" "$(SolutionDir)3rdPartyLibs\Release\Crypto.lib"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AsymmetricCrypto.h" />
