@@ -39,10 +39,24 @@ LogUi::~LogUi()
 
 void LogUi::GetContent(QTextStream& stream)
 {
+    std::vector<unsigned char> vec, dec_vec;
+    SymmetricCrypto m_crypto;
+ 
     for (int row = 0; !stream.atEnd(); row++)
     {
         QString line = stream.readLine().simplified();
-        QList<QString> tokens = line.split('-');
+        QString dec_line;
+        
+        for (int i = 0; i < line.size(); i++)
+            vec.push_back(line.toStdString()[i]);
+        m_crypto.Decrypt(vec, dec_vec);
+        dec_vec.erase(dec_vec.end() - 17, dec_vec.end());
+        dec_vec.push_back('\0');
+
+        for (auto& el : vec)
+            dec_line.toStdString() =+ el;
+
+        QList<QString> tokens = dec_line.split('-');
         ui->table_widget->insertRow(row);
         for (int column = 0; column < TOTAL_COLUMNS; column++)
         {
