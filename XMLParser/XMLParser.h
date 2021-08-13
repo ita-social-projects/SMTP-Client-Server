@@ -11,7 +11,7 @@
 #include <memory>
 #include "..\CPPLogger\CPPLogger.h"
 
-constexpr auto SERVER_NAME					= "ServTest";
+constexpr auto SERVER_NAME_DB					= "ServTest";
 constexpr auto SERVER_DISPLAY_NAME			= "ServTestserver";
 constexpr unsigned int SERVER_LISTENER_PORT = 25;
 constexpr auto SERVER_IP_ADDRESS			= "localhost";

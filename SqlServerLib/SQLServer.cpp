@@ -44,7 +44,6 @@ void SQLServer::InsertEmail(const Email& email)
 	std::string insert_statement = INSERT_COMMAND + TABLE_NAME;
 
 	insert_statement += " (" + COLUMN_NAME_ID + ", " + COLUMN_NAME_ADDRESS + ") ";
-
 	
 	std::shared_ptr<unsigned char[]> encrypted_pass;
 	int encrypted_pass_len;
