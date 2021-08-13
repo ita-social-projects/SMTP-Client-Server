@@ -111,7 +111,7 @@ bool	SMTPClientClass::SendData(const std::string &msg_to_send)
 	fd_set		fdwrite;
 	timeval		time;
 	int			result;
-	u_int		index			= 0;		
+	u_int		index				= 0;		
 	std::shared_ptr<unsigned char[]> msg_crypt;
 	u_int		msg_left			= (u_int)(m_crypto_obj.Encrypt((unsigned char*)msg_to_send.c_str(), (unsigned int)msg_to_send.size(), msg_crypt));
 	unsigned char* msg_crypt_ptr	= msg_crypt.get();
