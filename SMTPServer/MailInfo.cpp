@@ -87,10 +87,10 @@ void MailInfo::ConnectToDB()
 {
 	ConnectParams conect_params;
 
-	conect_params.server = SERVER_NAME_FOR_DB;
-	conect_params.database = DATABASE_NAME_FOR_DB;
-	conect_params.username = USERNAME_FOR_DB;
-	conect_params.password = PASSWORD_FOR_DB;
+	conect_params.server = DB_SERVER_NAME;
+	conect_params.database = DB_DATABASE_NAME;
+	conect_params.username = DB_USERNAME;
+	conect_params.password = DB_PASSWORD;
 
 	m_db.Connect(conect_params);
 }
