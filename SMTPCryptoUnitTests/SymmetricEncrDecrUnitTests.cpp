@@ -28,7 +28,7 @@ namespace SMTPCryptoUnitTests
 			int actual_msg_len;
 			actual_msg_len = crypto.Decrypt(encr_msg.get(), enc_msg_len, actual_msg);
 			unsigned char* actual_msg_ptr = actual_msg.get();
-			actual_msg_ptr[actual_msg_len] = '\0';
+			actual_msg_ptr[static_cast<size_t>(actual_msg_len)] = '\0';
 
 			Assert::AreEqual(EQUAL, strcmp((char*)expected_msg, (char*)actual_msg_ptr));
 		}
