@@ -133,7 +133,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>Crypto.lib;sqlapid.lib;CPPLogger.lib;p7.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Crypto.lib;sqlapid.lib;CPPLogger.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionDir)3rdPartyLibs;%(AdditionalIncludeDirectories)</AdditionalLibraryDirectories>
@@ -152,6 +152,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(SolutionDir)Crypto\include;$(SolutionDir)CPPLogger\include\p7Headers;$(SolutionDir)SqlServerLib\include\SQLapid;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -160,6 +161,13 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Lib>
+      <AdditionalDependencies>Crypto.lib;sqlapi.lib;CPPLogger.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)3rdPartyLibs\Release;%(AdditionalIncludeDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+    <PostBuildEvent>
+      <Command>copy /Y "$(SolutionDir)x64\Release\SqlServerLib.lib" "$(SolutionDir)3rdPartyLibs\Release\SqlServerLib.lib"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="framework.h" />
