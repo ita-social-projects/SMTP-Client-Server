@@ -262,10 +262,6 @@ int SymmetricCrypto::Encrypt(
 
     encr_msg_len += block_len;
 
-    unsigned char* encr_msg_end_ptr = encr_msg.get();
-    size_t arr_end = ptrdiff_t(encr_msg_len);
-    encr_msg_end_ptr[arr_end] = '\0';
-
     return encr_msg_len;
 }
 
