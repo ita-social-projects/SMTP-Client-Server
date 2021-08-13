@@ -101,12 +101,9 @@ bool XMLCreator::CreateStandartTree()
 	const int SERVER_TAGS_SIZE = 4;
 	const int COMMUNICATION_TAGS_SIZE = 2;
 	const int LOGGING_TAGS_SIZE = 3;
-	std::array<std::string, ROOT_TAGS_SIZE> root_tags{ ATTR_SERVER, ATTR_COMMUNICATION_SETTINGS,
-										ATTR_LOGGING, ATTR_TIME, ATTR_THREAD_POOL };
-	std::array<std::string, SERVER_TAGS_SIZE> server_tags{ ATTR_SERVER_NAME, ATTR_SERVER_DISPLAY_NAME,
-										ATTR_SERVER_LISTENER_PORT, ATTR_SERVER_IP_ADDRESS };
-	std::array<std::string, SERVER_TAGS_SIZE> server_values{ SERVER_NAME, SERVER_DISPLAY_NAME, LISTENER_PORT,
-											SERVER_IP_ADDRESS };
+	std::array<std::string, ROOT_TAGS_SIZE> root_tags{ ATTR_SERVER, ATTR_COMMUNICATION_SETTINGS, ATTR_LOGGING, ATTR_TIME, ATTR_THREAD_POOL };
+	std::array<std::string, SERVER_TAGS_SIZE> server_tags{ ATTR_SERVER_NAME, ATTR_SERVER_DISPLAY_NAME, ATTR_SERVER_LISTENER_PORT, ATTR_SERVER_IP_ADDRESS };
+	std::array<std::string, SERVER_TAGS_SIZE> server_values{ SERVER_NAME, SERVER_DISPLAY_NAME, LISTENER_PORT, SERVER_IP_ADDRESS };
 	std::array<std::string, COMMUNICATION_TAGS_SIZE> communication_tags{ ATTR_SOCKET_BLOCKING, ATTR_SOCKET_TIMEOUT };
 	std::array<std::string, COMMUNICATION_TAGS_SIZE> communication_values{ BLOCKING, TIMEOUT };
 	std::array<std::string, LOGGING_TAGS_SIZE> logging_tags{ ATTR_LOG_FILENAME, ATTR_LOG_LEVEL, ATTR_LOG_FLUSH };
@@ -130,32 +127,45 @@ bool XMLCreator::CreateStandartTree()
 	{
 		return false;
 	}
-	parent_node = m_root->children[(int)Children::SERVER];
-	for (size_t i = 0; i < SERVER_TAGS_SIZE; i++)
+	size_t children_size = m_root->children.size();
+	for (size_t i = 0; i < children_size; i++)
 	{
-		CreateElement(new_node, server_tags[i], server_values[i]);
-		ChildAppend(parent_node, new_node);
+		parent_node = m_root->children[i];
+		switch (i)
+		{
+		case (int)Children::SERVER:
+			CreateBranch(parent_node, new_node, server_tags, server_values);
+			break;
+		case (int)Children::COMMUNICATION:
+			CreateBranch(parent_node, new_node, communication_tags, communication_values);
+			break;
+		case (int)Children::LOGGING:
+			CreateBranch(parent_node, new_node, logging_tags, logging_values);
+			break;
+		case (int)Children::TIME:
+			CreateElement(new_node, ATTR_THREAD_INTERVAL, INTERVAL);
+			ChildAppend(parent_node, new_node);
+			break;
+		case (int)Children::THREADPOOL:
+			CreateElement(new_node, ATTR_MAX_WORKING_THREADS, WORKING_THREADS);
+			ChildAppend(parent_node, new_node);
+			break;
+		default:
+			break;
+		}
 	}
-	parent_node = m_root->children[(int)Children::COMMUNICATION];
-	for (size_t i = 0; i < COMMUNICATION_TAGS_SIZE; i++)
-	{
-		CreateElement(new_node, communication_tags[i], communication_values[i]);
-		ChildAppend(parent_node, new_node);
-	}
-	parent_node = m_root->children[(int)Children::LOGGING];
-	for (size_t i = 0; i < LOGGING_TAGS_SIZE; i++)
-	{
-		CreateElement(new_node, logging_tags[i], logging_values[i]);
-		ChildAppend(parent_node, new_node);
-	}
-	parent_node = m_root->children[(int)Children::TIME];
-	CreateElement(new_node, ATTR_THREAD_INTERVAL, INTERVAL);
-	ChildAppend(parent_node, new_node);
-
-	parent_node = m_root->children[(int)Children::THREADPOOL];
-	CreateElement(new_node, ATTR_MAX_WORKING_THREADS, WORKING_THREADS);
-	ChildAppend(parent_node, new_node);
 	return true;
+}
+
+template <const int T>
+void XMLCreator::CreateBranch(std::shared_ptr<XMLNode> parent, std::shared_ptr<XMLNode> new_child, std::array<std::string, 
+								T>& tags, std::array<std::string, T>& values)
+{
+	for (size_t i = 0; i < T; i++)
+	{
+		CreateElement(new_child, tags[i], values[i]);
+		ChildAppend(parent, new_child);
+	}
 }
 
 bool XMLCreator::SetServerName(const std::string& new_value)
@@ -163,6 +173,8 @@ bool XMLCreator::SetServerName(const std::string& new_value)
 	bool set = CheckIfSet(ATTR_SERVER_NAME, new_value);
 	if (!set)
 	{
+		std::string log_massage = "Setting for <" + std::string(ATTR_SERVER_NAME) + "> was not set to " + std::string(FILE_NAME);
+		LOG_INFO << log_massage.c_str();
 		return false;
 	}
 	return true;
@@ -173,6 +185,8 @@ bool XMLCreator::SetServerDisplayName(const std::string& new_value)
 	bool set = CheckIfSet(ATTR_SERVER_DISPLAY_NAME, new_value);
 	if (!set)
 	{
+		std::string log_massage = "Setting for <" + std::string(ATTR_SERVER_DISPLAY_NAME) + "> was not set to " + std::string(FILE_NAME);
+		LOG_INFO << log_massage.c_str();
 		return false;
 	}
 	return true;
@@ -183,6 +197,8 @@ bool XMLCreator::SetListenerPort(const std::string& new_value)
 	bool set = CheckIfSet(ATTR_SERVER_LISTENER_PORT, new_value);
 	if (!set)
 	{
+		std::string log_massage = "Setting for <" + std::string(ATTR_SERVER_LISTENER_PORT) + "> was not set to " + std::string(FILE_NAME);
+		LOG_INFO << log_massage.c_str();
 		return false;
 	}
 	return true;
@@ -193,6 +209,8 @@ bool XMLCreator::SetIpAddress(const std::string& new_value)
 	bool set = CheckIfSet(ATTR_SERVER_IP_ADDRESS, new_value);
 	if (!set)
 	{
+		std::string log_massage = "Setting for <" + std::string(ATTR_SERVER_IP_ADDRESS) + "> was not set to " + std::string(FILE_NAME);
+		LOG_INFO << log_massage.c_str();
 		return false;
 	}
 	return true;
@@ -203,6 +221,8 @@ bool XMLCreator::SetBlockingSockets(const std::string& new_value)
 	bool set = CheckIfSet(ATTR_SOCKET_BLOCKING, new_value);
 	if (!set)
 	{
+		std::string log_massage = "Setting for <" + std::string(ATTR_SOCKET_BLOCKING) + "> was not set to " + std::string(FILE_NAME);
+		LOG_INFO << log_massage.c_str();
 		return false;
 	}
 	return true;
@@ -213,6 +233,8 @@ bool XMLCreator::SetSocketTimeOut(const std::string& new_value)
 	bool set = CheckIfSet(ATTR_SOCKET_TIMEOUT, new_value);
 	if (!set)
 	{
+		std::string log_massage = "Setting for <" + std::string(ATTR_SOCKET_TIMEOUT) + "> was not set to " + std::string(FILE_NAME);
+		LOG_INFO << log_massage.c_str();
 		return false;
 	}
 	return true;
@@ -223,6 +245,8 @@ bool XMLCreator::SetLogFilename(const std::string& new_value)
 	bool set = CheckIfSet(ATTR_LOG_FILENAME, new_value);
 	if (!set)
 	{
+		std::string log_massage = "Setting for <" + std::string(ATTR_LOG_FILENAME) + "> was not set to " + std::string(FILE_NAME);
+		LOG_INFO << log_massage.c_str();
 		return false;
 	}
 	return true;
@@ -233,6 +257,8 @@ bool XMLCreator::SetLogLevel(const std::string& new_value)
 	bool set = CheckIfSet(ATTR_LOG_LEVEL, new_value);
 	if (!set)
 	{
+		std::string log_massage = "Setting for <" + std::string(ATTR_LOG_LEVEL) + "> was not set to " + std::string(FILE_NAME);
+		LOG_INFO << log_massage.c_str();
 		return false;
 	}
 	return true;
@@ -243,6 +269,8 @@ bool XMLCreator::SetLogFlush(const std::string& new_value)
 	bool set = CheckIfSet(ATTR_LOG_FLUSH, new_value);
 	if (!set)
 	{
+		std::string log_massage = "Setting for <" + std::string(ATTR_LOG_FLUSH) + "> was not set to " + std::string(FILE_NAME);
+		LOG_INFO << log_massage.c_str();
 		return false;
 	}
 	return true;
@@ -253,6 +281,8 @@ bool XMLCreator::SetThreadIntervalTime(const std::string& new_value)
 	bool set = CheckIfSet(ATTR_THREAD_INTERVAL, new_value);
 	if (!set)
 	{
+		std::string log_massage = "Setting for <" + std::string(ATTR_THREAD_INTERVAL) + "> was not set to " + std::string(FILE_NAME);
+		LOG_INFO << log_massage.c_str();
 		return false;
 	}
 	return true;
@@ -263,6 +293,8 @@ bool XMLCreator::SetMaxWorkingThreads(const std::string& new_value)
 	bool set = CheckIfSet(ATTR_MAX_WORKING_THREADS, new_value);
 	if (!set)
 	{
+		std::string log_massage = "Setting for <" + std::string(ATTR_MAX_WORKING_THREADS) + "> was not set to " + std::string(FILE_NAME);
+		LOG_INFO << log_massage.c_str();
 		return false;
 	}
 	return true;
@@ -288,5 +320,6 @@ bool XMLCreator::Write(const char* filename)
 	Symbols symbol;
 	size_t depth = 0;
 	WriteTreeToFile(current_node, depth, file, symbol);
+	file.close();
 	return true;
 }

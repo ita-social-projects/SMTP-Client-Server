@@ -39,6 +39,8 @@ private:
 	void SetValueByTag(const std::shared_ptr<XMLNode>& current_node, const std::string& tag_needed, const std::string& data, bool& set_flag);
 	void WriteTreeToFile(std::shared_ptr<XMLNode> current, size_t depth, std::ofstream& file_name, Symbols& character);
 	bool CreateStandartTree();
+	template <const int T>
+	void CreateBranch(std::shared_ptr<XMLNode> parent, std::shared_ptr<XMLNode> new_child, std::array<std::string, T>& tags, std::array<std::string, T>& values);
 
 public:
 	bool SetServerName(const std::string& new_value) override;
