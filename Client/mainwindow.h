@@ -16,44 +16,44 @@ QT_END_NAMESPACE
 
 class MainWindow : public QMainWindow
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    MainWindow(QWidget* parent = nullptr);
-    ~MainWindow();
+	MainWindow(QWidget* parent = nullptr);
+	~MainWindow();
 
-    std::string get_server_choice() const;
-    std::string get_server_port() const;
-    std::string get_login() const;
-    std::string get_password() const;
-    std::string get_rcpt_to() const;
-    std::string get_subject() const;
-    std::string get_msg_data() const; 
+	std::string get_server_choice() const;
+	std::string get_server_port() const;
+	std::string get_login() const;
+	std::string get_password() const;
+	std::string get_rcpt_to() const;
+	std::string get_subject() const;
+	std::string get_msg_data() const; 
 
 private:
 
-    bool InitializeSMTPClient();
-    bool InitializeSecureSMTPClient();
+	bool InitializeSMTPClient();
+	bool InitializeSecureSMTPClient();
 
 private slots:
 
-    void SendButtonClicked();    
-    void ExitButtonClicked();
-    void ChildWindowClosed();
-    void SettingsButtonClicked();    
+	void SendButtonClicked();    
+	void ExitButtonClicked();
+	void ChildWindowClosed();
+	void SettingsButtonClicked();    
 
 private:
-    Ui::MainWindow* m_ui;
-    std::string     m_server_choice;
-    std::string     m_login;
-    std::string     m_password;
-    std::string     m_rcpt_to;
-    std::string     m_subject;
-    std::string     m_msg_data;
-    std::string     m_server_port;
-    std::string     m_server_address;    
-    XMLParser       m_xml;
-    Logger*         LOG;   
-    SettingsWindow* m_settings_ui;
+	Ui::MainWindow* m_ui;
+	std::string     m_server_choice;
+	std::string     m_login;
+	std::string     m_password;
+	std::string     m_rcpt_to;
+	std::string     m_subject;
+	std::string     m_msg_data;
+	std::string     m_server_port;
+	std::string     m_server_address;    
+	XMLParser       m_xml;
+	Logger*         LOG;   
+	SettingsWindow* m_settings_ui;
 };
 #endif // MAINWINDOW_H
