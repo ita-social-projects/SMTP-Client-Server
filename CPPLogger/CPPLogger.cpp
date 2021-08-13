@@ -26,7 +26,7 @@ Logger::Logger()
 
 	m_log_level = eP7Trace_Level::EP7TRACE_LEVEL_TRACE;
 
-	time_t     now = time(0);
+	time_t now = time(0);
 	struct tm  tstruct;
 	localtime_s(&tstruct, &now);
 	strftime(buf, sizeof(buf), "%Y%m%d-%H%M%S000", &tstruct);
@@ -43,27 +43,27 @@ Logger::~Logger()
 	m_client->Release();
 
 	std::string full_path{ m_file_dir + buf + ".txt" };
-	std::ifstream file(full_path);
-	std::ofstream encrypted_file(m_file_dir + "encrypted_file.txt", std::ios::app);
-	std::string str, str2;
-	std::shared_ptr<unsigned char[]> encrypted_line, decrypted_line;
+	std::ifstream file(full_path, std::ios::binary);
+	std::ofstream encrypted_file(m_file_dir + "encrypted_file_" + buf + ".txt");
+	std::vector<unsigned char> vec, enc_vec, dec_vec;
 
-	while (!file)
+	char ch;
+	while (file)
 	{
-		if (str.size() == 1 && str.at(0) == '\0')
-			continue;
-		std::getline(file, str, '\n');
-		unsigned int len = m_crypto.Encrypt((unsigned char*)str.c_str(), str.size(), encrypted_line);
-
-		m_crypto.Decrypt(encrypted_line.get(), len, decrypted_line);
-		unsigned char* ptr = decrypted_line.get();
-		str2 = (char*)ptr;
-		encrypted_file << str2;
+		file.get(ch);
+		if (file && ch) vec.push_back(ch);
 	}
+
+	vec.erase(vec.begin(), vec.begin() + 2);
+	m_crypto.Encrypt(vec, enc_vec);
+	enc_vec.push_back('\0');
+
+	for (auto& el : enc_vec)
+		encrypted_file << el;
 
 	file.close();
 	encrypted_file.close();
-	
+
 	remove(full_path.c_str());
 }
 
