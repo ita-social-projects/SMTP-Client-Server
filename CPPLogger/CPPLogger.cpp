@@ -57,9 +57,9 @@ Logger::~Logger()
 	vec.erase(vec.begin(), vec.begin() + 2);
 
 	auto vec_size = m_crypto.Encrypt(vec, enc_vec);
-	enc_vec.resize(vec_size);
+	enc_vec.resize((size_t)vec_size);
 
-	for (int i = 0; i < enc_vec.size(); i++)
+	for (size_t i = 0; i < enc_vec.size(); i++)
 		encrypted_file << enc_vec[i];
 
 	file.close();
