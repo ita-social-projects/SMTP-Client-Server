@@ -30,7 +30,7 @@ private:
 	SACommand m_command;
 	ConnectParams m_params;
 
-	Logger *LOG = nullptr;
+	Logger *LOG = LOG->GetInstance();
 	SymmetricCrypto m_crypto;
 
 };
