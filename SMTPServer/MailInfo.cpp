@@ -74,16 +74,22 @@ void MailInfo::CutSymbols(std::string& str)
 	}
 }
 
-void MailInfo::SaveToFile()
+void MailInfo::SaveToDatabase()
 {
-	std::ofstream file("email.txt", std::ofstream::app);
+	Message email_data;
+	User user_data;
 
-	file << "From: " << m_mail_from << "\nTo: " << m_rcpt_to << "\nSubject: " << m_subject << m_text << "\n\n";
+	user_data.address = m_mail_from;
+	user_data.password = m_password;
 
-	file.close();
+	email_data.to = m_rcpt_to;
+	email_data.subject_mail = m_subject;
+	email_data.content = m_text;
+
+	m_db.InsertMessage(email_data, user_data);
 }
 
-void MailInfo::ConnectToDB()
+bool MailInfo::ConnectToDB()
 {
 	ConnectParams conect_params;
 
@@ -92,9 +98,7 @@ void MailInfo::ConnectToDB()
 	conect_params.username = DB_USERNAME;
 	conect_params.password = DB_PASSWORD;
 
-	bool var = m_db.Connect(conect_params);
-
-	/*m_db.Connect(conect_params);*/
+	return m_db.Connect(conect_params);
 }
 
 bool MailInfo::TakeDataFromDB()

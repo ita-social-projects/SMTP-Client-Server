@@ -40,23 +40,27 @@ void SMTPServer::WorkWithClient(SOCKET client_socket)
 	ZeroMemory(&buf, sizeof(buf));
 	ZeroMemory(&decrypted_message, sizeof(decrypted_message));
 
-	int response = mail_session.SendResponse(WELCOME);
-
-	while (len = recv(mail_session.get_client_socket(), (char*)&buf, sizeof(buf), 0))
+	if (mail_session.ProcessConnectToDB())
 	{
-		len_encrypted_message = symmetric_crypto.Decrypt((unsigned char*)buf, len, decrypted_message_ptr);
-		decrypted_message = reinterpret_cast<char*>(decrypted_message_ptr.get());
-		decrypted_message[static_cast<size_t>(len_encrypted_message)] = TERMINATOR;
+		int response = mail_session.SendResponse(WELCOME);
 
-
-		if (SERVER_CLOSED == mail_session.Processes(decrypted_message))
+		while (len = recv(mail_session.get_client_socket(), (char*)&buf, sizeof(buf), 0))
 		{
-			closesocket(mail_session.get_client_socket());
-			break;
-		}
+			len_encrypted_message = symmetric_crypto.Decrypt((unsigned char*)buf, len, decrypted_message_ptr);
+			decrypted_message = reinterpret_cast<char*>(decrypted_message_ptr.get());
+			decrypted_message[static_cast<size_t>(len_encrypted_message)] = TERMINATOR;
 
-		ZeroMemory(&buf, sizeof(buf));
-		ZeroMemory(&decrypted_message, sizeof(decrypted_message));
+
+			if (SERVER_CLOSED == mail_session.Processes(decrypted_message))
+			{
+				mail_session.ProcessSaveTo();
+				closesocket(mail_session.get_client_socket());
+				break;
+			}
+
+			ZeroMemory(&buf, sizeof(buf));
+			ZeroMemory(&decrypted_message, sizeof(decrypted_message));
+		}
 	}
 }
 
