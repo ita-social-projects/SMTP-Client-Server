@@ -3,7 +3,6 @@
 #include <iostream>
 
 #include <string>
-#include <fstream>
 #include <map>
 #include <algorithm>
 
@@ -35,9 +34,9 @@ public:
 
 	void CutSymbols(std::string& str);
 
-	void SaveToFile();
+	void SaveToDatabase();
 
-	void ConnectToDB();
+	bool ConnectToDB();
 	bool TakeDataFromDB();
 	bool IsUserExist();
 

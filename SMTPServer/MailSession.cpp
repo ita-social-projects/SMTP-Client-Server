@@ -20,6 +20,24 @@ bool MailSession::ValidAdress(char* buf)
 	return (strlen_buf > MIN_MAIL_SIZE && strlen_buf < MAX_MAIL_SIZE && strchr(buf, '@'));
 }
 
+bool MailSession::ProcessConnectToDB()
+{
+	if (auto res_connect = m_mail_info.ConnectToDB())
+	{
+		if (auto take_res = m_mail_info.TakeDataFromDB())
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void MailSession::ProcessSaveTo()
+{
+	m_mail_info.SaveToDatabase();
+}
+
 std::string MailSession::CutAddress(char* buf)
 {
 	std::string str_buf = buf;
@@ -186,9 +204,6 @@ int MailSession::ProcessHELO(char* buf)
 
 	m_current_status = MailSessionStatus::AUTH;
 
-	m_mail_info.ConnectToDB();
-	m_mail_info.TakeDataFromDB();
-
 	return SendResponse(Responses::OK);
 }
 
@@ -285,10 +300,8 @@ int MailSession::SubProcessPasswordRecieve(char* buf)
 		return SendResponse(Responses::LOGIN_SUCCESS);
 	}
 
-	else
-	{
-		return SendResponse(Responses::USER_NOT_LOCAL);
-	}
+	m_current_status = MailSessionStatus::EMPTY;
+	return SendResponse(Responses::USER_NOT_LOCAL);
 }
 
 int MailSession::SubProcessEmail(char* buf)
@@ -328,6 +341,5 @@ int MailSession::SubProcessSubject(char* buf)
 
 int MailSession::ProcessQUIT()
 {
-	m_mail_info.SaveToFile();
 	return SendResponse(Responses::SERVICE_CLOSING);
 }

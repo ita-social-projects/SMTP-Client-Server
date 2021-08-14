@@ -19,8 +19,8 @@ public:
 	~SQLServer();
 
 	bool Connect(const ConnectParams& connect_string) override;
-	void InsertEmail(const Email& email) override;
-	void InsertMessage(const Message& message, const Email& email) override;
+	void InsertEmail(const User& email) override;
+	void InsertMessage(const Message& message, const User& email) override;
 	void SelectUsers(std::map<std::string, std::string>& info) override;
 	void ClearTable(const std::string& table) override;
 	bool Disconnect() override;
