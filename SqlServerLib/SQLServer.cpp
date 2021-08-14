@@ -10,7 +10,7 @@
 
 SQLServer::SQLServer(const ConnectParams& connect_string)
 {
-	LOG = LOG->GetInstance();
+	
 	Connect(connect_string);
 }
 
@@ -27,7 +27,7 @@ bool SQLServer::Connect(const ConnectParams& connect_string)
 	if (!check_connection)
 	{
 		m_params = connect_string;
-		std::string con = connect_string.server + "@" + connect_string.database;
+		std::string con = connect_string.server +  '@' + connect_string.database;
 		m_connection.Connect(_TSA(con.c_str()), _TSA(connect_string.username.c_str()), _TSA(connect_string.password.c_str()), SA_SQLServer_Client);
 		LOG_INFO << "Connected to SQL Server...\n";
 	}
@@ -92,22 +92,17 @@ void SQLServer::SelectUsers(std::map<std::string, std::string>& info)
 	SACommand select(&m_connection, _TSA((SELECT_STATEMENT).c_str()));
 	select.Execute();
 
-	std::shared_ptr<unsigned char[]> decrypted_pass;
-
+	
 	while (select.FetchNext())
 	{
 		auto str1 = select.Field(_TSA("Email_address")).asString().GetMultiByteChars();
 		auto pass = select.Field(_TSA("Password")).asString().GetMultiByteChars();
 
-		int len = sizeof(pass);
-		m_crypto.Decrypt((unsigned char*)pass, len, decrypted_pass);
-
-		auto str2 = (char*)decrypted_pass.get();
-
-		info.emplace(str1, str2);
+		
+		info.emplace(str1, pass);
 
 		std::string tab = "\t";
-		std::string str_for_log = str1 + tab + str2;
+		std::string str_for_log = str1 + tab + pass;
 		LOG_INFO << str_for_log.c_str();
 	}
 

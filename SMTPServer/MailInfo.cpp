@@ -92,7 +92,9 @@ void MailInfo::ConnectToDB()
 	conect_params.username = DB_USERNAME;
 	conect_params.password = DB_PASSWORD;
 
-	m_db.Connect(conect_params);
+	bool var = m_db.Connect(conect_params);
+
+	/*m_db.Connect(conect_params);*/
 }
 
 bool MailInfo::TakeDataFromDB()

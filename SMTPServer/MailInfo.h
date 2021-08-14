@@ -9,10 +9,10 @@
 
 #include "../SqlServerLib/SQLServer.h"
 
-auto constexpr DB_SERVER_NAME = "";
-auto constexpr DB_DATABASE_NAME = "";
-auto constexpr DB_USERNAME = "";
-auto constexpr DB_PASSWORD = "";
+auto constexpr DB_SERVER_NAME = "localhost\\SQLSOFT";
+auto constexpr DB_DATABASE_NAME = "SMTP-Client-Server";
+auto constexpr DB_USERNAME = "Tomas";
+auto constexpr DB_PASSWORD = "password";
 
 class MailInfo
 {
