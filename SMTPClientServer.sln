@@ -64,6 +64,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "XMLCreator", "XMLCreator", "{C15E7308-4A56-4EFF-9B70-4DE1B625EB9A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XMLCreator", "XMLCreator\XMLCreator.vcxproj", "{6179B3B8-4B11-4AE4-A768-396C4D8FDBCB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9D6C21C4-B62A-46B0-AC6B-DCB91D09C8A2} = {9D6C21C4-B62A-46B0-AC6B-DCB91D09C8A2}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SqlServerLib", "SqlServerLib\SqlServerLib.vcxproj", "{CD24FBFA-DF1C-43D4-9F36-0E3AF597311D}"
 	ProjectSection(ProjectDependencies) = postProject
