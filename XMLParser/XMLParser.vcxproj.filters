@@ -34,7 +34,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Xml Include="..\Config.xml">
+    <Xml Include="Config.xml">
       <Filter>Resource Files</Filter>
     </Xml>
   </ItemGroup>

@@ -1,17 +1,18 @@
 #include "LogUi.h"
 #include "qfiledialog.h"
 #include "qtextbrowser.h"
+#include <fstream>
 
 #include "..\Crypto\SymmetricCrypto.h"
 
-const short TOTAL_COLUMNS			= 7;
-const short LEVEL_COLUMN			= 3;
-const char* FILE_FILTER				= "Text Files(*.txt)";
+const short TOTAL_COLUMNS = 6;
+const short LEVEL_COLUMN = 2;
+const char* FILE_FILTER = "Text Files(*.txt)";
 const char* FILE_SEARCH_WINDOW_NAME = "Open File";
 
 
-LogUi::LogUi(QWidget *parent)
-	: QMainWindow(parent), ui(new Ui::LogUiClass)
+LogUi::LogUi(QWidget* parent)
+    : QMainWindow(parent), ui(new Ui::LogUiClass)
 {
     ui->setupUi(this);
 
@@ -26,10 +27,11 @@ LogUi::LogUi(QWidget *parent)
 
     //Setup table
     ui->table_widget->setColumnCount(TOTAL_COLUMNS);
-    ui->table_widget->setHorizontalHeaderLabels(QStringList{ "Thread ID","Date", "Time", "Level", "File", "Function", "Message" });
+    ui->table_widget->setHorizontalHeaderLabels(QStringList{ "Thread ID","Full date", "Level", "File", "Function", "Message" });
     ui->table_widget->setSortingEnabled(true);
+    ui->table_widget->setTextElideMode(Qt::ElideNone);
     ui->table_widget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    ui->table_widget->horizontalHeader()->setSectionResizeMode(6, QHeaderView::Stretch);
+    ui->table_widget->horizontalHeader()->setSectionResizeMode(5, QHeaderView::Stretch);
 }
 
 LogUi::~LogUi()
@@ -37,34 +39,46 @@ LogUi::~LogUi()
     delete ui;
 }
 
-void LogUi::GetContent(QTextStream& stream)
+void LogUi::GetContent(std::ifstream& stream)
 {
     std::vector<unsigned char> vec, dec_vec;
     SymmetricCrypto m_crypto;
- 
-    for (int row = 0; !stream.atEnd(); row++)
+    QString dec_line;
+
+    char ch = '\0';
+    while (stream)
     {
-        QString line = stream.readLine().simplified();
-        QString dec_line;
-        
-        for (int i = 0; i < line.size(); i++)
-            vec.push_back(line.toStdString()[i]);
-        m_crypto.Decrypt(vec, dec_vec);
-        dec_vec.erase(dec_vec.end() - 17, dec_vec.end());
-        dec_vec.push_back('\0');
+        stream.get(ch);
+        if (stream) vec.push_back(ch);
+    }
 
-        for (auto& el : vec)
-            dec_line.toStdString() =+ el;
+    auto vec_size = m_crypto.Decrypt(vec, dec_vec);
+    dec_vec.shrink_to_fit();
 
-        QList<QString> tokens = dec_line.split('-');
+    auto all_rows = 0;
+    for (auto& el : dec_vec)
+    {
+        if (el == '\n') all_rows++;
+        dec_line.append((char)el);
+    }
+
+    QList<QString> dec_strings = dec_line.split('\n');
+
+    for (int row = 0; row < all_rows; row++)
+    {
+        QString string = dec_strings.front();
+        QList<QString> tokens = string.split('-');
+
         ui->table_widget->insertRow(row);
         for (int column = 0; column < TOTAL_COLUMNS; column++)
         {
             ui->table_widget->setItem(row, column, new QTableWidgetItem(tokens.front()));
             tokens.pop_front();
         }
+        dec_strings.pop_front();
+
+        ChangeRowColor();
     }
-    ChangeRowColor();
 }
 
 void LogUi::ChangeRowColor()
@@ -78,7 +92,7 @@ void LogUi::ChangeRowColor()
         else if (ui->table_widget->item(row, LEVEL_COLUMN)->text() == "DEBUG")
             for (int column = 0; column < TOTAL_COLUMNS; column++)
                 ui->table_widget->item(row, column)->setBackground(QColor(159, 223, 191));
-        else if (ui->table_widget->item(row, LEVEL_COLUMN)->text() == "INFO")
+        else if (ui->table_widget->item(row, LEVEL_COLUMN)->text() == "INFO ")
             for (int column = 0; column < TOTAL_COLUMNS; column++)
                 ui->table_widget->item(row, column)->setBackground(QColor(128, 191, 255));
         else if (ui->table_widget->item(row, LEVEL_COLUMN)->text() == "WARN.")
@@ -95,12 +109,12 @@ void LogUi::ChangeRowColor()
 
 void LogUi::OpenFile()
 {
-    QFile file(QFileDialog::getOpenFileName(this, tr(FILE_SEARCH_WINDOW_NAME), "", tr(FILE_FILTER)));
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text))
+    std::ifstream read_file(QFileDialog::getOpenFileName(this, tr(FILE_SEARCH_WINDOW_NAME), "", tr(FILE_FILTER)).toStdString().c_str(), std::ios::binary);
+
+    if (read_file)
     {
-        QTextStream stream(&file);
-        GetContent(stream);
-        file.close();
+        GetContent(read_file);
+        read_file.close();
     }
 }
 
@@ -146,7 +160,7 @@ void LogUi::Filter()
     }
     if (ui->action_info->isChecked())
     {
-        search_res += ui->table_widget->findItems("INFO", Qt::MatchFlags::enum_type::MatchExactly);
+        search_res += ui->table_widget->findItems("INFO ", Qt::MatchFlags::enum_type::MatchExactly);
     }
     if (ui->action_warning->isChecked())
     {

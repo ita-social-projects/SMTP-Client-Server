@@ -14,8 +14,6 @@
 #include <memory>
 #include <functional>
 
-#pragma comment(lib, "Ws2_32.lib")
-
 typedef void (*RUNFUC)(SOCKET);
 
 class ThreadPool

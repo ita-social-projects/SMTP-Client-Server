@@ -13,43 +13,40 @@ MainWindow::MainWindow(QWidget* parent)
 {
     m_ui->setupUi(this);  
 
-    LOG = LOG->GetInstance();
-    m_gmail_server_clicked  = false;
-    m_server_clicked        = true;    
+    LOG                     = LOG->GetInstance();    
     m_server_address        = m_xml.GetIpAddress();    
     m_server_port           = std::to_string(m_xml.GetListenerPort());    
     m_server_choice         = m_server_address;
     m_settings_ui           = nullptr;
-
-    connect(m_ui->ServerButton, SIGNAL(clicked()), this, SLOT(ServerButtonClicked()));
-    connect(m_ui->gmailServerButton, SIGNAL(clicked()), this, SLOT(GmailServerButtonClicked()));
+    
     connect(m_ui->sendButton, SIGNAL(clicked()), this, SLOT(SendButtonClicked()));
     connect(m_ui->exitButton, SIGNAL(clicked()), this, SLOT(ExitButtonClicked()));
     connect(m_ui->pushButton, SIGNAL(clicked()), this, SLOT(SettingsButtonClicked()));
 }
 
 MainWindow::~MainWindow()
-{    
+{   
+    LOG->~Logger();
     delete m_settings_ui;
     delete m_ui;
 }
 
 void MainWindow::SendButtonClicked()
 {
-    if (m_server_clicked)
+    if (m_ui->gmailServerButton->isChecked())    
     {
-        m_server_choice = m_server_address;
+        m_server_choice = GMAIL_SERVER_DOMAIN;
     }
     else
     {
-        m_server_choice = GMAIL_SERVER_DOMAIN;
+        m_server_choice = m_server_address;
     }
 
     QString qs = m_ui->lineLogin->text();    
     QString qs2;
     if (!qs.isEmpty())
     {        
-        m_login = qs.toLocal8Bit().constData();        
+        m_login = qs.toLocal8Bit().constData();
     }
     else
     {
@@ -117,18 +114,6 @@ void MainWindow::SendButtonClicked()
         this->InitializeSMTPClient();
 }
 
-void MainWindow::ServerButtonClicked()
-{
-    m_server_clicked        = true;
-    m_gmail_server_clicked  = false;
-}
-
-void MainWindow::GmailServerButtonClicked()
-{
-    m_gmail_server_clicked  = true;
-    m_server_clicked        = false;
-}
-
 bool MainWindow::InitializeSMTPClient()
 {
     try
@@ -185,7 +170,7 @@ bool MainWindow::InitializeSecureSMTPClient()
 }
 
 void MainWindow::ExitButtonClicked()
-{
+{    
     QApplication::quit();
 }
 

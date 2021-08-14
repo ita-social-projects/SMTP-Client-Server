@@ -31,25 +31,36 @@ void SMTPServer::WorkWithClient(SOCKET client_socket)
 	MailSession mail_session(client_socket);
 
 	char buf[BUF_SIZE];
+	char* decrypted_message;
 	int len;
+	int len_encrypted_message;
 
-	std::shared_ptr<unsigned char[]> decrypted_message;
+	std::shared_ptr<unsigned char[]> decrypted_message_ptr;
 
 	ZeroMemory(&buf, sizeof(buf));
+	ZeroMemory(&decrypted_message, sizeof(decrypted_message));
 
-	mail_session.SendResponse(WELCOME);
-
-	while (len = recv(mail_session.get_client_socket(), (char*)&buf, sizeof(buf), 0))
+	if (mail_session.ProcessConnectToDB())
 	{
-		symmetric_crypto.Decrypt((unsigned char*)buf, len, decrypted_message);
+		int response = mail_session.SendResponse(WELCOME);
 
-		if (SERVER_CLOSED == mail_session.Processes((char *)decrypted_message.get()))
+		while (len = recv(mail_session.get_client_socket(), (char*)&buf, sizeof(buf), 0))
 		{
-			closesocket(mail_session.get_client_socket());
-			break;
-		}
+			len_encrypted_message = symmetric_crypto.Decrypt((unsigned char*)buf, len, decrypted_message_ptr);
+			decrypted_message = reinterpret_cast<char*>(decrypted_message_ptr.get());
+			decrypted_message[static_cast<size_t>(len_encrypted_message)] = TERMINATOR;
 
-		ZeroMemory(&buf, sizeof(buf));
+
+			if (SERVER_CLOSED == mail_session.Processes(decrypted_message))
+			{
+				mail_session.ProcessSaveTo();
+				closesocket(mail_session.get_client_socket());
+				break;
+			}
+
+			ZeroMemory(&buf, sizeof(buf));
+			ZeroMemory(&decrypted_message, sizeof(decrypted_message));
+		}
 	}
 }
 
@@ -107,15 +118,15 @@ bool SMTPServer::SetSocketSettings()
 	return true;
 }
 
-void SMTPServer::ServerStart()
+bool SMTPServer::ServerStart()
 {
 	if (listen(m_server_socket, SOMAXCONN) == SOCKET_ERROR)
 	{
 		LOG_FATAL << "Error with server starting!\n";
-		exit(WSAGetLastError());
+		return false;
 	}
 
 	LOG_INFO << "Server started!\n\n";
 
-	AcceptConnections();
+	return true;
 }

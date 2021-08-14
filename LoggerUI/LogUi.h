@@ -12,12 +12,12 @@ class LogUi : public QMainWindow
     Q_OBJECT
 
 public:
-    LogUi(QWidget *parent = Q_NULLPTR);
+    LogUi(QWidget* parent = Q_NULLPTR);
     ~LogUi();
 
 private:
     Ui::LogUiClass* ui;
-    void GetContent(QTextStream& stream);
+    void GetContent(std::ifstream& stream);
     void ChangeRowColor();
 
 private slots:

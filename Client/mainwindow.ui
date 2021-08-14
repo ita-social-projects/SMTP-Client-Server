@@ -30,7 +30,6 @@
   </property>
   <property name="font">
    <font>
-    <weight>50</weight>
     <bold>false</bold>
    </font>
   </property>
@@ -57,7 +56,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>../../../PROGRAMMING/SMTP_CLIENT_TEST4/QTApp1/img/icon.png</normaloff>../../../PROGRAMMING/SMTP_CLIENT_TEST4/QTApp1/img/icon.png</iconset>
+    <normaloff>C:/SMTPClientIcons/icon.png</normaloff>C:/SMTPClientIcons/icon.png</iconset>
   </property>
   <property name="toolTip">
    <string/>
@@ -207,10 +206,10 @@
     </property>
     <property name="html">
      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;meta charset=&quot;utf-8&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:7.8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Segoe UI'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'MS Shell Dlg 2'; font-size:7.8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="overwriteMode">
      <bool>false</bool>
@@ -339,7 +338,6 @@ p, li { white-space: pre-wrap; }
     <property name="font">
      <font>
       <pointsize>10</pointsize>
-      <weight>50</weight>
       <italic>false</italic>
       <bold>false</bold>
       <underline>false</underline>
@@ -363,7 +361,6 @@ p, li { white-space: pre-wrap; }
     <property name="font">
      <font>
       <pointsize>10</pointsize>
-      <weight>50</weight>
       <bold>false</bold>
      </font>
     </property>
@@ -383,7 +380,6 @@ p, li { white-space: pre-wrap; }
     <property name="font">
      <font>
       <pointsize>10</pointsize>
-      <weight>50</weight>
       <bold>false</bold>
      </font>
     </property>
@@ -403,7 +399,6 @@ p, li { white-space: pre-wrap; }
     <property name="font">
      <font>
       <pointsize>10</pointsize>
-      <weight>50</weight>
       <bold>false</bold>
      </font>
     </property>
@@ -423,7 +418,6 @@ p, li { white-space: pre-wrap; }
     <property name="font">
      <font>
       <pointsize>10</pointsize>
-      <weight>50</weight>
       <bold>false</bold>
      </font>
     </property>
@@ -443,7 +437,6 @@ p, li { white-space: pre-wrap; }
     <property name="font">
      <font>
       <pointsize>10</pointsize>
-      <weight>50</weight>
       <bold>false</bold>
      </font>
     </property>
@@ -468,7 +461,7 @@ p, li { white-space: pre-wrap; }
     </property>
     <property name="icon">
      <iconset>
-      <normaloff>../../../PROGRAMMING/SMTP_CLIENT_TEST4/QTApp1/img/settings.png</normaloff>../../../PROGRAMMING/SMTP_CLIENT_TEST4/QTApp1/img/settings.png</iconset>
+      <normaloff>C:/SMTPClientIcons/settings.png</normaloff>C:/SMTPClientIcons/settings.png</iconset>
     </property>
    </widget>
   </widget>

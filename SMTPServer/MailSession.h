@@ -83,6 +83,9 @@ public:
 	int SendResponse(int response_type);
 	int Processes(char* buf);
 
+	bool ProcessConnectToDB();
+	void ProcessSaveTo();
+
 private:
 	int ProcessNotImplemented();
 	int ProcessHELO(char* buf);

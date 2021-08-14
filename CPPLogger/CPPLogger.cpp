@@ -9,10 +9,10 @@
 #include "CPPLogger.h"
 #include "../XMLParserForLogger/XMLParserForLogger.h"
 
-std::wstring CLIENT_INIT_PARAM				= L"/P7.Sink=FileTxt /P7.Format=\"%ti-%tf-%lv-%fs-%fn-%ms\" /P7.Dir=";
-const wchar_t* TRACE_CHANNEL				= L"Trace";
-const tUINT16 TRACE_ID						= NULL;
-const IP7_Trace::hModule I_HMODULE			= NULL;
+std::wstring CLIENT_INIT_PARAM = L"/P7.Sink=FileTxt /P7.Format=\"%ti-%tf-%lv-%fs-%fn-%ms\" /P7.Dir=";
+const wchar_t* TRACE_CHANNEL = L"Trace";
+const tUINT16 TRACE_ID = NULL;
+const IP7_Trace::hModule I_HMODULE = NULL;
 std::atomic<Logger*> Logger::s_instance;
 std::mutex Logger::s_mutex;
 
@@ -44,8 +44,8 @@ Logger::~Logger()
 
 	std::string full_path{ m_file_dir + buf + ".txt" };
 	std::ifstream file(full_path, std::ios::binary);
-	std::ofstream encrypted_file(m_file_dir + "encrypted_file_" + buf + ".txt");
-	std::vector<unsigned char> vec, enc_vec, dec_vec;
+	std::ofstream encrypted_file(m_file_dir + "encrypted_file_" + buf + ".txt", std::ios::binary);
+	std::vector<unsigned char> vec, enc_vec;
 
 	char ch;
 	while (file)
@@ -55,11 +55,12 @@ Logger::~Logger()
 	}
 
 	vec.erase(vec.begin(), vec.begin() + 2);
-	m_crypto.Encrypt(vec, enc_vec);
-	enc_vec.push_back('\0');
 
-	for (auto& el : enc_vec)
-		encrypted_file << el;
+	auto vec_size = m_crypto.Encrypt(vec, enc_vec);
+	enc_vec.resize(vec_size);
+
+	for (int i = 0; i < enc_vec.size(); i++)
+		encrypted_file << enc_vec[i];
 
 	file.close();
 	encrypted_file.close();
@@ -116,7 +117,7 @@ Logger* Logger::GetInstance()
 {
 	Logger* tmp = s_instance.load(std::memory_order_relaxed);
 	std::atomic_thread_fence(std::memory_order_acquire);
-	
+
 	if (!tmp)
 	{
 		std::lock_guard<std::mutex> lock(s_mutex);
