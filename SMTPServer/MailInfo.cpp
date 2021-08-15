@@ -89,6 +89,16 @@ void MailInfo::SaveToDatabase()
 	m_db.InsertMessage(email_data, user_data);
 }
 
+void MailInfo::SaveToFile()
+{
+	std::ofstream file;
+	file.open("save.txt");
+
+	file << "Mail from: " << m_mail_from << "\nRcpt to: " << m_rcpt_to << "\nSubject: " << m_subject << "\nText: " << m_text << "\n\n";
+
+	file.close();
+}
+
 bool MailInfo::ConnectToDB()
 {
 	ConnectParams conect_params;

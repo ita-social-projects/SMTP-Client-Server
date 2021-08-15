@@ -5,6 +5,7 @@
 #include <string>
 #include <map>
 #include <algorithm>
+#include <fstream>
 
 #include "../SqlServerLib/SQLServer.h"
 
@@ -35,6 +36,7 @@ public:
 	void CutSymbols(std::string& str);
 
 	void SaveToDatabase();
+	void SaveToFile();
 
 	bool ConnectToDB();
 	bool TakeDataFromDB();
@@ -50,6 +52,6 @@ private:
 	std::string m_login;
 	std::string m_password;
 
-	std::map<std::string, std::string> m_data_from_db;
+	std::map<std::string, std::string> m_data_from_db{ {"11@gmail.com", "1111"}};
 };
 

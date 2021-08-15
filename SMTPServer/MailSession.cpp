@@ -50,6 +50,11 @@ void MailSession::ProcessSaveTo()
 	m_mail_info.SaveToDatabase();
 }
 
+void MailSession::ProcessSaveToFile()
+{
+	m_mail_info.SaveToFile();
+}
+
 std::string MailSession::CutAddress(char* buf)
 {
 	std::string str_buf = buf;

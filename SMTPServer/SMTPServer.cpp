@@ -40,8 +40,8 @@ void SMTPServer::WorkWithClient(SOCKET client_socket)
 	ZeroMemory(&buf, sizeof(buf));
 	ZeroMemory(&decrypted_message, sizeof(decrypted_message));
 
-	if (mail_session.ProcessConnectToDB())
-	{
+	//if (mail_session.ProcessConnectToDB())
+	//{
 		int response = mail_session.SendResponse(WELCOME);
 
 		while (len = recv(mail_session.get_client_socket(), (char*)&buf, sizeof(buf), 0))
@@ -55,7 +55,8 @@ void SMTPServer::WorkWithClient(SOCKET client_socket)
 			{
 				if (!mail_session.IsEmpty())
 				{
-					mail_session.ProcessSaveTo();
+					//mail_session.ProcessSaveTo();
+					mail_session.ProcessSaveToFile();
 				}
 				
 				closesocket(mail_session.get_client_socket());
@@ -65,7 +66,7 @@ void SMTPServer::WorkWithClient(SOCKET client_socket)
 			ZeroMemory(&buf, sizeof(buf));
 			ZeroMemory(&decrypted_message, sizeof(decrypted_message));
 		}
-	}
+	//}
 }
 
 SMTPServer::SMTPServer()

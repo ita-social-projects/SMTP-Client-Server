@@ -87,6 +87,7 @@ public:
 	bool IsEmpty();
 
 	void ProcessSaveTo();
+	void ProcessSaveToFile();
 
 private:
 	int ProcessNotImplemented();
