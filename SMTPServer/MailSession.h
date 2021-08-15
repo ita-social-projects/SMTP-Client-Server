@@ -84,6 +84,8 @@ public:
 	int Processes(char* buf);
 
 	bool ProcessConnectToDB();
+	bool IsEmpty();
+
 	void ProcessSaveTo();
 
 private:

@@ -64,7 +64,6 @@ void SQLServer::InsertMessage(const Message& message, const User& email)
 
 	const std::string TABLE_NAME{ "Message" };
 	const std::string COLUMN_NAME_CONTENT{ "Content" };
-
 	const std::string COLUMN_NAME_TO{ "Email_to" };
 	const std::string COLUMN_NAME_SUBJECT{ "Subject_mail" };
 	const std::string COLUMN_NAME_EMAIL_ADDRESS{ "Email_address" };
@@ -72,15 +71,18 @@ void SQLServer::InsertMessage(const Message& message, const User& email)
 	std::string insert_statement = INSERT_COMMAND + TABLE_NAME;
 
 	insert_statement +=
-		"(" + COLUMN_NAME_CONTENT +
+		" (" + COLUMN_NAME_CONTENT +
 		", " + COLUMN_NAME_TO +
 		", " + COLUMN_NAME_SUBJECT + 
 		", " + COLUMN_NAME_EMAIL_ADDRESS + ")";
 
-	insert_statement += " VALUES ('" + message.content + "',\n";
-	insert_statement += "'" + message.to + "',\n";
-	insert_statement += "'" + message.subject_mail + "',\n";
-	insert_statement += "'" + email.address + "'))";
+	insert_statement += " VALUES ('" + message.content + "', ";
+	insert_statement += "'" + message.to + "', ";
+	insert_statement += "'" + message.subject_mail + "', ";
+	insert_statement += "'" + email.address + "')";
+
+	insert_statement.erase(std::remove(insert_statement.begin(), insert_statement.end(), '\n'), insert_statement.end());
+	insert_statement.erase(std::remove(insert_statement.begin(), insert_statement.end(), '\r'), insert_statement.end());
 
 	SACommand insert(&m_connection);
 	insert.setCommandText(_TSA(insert_statement.c_str()));
