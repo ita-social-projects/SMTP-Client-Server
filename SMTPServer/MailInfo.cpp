@@ -92,7 +92,7 @@ void MailInfo::SaveToDatabase()
 void MailInfo::SaveToFile()
 {
 	std::ofstream file;
-	file.open("save.txt");
+	file.open("C:/Users/volod/source/Sample/msg.txt");
 
 	file << "Mail from: " << m_mail_from << "\nRcpt to: " << m_rcpt_to << "\nSubject: " << m_subject << "\nText: " << m_text << "\n\n";
 

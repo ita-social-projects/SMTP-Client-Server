@@ -1,8 +1,0 @@
-Mail from: 11@gmail.com
-
-Rcpt to: 22@gmail.com
-Subject: hello
-
-Text: 
-hey there
-
