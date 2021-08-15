@@ -3,9 +3,13 @@
 #include <iostream>
 #include <string>
 #include <mutex>
+#include <time.h>
 
-#include "..\CPPLogger\include\p7Headers\P7_Client.h"
-#include "..\CPPLogger\include\p7Headers\P7_Trace.h"
+#include "../CPPLogger/include/p7Headers/P7_Client.h"
+#include "../CPPLogger/include/p7Headers/P7_Trace.h"
+#include "../Crypto/SymmetricCrypto.h"
+
+const int FILENAME_BUF_SIZE = 80;
 
 enum LogLevels
 {
@@ -38,8 +42,9 @@ public:
 	void set_filter_level(unsigned int level) override;
 
 private:
-	Logger();	
-	Logger(const Logger&) = default;
+	Logger();
+	Logger(const Logger&)			= delete;
+	void operator=(const Logger&)	= delete;
 
 	static std::atomic<Logger*>	s_instance;
 	static std::mutex			s_mutex;
@@ -48,6 +53,9 @@ private:
 	IP7_Trace*					m_trace;
 	std::string					m_func_name;
 	std::string					m_file_name;
+	SymmetricCrypto				m_crypto;
+	std::string					m_file_dir;
+	char						m_buf[FILENAME_BUF_SIZE];
 };
 
 #define LOG_TRACE (*LOG)(__FUNCTION__, __FILE__, eP7Trace_Level::EP7TRACE_LEVEL_TRACE)

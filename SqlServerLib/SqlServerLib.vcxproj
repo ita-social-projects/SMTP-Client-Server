@@ -137,6 +137,7 @@
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionDir)3rdPartyLibs;%(AdditionalIncludeDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>/ignore:4006 </AdditionalOptions>
     </Lib>
     <PostBuildEvent>
       <Command>copy /Y "$(SolutionDir)x64\Debug\SqlServerLib.lib" "$(SolutionDir)3rdPartyLibs\SqlServerLib.lib"</Command>

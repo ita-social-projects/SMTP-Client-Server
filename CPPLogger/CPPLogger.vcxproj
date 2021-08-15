@@ -115,16 +115,20 @@
       <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)Crypto\include;$(SolutionDir)CPPLogger\include\p7Headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)CPPLogger\include\p7Headers;$(SolutionDir)Crypto\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <DisableSpecificWarnings>
+      </DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>p7.lib;Ws2_32.lib;XMLParserForLogger.lib</AdditionalDependencies>
+      <AdditionalDependencies>p7.lib;Ws2_32.lib;XMLParserForLogger.lib;Crypto.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)\3rdPartyLibs</AdditionalLibraryDirectories>
+      <AdditionalOptions>
+      </AdditionalOptions>
     </Lib>
     <PostBuildEvent>
       <Command>copy /Y "$(SolutionDir)x64\Debug\CPPLogger.lib" "$(SolutionDir)3rdPartyLibs\CPPLogger.lib"</Command>
