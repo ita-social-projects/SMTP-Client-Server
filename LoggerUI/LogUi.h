@@ -16,7 +16,7 @@ public:
     ~LogUi();
 
 private:
-    Ui::LogUiClass* ui;
+    Ui::LogUiClass* m_ui;
     void GetContent(std::ifstream& stream);
     void ChangeRowColor();
 

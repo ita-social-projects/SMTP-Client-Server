@@ -9,6 +9,8 @@
 #include "../CPPLogger/include/p7Headers/P7_Trace.h"
 #include "../Crypto/SymmetricCrypto.h"
 
+const int FILENAME_BUF_SIZE = 80;
+
 enum LogLevels
 {
 	L_TRACE = 0,
@@ -41,7 +43,8 @@ public:
 
 private:
 	Logger();
-	Logger(const Logger&) = default;
+	Logger(const Logger&)			= delete;
+	void operator=(const Logger&)	= delete;
 
 	static std::atomic<Logger*>	s_instance;
 	static std::mutex			s_mutex;
@@ -52,7 +55,7 @@ private:
 	std::string					m_file_name;
 	SymmetricCrypto				m_crypto;
 	std::string					m_file_dir;
-	char						buf[80];
+	char						m_buf[FILENAME_BUF_SIZE];
 };
 
 #define LOG_TRACE (*LOG)(__FUNCTION__, __FILE__, eP7Trace_Level::EP7TRACE_LEVEL_TRACE)
