@@ -33,6 +33,18 @@ bool MailSession::ProcessConnectToDB()
 	return false;
 }
 
+bool MailSession::IsEmpty()
+{
+	if (m_mail_info.get_login().empty() || m_mail_info.get_mail_from().empty() ||
+		m_mail_info.get_password().empty() || m_mail_info.get_rcpt_to().empty() ||
+		m_mail_info.get_subject().empty() || m_mail_info.get_text().empty())
+	{
+		return true;
+	}
+
+	return false;
+}
+
 void MailSession::ProcessSaveTo()
 {
 	m_mail_info.SaveToDatabase();

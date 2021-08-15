@@ -53,7 +53,11 @@ void SMTPServer::WorkWithClient(SOCKET client_socket)
 
 			if (SERVER_CLOSED == mail_session.Processes(decrypted_message))
 			{
-				mail_session.ProcessSaveTo();
+				if (!mail_session.IsEmpty())
+				{
+					mail_session.ProcessSaveTo();
+				}
+				
 				closesocket(mail_session.get_client_socket());
 				break;
 			}
